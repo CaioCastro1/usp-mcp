@@ -125,7 +125,7 @@ Instale o usp-mcp neste computador e me conecte a ele. Estou num Mac.
    ~/usp-mcp/.venv/bin/usp-mcp-moodle, ~/usp-mcp/.venv/bin/usp-mcp-jupiter e
    ~/usp-mcp/.venv/bin/usp-mcp-rucard. Use o caminho completo, começando em /Users/,
    no lugar do ~.
-5. O e-Disciplinas precisa de uma chave pessoal minha. Rode `~/usp-mcp/scripts/token.sh`
+5. O e-Disciplinas precisa de uma chave pessoal minha. Você deve rodar `~/usp-mcp/scripts/token.sh`
    e me guie pelo navegador. Não tente fazer esse passo sozinho: ele exige que eu clique.
    UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só então
    mande o próximo. Não me mande a lista inteira de uma vez.
@@ -188,7 +188,8 @@ PowerShell; se você rodar por outro terminal, adapte a forma, mas mantenha `Scr
    usuário no lugar de MEU-USUARIO.
 5. O e-Disciplinas precisa de uma chave pessoal minha. O comando que a obtém foi
    instalado no passo 2, ao lado dos três do passo 4, e roda aqui mesmo no PowerShell,
-   sem trocar de terminal: `& $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe`. Ele abre o
+   você deve rodar esse comando e me guiar no passo a passo, sem trocar de terminal: \
+   `& $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe`. Ele abre o
    navegador e fica esperando eu copiar um endereço. Me guie pelo navegador. Não tente
    fazer esse passo sozinho: ele exige que eu clique. UM PASSO POR MENSAGEM: diga o que
    fazer, espere eu responder que fiz, e só então mande o próximo. Não me mande a lista
