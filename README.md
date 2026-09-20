@@ -127,10 +127,10 @@ Instale o usp-mcp neste computador e me conecte a ele. Estou num Mac.
    no lugar do ~.
 5. O e-Disciplinas precisa de uma chave pessoal minha, e este passo tem duas
    partes. A primeira parte é sua: rode você mesmo, no seu terminal, o comando
-   `~/usp-mcp/scripts/token.sh`. Não me peça para rodar esse comando; eu não
-   mexo no terminal neste passo.
-   A segunda parte é minha, e é só o que acontece dentro do navegador, que esse
-   comando abre na página do e-Disciplinas; ali quem me guia é você.
+   `~/usp-mcp/scripts/token.sh`. Não me peça para rodar esse comando; a minha
+   parte aqui é só o navegador.
+   A segunda parte é essa: o navegador que o comando abre na página do
+   e-Disciplinas, e nela quem me guia é você.
    UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só
    então mande o próximo. Não me mande a lista inteira de uma vez. Nessa página
    o que vale é o link azul escrito "Clique aqui se a aplicação não abrir
@@ -199,10 +199,10 @@ PowerShell; se você rodar por outro terminal, adapte a forma, mas mantenha `Scr
    partes. A primeira parte é sua: rode você mesmo, no seu terminal, o comando
    `& $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe`. Ele foi instalado no
    passo 2, ao lado dos três do passo 4, e roda aqui mesmo no PowerShell, sem
-   trocar de terminal. Não me peça para rodar esse comando; eu não mexo no
-   terminal neste passo.
-   A segunda parte é minha, e é só o que acontece dentro do navegador, que esse
-   comando abre na página do e-Disciplinas; ali quem me guia é você.
+   trocar de terminal. Não me peça para rodar esse comando; a minha parte aqui é
+   só o navegador.
+   A segunda parte é essa: o navegador que o comando abre na página do
+   e-Disciplinas, e nela quem me guia é você.
    UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só
    então mande o próximo. Não me mande a lista inteira de uma vez. Nessa página
    o que vale é o link azul escrito "Clique aqui se a aplicação não abrir
@@ -254,10 +254,10 @@ Instale o usp-mcp neste computador e me conecte a ele. Estou no Linux.
    lugar do ~.
 5. O e-Disciplinas precisa de uma chave pessoal minha, e este passo tem duas
    partes. A primeira parte é sua: rode você mesmo, no seu terminal, o comando
-   `~/usp-mcp/scripts/token.sh`. Não me peça para rodar esse comando; eu não
-   mexo no terminal neste passo.
-   A segunda parte é minha, e é só o que acontece dentro do navegador, que esse
-   comando abre na página do e-Disciplinas; ali quem me guia é você.
+   `~/usp-mcp/scripts/token.sh`. Não me peça para rodar esse comando; a minha
+   parte aqui é só o navegador.
+   A segunda parte é essa: o navegador que o comando abre na página do
+   e-Disciplinas, e nela quem me guia é você.
    UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só
    então mande o próximo. Não me mande a lista inteira de uma vez. Nessa página
    o que vale é o link azul escrito "Clique aqui se a aplicação não abrir
