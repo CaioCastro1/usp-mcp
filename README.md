@@ -125,10 +125,19 @@ Instale o usp-mcp neste computador e me conecte a ele. Estou num Mac.
    ~/usp-mcp/.venv/bin/usp-mcp-moodle, ~/usp-mcp/.venv/bin/usp-mcp-jupiter e
    ~/usp-mcp/.venv/bin/usp-mcp-rucard. Use o caminho completo, começando em /Users/,
    no lugar do ~.
-5. O e-Disciplinas precisa de uma chave pessoal minha. Você deve rodar `~/usp-mcp/scripts/token.sh`
-   e me guie pelo navegador. Não tente fazer esse passo sozinho: ele exige que eu clique.
-   UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só então
-   mande o próximo. Não me mande a lista inteira de uma vez.
+5. O e-Disciplinas precisa de uma chave pessoal minha, e este passo tem duas
+   partes. A primeira parte é sua: rode você mesmo, no seu terminal, o comando
+   `~/usp-mcp/scripts/token.sh`. Não me peça para rodar esse comando; eu não
+   mexo no terminal neste passo.
+   A segunda parte é minha, e é só o que acontece dentro do navegador, que esse
+   comando abre na página do e-Disciplinas; ali quem me guia é você.
+   UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só
+   então mande o próximo. Não me mande a lista inteira de uma vez. Nessa página
+   o que vale é o link azul escrito "Clique aqui se a aplicação não abrir
+   automaticamente"; a caixa verde "O seu cadastro foi confirmado" e o botão
+   cinza "Ambientes" são distração. Mande eu clicar nesse link azul com o botão
+   direito e escolher "copiar endereço do link", e me avise que o botão
+   esquerdo não copia nada, só tenta abrir o aplicativo do Moodle.
 6. No fim, rode de novo o comando do moodle do passo 3: agora ele tem de dizer que o
    MOODLE_TOKEN está presente. Me diga o que ficou funcionando e o que eu ainda preciso
    fazer.
@@ -186,15 +195,22 @@ PowerShell; se você rodar por outro terminal, adapte a forma, mas mantenha `Scr
    C:\Users\MEU-USUARIO\usp-mcp\.venv\Scripts\usp-mcp-jupiter.exe e
    C:\Users\MEU-USUARIO\usp-mcp\.venv\Scripts\usp-mcp-rucard.exe, com o meu nome de
    usuário no lugar de MEU-USUARIO.
-5. O e-Disciplinas precisa de uma chave pessoal minha. O comando que a obtém foi
-   instalado no passo 2, ao lado dos três do passo 4, e roda aqui mesmo no PowerShell,
-   você deve rodar esse comando e me guiar no passo a passo, sem trocar de terminal: \
-   `& $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe`. Ele abre o
-   navegador e fica esperando eu copiar um endereço. Me guie pelo navegador. Não tente
-   fazer esse passo sozinho: ele exige que eu clique. UM PASSO POR MENSAGEM: diga o que
-   fazer, espere eu responder que fiz, e só então mande o próximo. Não me mande a lista
-   inteira de uma vez. Se o comando encerrar sem receber o endereço, logo depois de eu
-   copiar rode
+5. O e-Disciplinas precisa de uma chave pessoal minha, e este passo tem duas
+   partes. A primeira parte é sua: rode você mesmo, no seu terminal, o comando
+   `& $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe`. Ele foi instalado no
+   passo 2, ao lado dos três do passo 4, e roda aqui mesmo no PowerShell, sem
+   trocar de terminal. Não me peça para rodar esse comando; eu não mexo no
+   terminal neste passo.
+   A segunda parte é minha, e é só o que acontece dentro do navegador, que esse
+   comando abre na página do e-Disciplinas; ali quem me guia é você.
+   UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só
+   então mande o próximo. Não me mande a lista inteira de uma vez. Nessa página
+   o que vale é o link azul escrito "Clique aqui se a aplicação não abrir
+   automaticamente"; a caixa verde "O seu cadastro foi confirmado" e o botão
+   cinza "Ambientes" são distração. Mande eu clicar nesse link azul com o botão
+   direito e escolher "copiar endereço do link", e me avise que o botão
+   esquerdo não copia nada, só tenta abrir o aplicativo do Moodle.
+   Se o comando encerrar sem receber o endereço, logo depois de eu copiar rode
    `Get-Clipboard | & $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe`.
 6. No fim, rode de novo o comando do moodle do passo 3: agora ele tem de dizer que o
    MOODLE_TOKEN está presente. Me diga o que ficou funcionando e o que eu ainda preciso
@@ -236,12 +252,21 @@ Instale o usp-mcp neste computador e me conecte a ele. Estou no Linux.
    ~/usp-mcp/.venv/bin/usp-mcp-moodle, ~/usp-mcp/.venv/bin/usp-mcp-jupiter e
    ~/usp-mcp/.venv/bin/usp-mcp-rucard. Use o caminho completo, começando em /home/, no
    lugar do ~.
-5. O e-Disciplinas precisa de uma chave pessoal minha. Rode `~/usp-mcp/scripts/token.sh`
-   e me guie pelo navegador. Não tente fazer esse passo sozinho: ele exige que eu clique.
-   UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só então
-   mande o próximo. Não me mande a lista inteira de uma vez. O script lê a área de
-   transferência com `wl-paste` ou `xclip`; se não houver nenhum dos dois, ele avisa, e
-   aí, logo depois de eu copiar o endereço, rode
+5. O e-Disciplinas precisa de uma chave pessoal minha, e este passo tem duas
+   partes. A primeira parte é sua: rode você mesmo, no seu terminal, o comando
+   `~/usp-mcp/scripts/token.sh`. Não me peça para rodar esse comando; eu não
+   mexo no terminal neste passo.
+   A segunda parte é minha, e é só o que acontece dentro do navegador, que esse
+   comando abre na página do e-Disciplinas; ali quem me guia é você.
+   UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só
+   então mande o próximo. Não me mande a lista inteira de uma vez. Nessa página
+   o que vale é o link azul escrito "Clique aqui se a aplicação não abrir
+   automaticamente"; a caixa verde "O seu cadastro foi confirmado" e o botão
+   cinza "Ambientes" são distração. Mande eu clicar nesse link azul com o botão
+   direito e escolher "copiar endereço do link", e me avise que o botão
+   esquerdo não copia nada, só tenta abrir o aplicativo do Moodle.
+   O script lê a área de transferência com `wl-paste` ou `xclip`; se não houver
+   nenhum dos dois, ele avisa, e aí, logo depois de eu copiar o endereço, rode
    `wl-paste | ~/usp-mcp/scripts/token.sh` ou
    `xclip -selection clipboard -o | ~/usp-mcp/scripts/token.sh`, conforme o que existir.
 6. No fim, rode de novo o comando do moodle do passo 3: agora ele tem de dizer que o

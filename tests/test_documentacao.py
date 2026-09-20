@@ -49,6 +49,13 @@ de um só: `winget` instala sem senha, `brew` também depois de existir, e `apt`
 necessária seria a mesma classe de defeito do prompt escrito num Mac para um
 Mac, só que descoberta no meio do caminho.
 
+D5 é de 20/09/2026 e guarda o passo 5, que é o passo da chave e o único em que
+a pessoa põe a mão. Ele falhou por dizer pouco duas vezes: o assistente leu
+"Rode `token.sh`" como ordem para a PESSOA rodar e devolveu o teclado a ela, e,
+sem o texto do link da página do e-Disciplinas, improvisava e mandava procurar a
+coisa errada. D5 exige dos três, e não de um, porque a emenda anterior pegou o
+Mac e o Windows e deixou o Linux para trás.
+
 Documento também envelhece calado (é a lição do §9 de 31/08 sobre estado em
 `CLAUDE.md`/`README.md`): a diferença aqui é que a ordem errada volta a doer em
 toda pessoa nova, e não só na próxima sessão de IA.
@@ -239,6 +246,65 @@ def prompts_do_caminho_rapido() -> dict[str, str]:
         assert i_abre != -1 and i_fecha != -1, f"a subseção {sistema} não tem um bloco ```text"
         prompts[sistema] = rapido[i_abre + len("```text\n") : i_fecha]
     return prompts
+
+
+# O passo da chave é o único em que a pessoa mexe, e ele já falhou duas vezes
+# por dizer pouco. Primeiro: "Rode `token.sh`", no meio de uma lista de comandos,
+# foi lido pelo assistente como ordem para a PESSOA rodar, e ele pediu que ela
+# rodasse na mão. A cura é o passo dizer de quem é cada parte, com "no seu
+# terminal" grudado no "você mesmo". Sem isso, o "você" da frase depende de o
+# modelo inferir quem fala com quem no meio de uma lista de comandos. Segundo: a
+# página do e-Disciplinas tem três coisas clicáveis e duas são distração, e o
+# prompt não dizia qual é a boa, então o assistente improvisava e mandava a
+# pessoa procurar a coisa errada. Quem cola o prompt não cola o README junto, e
+# a seção *Configuração*, que descreve a página, fica longe demais para ajudar.
+#
+# Os três de uma vez, e não um de cada vez: a emenda de 19/09/2026 pegou Mac e
+# Windows e deixou o Linux para trás, porque não havia teste que exigisse os três.
+QUEM_RODA = (
+    "rode você mesmo, no seu terminal",
+    "Não me peça para rodar esse comando",
+)
+# O texto do link, como aparece na página, e como se clica nele. Clicar com o
+# esquerdo abre o aplicativo do Moodle e não copia nada.
+LINK_AZUL = "Clique aqui se a aplicação não abrir automaticamente"
+COMO_COPIAR = ("botão direito", "copiar endereço do link")
+
+
+def uma_linha(texto: str) -> str:
+    """O texto com as quebras de linha desfeitas, para comparar frase.
+
+    O prompt é quebrado em ~88 colunas, e a quebra cai onde calhar: procurar a
+    frase crua reprovaria por causa de um `\n` no meio dela, que é justamente o
+    que não importa para quem cola.
+    """
+    return " ".join(texto.split())
+
+
+def test_d5_o_passo_da_chave_diz_quem_roda_e_onde_esta_o_link():
+    prompts = prompts_do_caminho_rapido()
+
+    for sistema, prompt in prompts.items():
+        corrido = uma_linha(prompt)
+        for frase in QUEM_RODA:
+            assert frase in corrido, (
+                f"o prompt do {sistema} não diz, com todas as letras, que quem "
+                f"roda o comando da chave é o assistente ({frase!r} não está "
+                "lá). Medido em uso: sem isso ele lê 'Rode tal comando' como "
+                "ordem para a pessoa e devolve o teclado para ela."
+            )
+        assert LINK_AZUL in corrido, (
+            f"o prompt do {sistema} não cita o link azul {LINK_AZUL!r}. A "
+            "página do e-Disciplinas ainda mostra a caixa verde 'O seu cadastro "
+            "foi confirmado' e o botão cinza 'Ambientes', e sem o texto do link "
+            "o assistente improvisa e manda a pessoa clicar na coisa errada."
+        )
+        for forma in COMO_COPIAR:
+            assert forma in corrido, (
+                f"o prompt do {sistema} não traz {forma!r}. É assim que se copia "
+                "o endereço: com o botão esquerdo o navegador tenta abrir o "
+                "aplicativo do Moodle e não copia nada."
+            )
 
 
 def test_d4_o_caminho_rapido_tem_um_prompt_por_sistema_e_confere_sem_chave():
