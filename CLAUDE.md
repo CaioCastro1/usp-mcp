@@ -97,11 +97,17 @@ python3 scripts/reduzir.py
 # Cardápio de um RU (dado público, sem credencial pessoal)
 curl -s -X POST https://uspdigital.usp.br/rucard/servicos/menu/6 -d "hash=$RUCARD_HASH"
 
+# Abre worktree PRONTO: fetch, ramifica do origin/main (e não do HEAD local, que
+# pode estar meses atrás — §9, 21/09/2026), cria o venv com `-e ".[dev]"` e NÃO
+# cria .env. Prefira isto a `git worktree add` na mão.
+./scripts/novo-worktree.sh <branch> [caminho]
+
 # O venv é POR DIRETÓRIO e não vem no git: todo worktree novo precisa do seu,
 # senão o .mcp.json falha com ENOENT em `.venv/bin/python`. uv cria o mesmo .venv/
 # do python3 -m venv, por hardlink. O `-e` instala o pacote apontando para o
 # checkout e põe os três entry points em .venv/bin/ — é o que o
-# `tests/test_pacote.py` (P6) exige para não pular.
+# `tests/test_pacote.py` (P6) exige para não pular. O `novo-worktree.sh` acima já
+# faz isto; esta linha é para worktree aberto na mão e para clone novo.
 uv venv && uv pip install -e ".[dev]"
 
 # O projeto é um PACOTE: um entry point por servidor, que sobe de qualquer pasta e
