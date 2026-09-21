@@ -404,11 +404,10 @@ dizer que a chave está ausente é o esperado até a próxima seção. No Window
 ### No Windows
 
 Os três programas são Python puro, sem uma linha específica de sistema operacional, e a
-pasta onde guardam arquivos baixados existe no Windows também. Não há razão conhecida para
-não funcionarem lá. Mas há uma diferença entre "não há razão conhecida" e "alguém viu
-funcionar": **nenhum dos autores rodou o projeto no Windows**, e tudo nesta subseção foi
-escrito num Mac, lendo documentação. Se você for a primeira pessoa a tentar, o que
-funcionou e o que não funcionou é exatamente o relato que uma issue pede.
+pasta onde guardam arquivos baixados existe no Windows também. O caminho desta subseção foi
+percorrido do começo ao fim num Windows em 20/09/2026, da instalação até a chave do
+e-Disciplinas, e as ferramentas responderam. Foi uma máquina só: se na sua alguma coisa
+sair diferente, o relato é o que uma issue pede.
 
 O que muda na instalação: o ambiente isolado que o Python cria no Windows não tem a pasta
 `bin`, tem `Scripts`, e os comandos são um pouco diferentes. No PowerShell:
@@ -443,7 +442,7 @@ Para conferir o que ficou no lugar, sem internet e sem chave:
 ```
 
 Com `jupiter` e `moodle` no lugar de `rucard`, confere os outros dois. Com isso, bandejão
-e JupiterWeb devem responder. De novo: em teoria; ninguém conferiu.
+e JupiterWeb respondem.
 
 A chave do e-Disciplinas sai por um quarto comando, instalado junto com os três acima e na
 mesma pasta: `usp-mcp-token.exe`. Ele roda no PowerShell, como o resto desta subseção:
