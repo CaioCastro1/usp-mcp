@@ -146,6 +146,80 @@ def test_r47b_com_uma_refeicao_so_nao_ha_rodape_e_a_linha_fica_inteira(
     assert "Minipão / refresco" in linha and "Arroz / feijão / arroz integral" in linha
 
 
+# --- R59: o item quase-comum, e a conta que decide se ele sobe ---------------
+#
+# A fatoração nasceu estrita em 14/09, e a docstring de `_itens_comuns` dizia
+# por quê: "na maioria" exigiria marcar exceções, e o ganho medido (~20 B por
+# refeição) não pagava a complexidade. O dado que reabriu a conta é o de
+# 22/09: a semana custa 8.018 B, 78% acima do teto do dia, e 88% disso são
+# linhas de cardápio. Naquela escala, o arroz sozinho são 1.085 B — 14% do
+# texto —, e ele escapa da interseção por uma razão boba: vem em duas grafias,
+# `Arroz / feijão / arroz integral` em 32 das 38 refeições abertas e
+# `Arroz / feijão preto / arroz integral` nas outras 6.
+
+
+@pytest.mark.contrato
+def test_r59_item_quase_comum_sobe_com_as_excecoes_nomeadas(
+    gravador, respostas_da_fatia
+):
+    """O arroz sai das 32 linhas e vai para o rodapé, e as 6 que não o têm são
+    NOMEADAS: "em quase todas" sem dizer quais é limite silencioso."""
+    cliente = ClienteRucard(gravador(respostas_da_fatia), hash_rucard=HASH_DE_TESTE)
+    texto = server.chamar_ferramenta(
+        "bandejao", {"dia": "semana", "refeicao": "todas"}, cliente=cliente, hoje=SEGUNDA
+    )
+
+    assert texto.count("Arroz / feijão / arroz integral") == 1, (
+        "o arroz continua repetido nas linhas do dia"
+    )
+    (rodape,) = [l for l in texto.splitlines() if l.startswith("Em quase todas:")]
+    assert "Arroz / feijão / arroz integral" in rodape
+    for excecao in (
+        "ter CENTRAL almoço", "ter FÍSICA almoço", "ter FÍSICA jantar",
+        "qua PUSP-CB almoço", "qui QUÍMICAS almoço", "qui QUÍMICAS jantar",
+    ):
+        assert excecao in rodape, f"exceção não nomeada: {excecao}"
+
+
+@pytest.mark.contrato
+def test_r59b_a_excecao_continua_mostrando_o_que_veio_nela(
+    gravador, respostas_da_fatia
+):
+    """Fatorar não pode apagar a variante. A terça do Central traz feijão preto,
+    e é isso que a linha dela tem de dizer — senão o rodapé vira meia verdade."""
+    cliente = ClienteRucard(gravador(respostas_da_fatia), hash_rucard=HASH_DE_TESTE)
+    texto = server.chamar_ferramenta(
+        "bandejao", {"dia": "semana", "refeicao": "todas"}, cliente=cliente, hoje=SEGUNDA
+    )
+
+    linha = next(
+        l for l in texto.splitlines() if l.strip().startswith("ter 25/08") and "Lombo" in l
+    )
+    assert "Arroz / feijão preto / arroz integral" in linha
+
+
+@pytest.mark.politica
+def test_r59c_so_fatora_quando_a_conta_fecha():
+    """A regra é CUSTO, não proporção: nomear exceção custa bytes, e um item
+    curto em poucas refeições não paga o próprio rodapé. Sem limiar escolhido a
+    dedo — quem decide é a conta, e é ela que impede a regra de piorar o texto."""
+    curto = [(f"r{i}", {"situacao": "aberto", "itens": ["Suco"]}) for i in range(4)]
+    curto.append(("excecao com rótulo bem comprido", {"situacao": "aberto", "itens": ["Pêra"]}))
+    comuns, quase = server.fatorar(curto)
+    assert comuns == set() and quase == [], (
+        "fatorou um item de 4 letras pagando um rótulo de 31: piorou o texto"
+    )
+
+    longo = [
+        (f"r{i}", {"situacao": "aberto", "itens": ["Arroz / feijão / arroz integral"]})
+        for i in range(30)
+    ]
+    longo.append(("r30", {"situacao": "aberto", "itens": ["Outra coisa"]}))
+    comuns, quase = server.fatorar(longo)
+    assert comuns == set()
+    assert quase == [("Arroz / feijão / arroz integral", ["r30"])]
+
+
 @pytest.mark.contrato
 def test_r46_dia_semana_e_uma_chamada_de_ferramenta_com_os_sete_dias(
     gravador, respostas_da_fatia
@@ -178,17 +252,13 @@ def test_r46b_dia_fechado_na_semana_e_uma_palavra_nao_um_paragrafo(
     assert linha.strip() == "sáb 29/08: não serve"
 
 
-@pytest.mark.contrato
-@pytest.mark.parametrize("refeicao,teto", [("almoco", 6_500), ("todas", 11_000)])
-def test_r46c_o_texto_semanal_tem_teto(gravador, respostas_da_fatia, refeicao, teto):
-    # Medido em 14/09/2026 sobre as fixtures da Fase 1: 4.818 B (almoço) e
-    # 8.381 B (almoço e jantar), 4 RUs × 7 dias. Folga de ~30%.
-    cliente = ClienteRucard(gravador(respostas_da_fatia), hash_rucard=HASH_DE_TESTE)
-    texto = server.chamar_ferramenta(
-        "bandejao", {"dia": "semana", "refeicao": refeicao}, cliente=cliente, hoje=SEGUNDA
-    )
-    assert len(texto.encode()) <= teto, f"{refeicao}: {len(texto.encode())} B"
-    assert len(texto.splitlines()) < 80
+# R46c — o teto do texto semanal — mudou para `test_custo.py` em 22/09/2026, com
+# os mesmos números e a companhia que faltava: o teto do dia, a razão de redução
+# e a asserção de que a semana numa chamada sai mais barata que os sete dias um
+# a um. Aqui ele media o custo longe de onde o custo é declarado, e dava para ler
+# a conta inteira do RUCard sem descobrir que o recorte mais pedido gasta 78%
+# acima do teto do dia. Este arquivo continua com o que só a fronteira erra: a
+# forma do texto (R46, R46b, R47, R48).
 
 
 @pytest.mark.contrato

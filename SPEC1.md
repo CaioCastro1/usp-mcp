@@ -4435,3 +4435,116 @@ prato em português (`Escondidinho de shimeji`) dá 1,43× no RUCard; ementa de
 disciplina, texto corrido longo, dá **0,89×** no Jupiter — abaixo de 4 B/token.
 A regra não é "português subestima": é que **código, nome próprio e lista curta
 tokenizam mal, e prosa corrida tokeniza bem**.
+
+### 22/09/2026 — as duas dívidas do RUCard fechadas no mesmo dia: o teto e o arroz
+
+Continuação direta da entrada acima, que mediu e deixou as duas em aberto no
+backlog. Aqui elas fecham, e o que vale registrar são as duas surpresas do
+caminho — uma em cada.
+
+#### O teto existia, e estava no lugar errado
+
+A entrada acima diz que a semana estava 78% acima do teto de `test_custo.py` "sem
+nada ficar vermelho". Verdade, e incompleta: **o teto do texto semanal existia**,
+com os números certos (6.500 B e 11.000 B), como R46c em
+`tests/rucard/test_server_mcp.py`, escrito em 14/09 junto com a ferramenta da
+semana. Não era teto faltando, era teto **longe da conta** — e um número que
+ninguém relaciona ao orçamento não mostra custo nenhum. Dava para ler
+`test_custo.py` de ponta a ponta e concluir que a ferramenta cabe em 4.500 B.
+Mesmo modo de falha do §9 de 10/09, na guarda da Regra de Ouro: a asserção certa
+no lugar em que ninguém a lê quando precisa.
+
+**A decisão.** R58 traz o caso da semana para `test_custo.py`, com teto próprio e
+na forma de OR2, do Moodle: um caso por recorte × arranjo de fixture, teto de
+texto **e** de estrutura (que não tinha nenhum), e asserção nos **dois sentidos**
+com 15% de folga máxima. Teto que não acompanha um corte deixa de detectar o
+crescimento seguinte — e foi exatamente isso que aconteceu com R46c quando a
+fatoração de 14/09 encolheu a saída e o número ficou onde estava.
+
+O teto do dia **não sobe**: continua 4.500 B. Esticar o orçamento do caso barato
+até a conta da semana fechar apagaria os dois custos de uma vez. R34 e R37b
+seguem na forma antiga, com um sentido só e ~27% de folga, e isso é escolha
+declarada: o `TETO_SAIDA_B` cobre ao mesmo tempo a estrutura de 3.540 B e o texto
+de 1.601 B, e dar folga máxima aos dois exige separá-los — a linha do backlog que
+registra os testes de custo frouxos do Jupiter e do RUCard segue aberta para isso.
+
+Os dois arranjos de fixture existem porque o caso caro **não** é a semana
+alinhada: com um RU publicando outra semana, a fatoração rende menos e o texto
+sobe. Teto medido por um lado só já custou um defeito a este projeto (backlog,
+12/09).
+
+#### O arroz escapava por uma vírgula de grafia, e a cura proposta não o pegaria
+
+A entrada acima diagnostica: a regra de içar é "comum a TODAS as refeições da
+resposta", e na semana a interseção encolhe a quase nada. Medido agora com mais
+resolução: **arroz e feijão estão nas 38 refeições abertas**, em duas grafias —
+`Arroz / feijão / arroz integral` em 32 e `Arroz / feijão preto / arroz integral`
+nas outras 6. E a composição do texto explica por que não havia mais nada a
+cortar: **88% dos 8.018 B são linhas de cardápio** (pratos 4.605 B, `Opção:`
+1.365 B, rótulo de dia e kcal 1.075 B); cabeçalhos, dias fechados e rodapé somam
+12%. Não sobra gordura de formatação — sobra repetição de conteúdo.
+
+**A cura que o backlog propunha foi medida antes de ser descartada.** Içar por
+bloco (RU × refeição) em vez de por resposta pega o arroz em **1 dos 7 blocos**,
+só o `CENTRAL · jantar`: o dia do feijão preto cai em dia diferente em cada RU
+(ter no Central e no Física, qua na Prefeitura, qui no Químicas), então a
+interseção por bloco falha pelo mesmo motivo que a interseção por resposta. Mudar
+o eixo não resolve; o que resolve é deixar de exigir unanimidade.
+
+**A decisão.** `fatorar` substitui `_itens_comuns` e devolve dois grupos: os
+comuns a todas (regra antiga, intacta) e os **quase-comuns**, cada um com os
+rótulos das refeições que não o têm. O critério **não é proporção, é custo**: o
+item sobe quando o que economiza nas linhas paga a linha de rodapé que o nomeia
+com as exceções. Nenhum limiar de "maioria" escolhido a dedo.
+
+**Isto reverte uma decisão registrada**, e o dado é o que mudou. A docstring de
+`_itens_comuns`, de 14/09, dizia: "regra estrita de propósito: 'na maioria'
+exigiria marcar exceções, e o ganho medido (~20 B por refeição) não paga a
+complexidade". O ganho por refeição é o mesmo hoje; o que mudou foi saber
+**quantas refeições** — a ferramenta da semana e o teto que a mediu vieram
+depois, e 20 B em 8 refeições e 20 B em 38 são contas diferentes. A objeção da
+complexidade se responde sozinha: a conta cabe em duas linhas e tem desligamento
+automático.
+
+Nomear as exceções não é enfeite. "Em quase todas" sem dizer quais é recorte não
+declarado (Invariante 7), e é justamente nelas que está a outra grafia, que segue
+inteira na linha do dia — R59b existe para que fatorar nunca apague a variante.
+
+#### Medido depois, e em token, porque byte engana nos dois sentidos
+
+| saída | bytes | tokens |
+|---|---|---|
+| semana, só almoço | 4.560 → **4.058** (−11%) | 1.482 → **1.360** (−8%) |
+| semana, tudo | 8.018 → **7.054** (−12%) | 2.642 → **2.408** (−9%) |
+| dia, tudo | 1.601 → 1.601 | 565 → 565 |
+
+**O corte em byte é maior que em token, e a nota registra a correção**: saíram 32
+cópias de uma string que, repetida, o tokenizador já resolvia bem. Anunciar o
+ganho pelo byte seria arredondar a favor. A guarda continua em byte porque a
+pergunta dela é "cresceu?", não "quanto custa" — é o mesmo argumento de OR2.
+
+**O dia não mudou, e não por exceção no código**: com 7 ou 8 refeições, nomear
+exceções custa mais do que economiza, e a conta se recusa sozinha. É o melhor
+teste que a regra de custo podia ter, e saiu de graça.
+
+**O que não se resolve com formatação.** A semana segue sendo a resposta mais
+cara do projeto (2.408 tokens contra 2.166 do `material` já cortado), e o excesso
+sobre o teto do dia cai de 78% para 57% — não a zero, nem deveria: ela é sete
+vezes o conteúdo de um dia. Daqui para baixo, encolher é devolver menos conteúdo
+(menos RUs por padrão, sem kcal, sem a linha `Opção:`), que é decisão de produto
+e não fatoração de texto repetido.
+
+**Também descartado:** reconhecer que as duas grafias são variantes do mesmo
+prato e fundi-las. Seria adivinhar parentesco entre strings livres que a USP
+escreve, e a regra deste projeto é a medida, não a imaginada — o mesmo motivo por
+que `_comunicado` reconhece só negrito e frase com ponto final.
+
+R58, R58b (a semana numa chamada tem de custar menos que os sete dias um a um:
+razão 0,677, limite 0,73), R58c, R59, R59b e R59c. Matriz de sabotagem refeita
+depois da mudança: desligar a regra de custo reprova R58b, R59 e R59c; desligar a
+fatoração inteira reprova também R47; uma linha a mais por dia reprova os quatro
+casos de R58; tirar as calorias — um ENCOLHIMENTO — também reprova R58, que é o
+sentido novo. Fora do alcance da razão, e declarado: o horário fora do cabeçalho
+dá 0,724 e quem o guarda é R48, categoricamente.
+
+---

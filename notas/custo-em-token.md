@@ -247,6 +247,11 @@ barato existir. Trocar isso por resposta cara é pior negócio.
 
 ### RUCard — a resposta mais cara do projeto inteiro, e sem teto que a cubra
 
+> **Atualizado em 22/09/2026, no mesmo dia.** As duas dívidas desta seção foram
+> fechadas logo depois desta medição: o teto passou a existir (R58) e a
+> fatoração passou a alcançar o arroz (R59). Os números abaixo são os de
+> ANTES; o depois está no fim da seção.
+
 Estático: 508 tokens, numa ferramenta só. O `bandejao` tem o **maior esquema
 único do projeto**, 302 tokens.
 
@@ -287,11 +292,40 @@ Nome de prato em português (`Escondidinho de shimeji`, `Salada de almeirão`)
 tokeniza pior que prosa; texto corrido longo de ementa tokeniza **melhor** que
 4 B/token. A regra do Achado 4 se confirma nos dois extremos.
 
+### Depois de R58 e R59 — medido no mesmo dia, com o mesmo método
+
+| saída | bytes antes | bytes | tokens antes | tokens | |
+|---|---:|---:|---:|---:|---:|
+| 1 RU, só almoço | 318 | 318 | 113 | 113 | — |
+| 4 RUs, só almoço | 926 | 926 | 332 | 332 | — |
+| 4 RUs, dia inteiro | 1.601 | 1.601 | 565 | 565 | — |
+| semana, só almoço | 4.560 | **4.058** | 1.482 | **1.360** | −8% |
+| **semana, tudo** | 8.018 | **7.054** | 2.642 | **2.408** | **−9%** |
+
+A cura foi trocar a interseção estrita por uma fatoração decidida por **custo**:
+o item sobe para o rodapé quando economiza mais do que custa a linha que o
+nomeia com as exceções. O arroz, que ficava inline 32 vezes, sai uma vez só.
+
+**E aqui a nota corrige a si mesma.** Em bytes o corte é de 12%; em tokens, de
+9%. A mesma armadilha do Achado 4, na direção contrária: o que saiu foram 32
+cópias de uma string que, repetida, o tokenizador já vinha resolvendo bem —
+economizar byte e economizar token não são a mesma conta, e quem anunciar o
+corte pelo byte estará arredondando a próprio favor. A guarda continua em byte,
+porque a pergunta dela é "cresceu?" e não "quanto custa".
+
+**O que não se resolve com formatação:** a semana segue sendo a resposta mais
+cara do projeto (2.408 contra 2.166 do `material`), e o excesso sobre o teto do
+dia caiu de 78% para 57%, não a zero. Ela é sete vezes o conteúdo de um dia;
+daqui para baixo, encolher é devolver menos conteúdo — menos RUs por padrão, sem
+kcal, sem a linha `Opção:` —, que é decisão de produto e não fatoração.
+
 ## O que isto virou
 
 O desenho está em
 `docs/superpowers/specs/2026-09-22-custo-em-token-design.md`; a decisão, no §9 do
-`SPEC1.md`. A guarda é `tests/moodle/test_custo.py`, que mede a mesma coisa em
+`SPEC1.md`. A guarda é `tests/moodle/test_custo.py` — e, desde o fim do mesmo
+dia, o R58 de `tests/rucard/test_custo.py`, na mesma forma de dois sentidos e
+15% de folga máxima —, que mede a mesma coisa em
 bytes — determinístico, sem dependência nova — e falha tanto quando a saída
 cresce quanto quando o teto fica frouxo demais para detectar o próximo
 crescimento.
