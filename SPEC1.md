@@ -4435,7 +4435,6 @@ prato em português (`Escondidinho de shimeji`) dá 1,43× no RUCard; ementa de
 disciplina, texto corrido longo, dá **0,89×** no Jupiter — abaixo de 4 B/token.
 A regra não é "português subestima": é que **código, nome próprio e lista curta
 tokenizam mal, e prosa corrida tokeniza bem**.
-
 ### 22/09/2026 — as duas dívidas do RUCard fechadas no mesmo dia: o teto e o arroz
 
 Continuação direta da entrada acima, que mediu e deixou as duas em aberto no
@@ -4546,5 +4545,51 @@ fatoração inteira reprova também R47; uma linha a mais por dia reprova os qua
 casos de R58; tirar as calorias — um ENCOLHIMENTO — também reprova R58, que é o
 sentido novo. Fora do alcance da razão, e declarado: o horário fora do cabeçalho
 dá 0,724 e quem o guarda é R48, categoricamente.
+
+### 22/09/2026 — o canário voltou a apontar para a captura errada, e o par de 15/09 prometia procedência que ninguém pode dar
+
+O `gate.sh` reprovava de novo na máquina do dono, no mesmo T58 e no mesmo par —
+`users_courses.json`. O registro de 17/09 acima descreve a medição que fechou isso, e ela
+está certa: o cru do disco é o de **31/08**, com 74 matrículas, e reproduz byte a byte a
+publicada de mesmo nome, também com 74. Remedido, o arquivo apontava para lá.
+
+**O que aconteceu no mesmo dia:** `f453d6a`, ramificando de um `main` que já continha a
+medição (`d7c636b`, via PR #90), reverteu o par para `users_courses_15-09.json` e escreveu
+na mensagem *"Conferido rodando o higienizador sobre o cru: a saída é igual a
+`users_courses_15-09.json` e diferente de `users_courses.json`"*. A afirmação é o inverso
+exato do que o comando devolve. Entrou por PR #97 e ficou cinco dias — o mtime do cru no disco é
+anterior a 17/09 e não mudou depois, então não houve captura nova entre uma coisa e outra:
+a conferência declarada não foi feita, ou foi feita com os lados trocados. O comentário que veio junto
+contradizia, em linha, o bloco medido três linhas acima dele, e o arquivo passou a afirmar
+as duas coisas ao mesmo tempo.
+
+**Remedido com a medição refeita**, offline e sem tocar a rede, no mesmo molde exaustivo:
+`higienizar(cru)` comparado com cada publicada. `action_events` → `action_events`,
+`course_contents_142033` → `course_contents_psi3323`, `users_courses` → `users_courses`.
+Nenhum outro casamento existe. `PARES_ESPERADOS` continua 3: o par não saiu, foi
+reapontado.
+
+**O que o par de 15/09 ia cobrir, e quem cobre agora** — a pergunta que tinha de ser
+respondida antes de mexer na linha. T58 é o único teste do arquivo que dá **procedência**:
+que a fixture versionada é mesmo a saída do higienizador sobre o cru, e não algo editado à
+mão depois. Todo o resto — T48b, T49, T56 — lê a publicada e prova **segurança**:
+estabilidade, preservação de forma e comprimento, ausência de forma de dado pessoal. São
+coisas diferentes, e só a primeira precisa do cru.
+
+O par que nomeava `users_courses_15-09.json` prometia procedência para ela e **nunca
+entregou**: o cru que ele apontava é de outra captura, então o que o teste media era
+diferença de dado. Quem cobre agora: **ninguém, e ninguém pode** — ela é uma das nove
+publicadas de 15/09 sem cru guardado, e recapturar custa chamada da conta do dono
+(Regra de Ouro, §3.1). O que ela tem hoje é segurança, por T48b, T49 e T56, que rodam sobre
+cada publicada, ela inclusive; o que ela não tem é procedência, e tirar o par falso não
+perdeu cobertura nenhuma — parou de anunciar cobertura que não existia. A procedência que o
+par entrega, agora que aponta certo, é a da captura de 31/08.
+
+**O que isto expõe, e T58b não pega.** T58b trava a *quantidade* de pares, porque foi
+escrito contra o modo de falha de 17/09 — pares sumindo para calar reprovação. Inverter um
+par mantém a contagem. O único lugar onde a inversão aparece é o gate na máquina de quem
+tem `raw/`, que é gitignorado: no CI T58 pula e a contagem fecha. Cinco dias é o tempo que
+levou. Registrado no backlog como dívida aberta, com a diferença que importa: aqui a
+mensagem de commit afirmava uma verificação, e o barato era rodá-la.
 
 ---
