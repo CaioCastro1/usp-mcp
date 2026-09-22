@@ -3,8 +3,8 @@
 #
 # Uso:  ./scripts/gate.sh
 #
-# Um pré-requisito e quatro checagens, nesta ordem, porque a mais barata que
-# pode reprovar vem antes:
+# Dois pré-requisitos, uma linha de contexto e quatro checagens, nesta ordem,
+# porque a mais barata que pode reprovar vem antes:
 #
 #   pré. Isto é um clone git. Sem numeração porque não é uma propriedade do
 #      código, e sim do chão em que ele está: as checagens 1 e 2 PERGUNTAM ao
@@ -14,6 +14,22 @@
 #      pessoal deixou de ser ignorado", que é falso, e é o pior diagnóstico
 #      possível porque manda a pessoa procurar um vazamento que não existe.
 #      Aborta, como a 0, em vez de somar ao placar.
+#   pre.b. Este diretório tem venv próprio, e só quando a checagem 3 vai rodar.
+#      Sem suíte a falta de venv não muda resposta nenhuma — as checagens 0-2 se
+#      viram com o python do sistema, e é assim que tests/test_gate.py roda o
+#      gate dentro do clone. Com suíte ela muda tudo, e isto é medição de
+#      19/09/2026 num worktree sem venv: `PY` caiu para o python3 do sistema,
+#      que não tem o SDK do MCP, e a suíte devolveu "860 passed, 74 skipped" —
+#      74 pulos por SDK ausente, num placar que de longe passa por verde. Um
+#      gate que responde sobre o python do sistema não respondeu sobre o código.
+#      Aborta, como a pré e a 0.
+#   contexto. Quantos commits esta base está atrás do origin/main já conhecido.
+#      NÃO recebe número e NÃO reprova, de propósito: o §6 do CONVENTIONS.md diz
+#      que verificação que não pode falhar não verifica nada, então esta não
+#      finge ser uma checagem. Reprovar commit por causa de um ref local velho
+#      seria reprovar por motivo errado — o mesmo argumento que tira a live
+#      daqui. Lê o refs/remotes/origin/main que o último fetch deixou em disco,
+#      e por isso não toca a rede.
 #   0. O .env existe e tem RUCARD_HASH com valor. Custa um `test -f` e um grep,
 #      e é a única falha do gate com cura de uma linha — por isso ela é dita com
 #      o COMANDO, e não com o nome da variável que faltou. Vem antes da 1 porque
@@ -73,6 +89,63 @@ FIM
   echo
   echo "gate: REPROVOU. Nao commite."
   exit 1
+fi
+
+# ------------------------------------------- pre.b. este diretorio tem runtime
+# Condicionada a checagem 3 ir rodar, e nao por economia: ver o cabecalho. O que
+# esta guarda impede e um placar grande e falso — sem o SDK do MCP a suite PULA
+# o que depende dele e imprime o resto, e "860 passed, 74 skipped" nao se parece
+# com uma falha.
+if [ "${USP_MCP_GATE_SEM_SUITE:-0}" != "1" ]; then
+  passo "pre.b este diretorio tem venv proprio"
+  if [ -x .venv/bin/python ]; then ok; else
+    echo "FALHOU"
+    cat <<'FIM' | sed 's/^/       /'
+não há .venv/bin/python aqui. O venv é POR DIRETÓRIO e não vem no git, então
+"acabei de clonar" e "worktree novo" caem os dois nesta linha — e num worktree
+recém-criado é o mesmo diagnóstico que derruba os três servidores do .mcp.json,
+porque scripts/servidor.sh procura o venv no mesmo lugar.
+
+Sem ele a checagem 3 roda com o python do sistema, que não tem o SDK do MCP: a
+suíte pula o que depende dele e ainda assim imprime um placar grande, que passa
+por verde. Cura, neste diretório — a mesma que o scripts/servidor.sh cita:
+
+    python3 -m venv .venv
+    .venv/bin/python -m pip install -e ".[dev]"
+
+O `uv venv && uv pip install -e ".[dev]"` do §3 do CLAUDE.md produz o mesmo
+.venv. O `-e` não é detalhe: sem ele não existem os entry points em .venv/bin/,
+e o tests/test_pacote.py (P6) passa a PULAR em vez de exercitar o que o pacote
+promete. E este worktree NÃO precisa de .env próprio: o usp_mcp.env acha o do
+checkout, e criar um aqui sombreia o verdadeiro (§9, 11/09/2026).
+FIM
+    echo
+    echo "gate: REPROVOU. Nao commite."
+    exit 1
+  fi
+fi
+
+# ------------------------------------------------- contexto: a base deste HEAD
+# Nao e checagem, nao tem numero e nao reprova — o cabecalho diz por que. Existe
+# porque em 21/09/2026 o checkout principal desta maquina estava 324 commits
+# atras do origin/main, com historico divergente desde 31/08, e toda sessao que
+# abria worktree dali nascia dois dias no passado. Custou um diagnostico errado
+# e um PR conflitante no mesmo dia, antes de alguem perceber.
+#
+# Offline: le o refs/remotes/origin/main que o ultimo fetch deixou em disco. Ele
+# mesmo pode estar velho, e a mensagem diz isso em vez de afirmar o que nao sabe.
+atraso=""
+if git rev-parse --verify --quiet refs/remotes/origin/main >/dev/null; then
+  n_atras=$(git rev-list --count HEAD..refs/remotes/origin/main 2>/dev/null || echo 0)
+  if [ "${n_atras:-0}" -gt 0 ]; then
+    quando=$(git log -1 --format=%cd --date=short refs/remotes/origin/main)
+    atraso="base: $n_atras commit(s) atras do origin/main conhecido aqui (de $quando).
+      Isto NAO reprova: o ref e do ultimo fetch e pode ele mesmo estar velho.
+      'git fetch origin main' diz a verdade, e 'git rebase origin/main' encurta."
+  fi
+fi
+if [ -n "$atraso" ]; then
+  echo "$atraso" | sed 's/^/  /'
 fi
 
 # ------------------------------------------------------------------- 0. o env
@@ -166,5 +239,11 @@ if [ "$falhou" -eq 0 ]; then
   echo "  USP_MCP_LIVE=1 $PY -m pytest -m live"
 else
   echo "gate: REPROVOU. Nao commite."
+fi
+# Repetido aqui de proposito: o cabecalho rola para fora da tela quando a
+# checagem 3 imprime, e verde no rodape com a base velha e a combinacao que
+# produz o PR conflitante. Fica DEPOIS do veredito para nao se passar por um.
+if [ -n "$atraso" ]; then
+  echo "$atraso" | sed 's/^/  /'
 fi
 exit "$falhou"

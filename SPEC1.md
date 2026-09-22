@@ -4207,6 +4207,91 @@ cumpre entregando todos os passos numa mensagem só.
 
 ---
 
+### 21/09/2026 — a `main` desta máquina estava 324 commits atrás, e o worktree herdava isso
+
+**O dado, medido antes de qualquer conserto.** A pergunta da sessão era aberta
+("dá para melhorar o projeto?"), e a primeira medição respondeu sozinha:
+
+```
+git rev-list --left-right --count HEAD...origin/main   →  271  324
+git merge-base HEAD origin/main                        →  dd6c730 (31/08/2026)
+git diff --stat HEAD origin/main                       →  70 arquivos, +10387 −758
+```
+
+A `main` **local** — não um worktree esquecido, o checkout principal — estava
+parada em 16/09 e com histórico divergente desde 31/08: o remoto foi reescrito, e
+os 271 commits locais são os mesmos por conteúdo com outro sha. Todo worktree
+aberto dali nascia no passado, porque `git worktree add -b x` ramifica do HEAD
+local. Isso já tinha custado um diagnóstico errado e um PR conflitante no mesmo
+dia, antes de alguém olhar para a causa.
+
+**Ressincronizar era seguro, e isso foi medido e não suposto** — a pergunta certa
+não é "quantos commits", é "o que se perde":
+
+```
+git diff --name-status HEAD origin/main | grep '^D'    →  nada
+únicos arquivos que encolhem: scripts/token.sh e scripts/_decodificar_token.py
+  (a lógica migrou para usp_mcp/token/cli.py em 8f97bba)
+git stash list                                         →  vazio
+```
+
+Nenhum arquivo some, nenhum stash pendente. `reset --hard` para `origin/main`, com
+`backup/main-pre-ressync-2026-09-21` apontando para o sha antigo pelo custo de uma
+ref. Os não rastreados (`docs/ANTIGRAVITY.md`, `test_temporary/`, `usp-mcp.skill`,
+`uv.lock`) ficaram onde estavam — `reset --hard` não os toca.
+
+**A cura da vez é `scripts/novo-worktree.sh`**, e ela ataca o `add -b` e não a
+memória de quem abre worktree: fetch, `git worktree add -b <branch> <caminho>
+origin/main`, venv com `-e ".[dev]"`. O fetch é o único lugar deste repositório
+que toca a rede sem pedido — porque é setup, não gate — e quando ele falha o
+script **para**, em vez de cair calado para o ref antigo: worktree velho é o
+defeito, não o plano B. W1 é o teste que justifica o arquivo (um dublê onde o
+remoto tem um commit que o local não tem, e a asserção é sobre qual dos dois virou
+HEAD), verificado por sabotagem: tirando `origin/main` da linha do `add`, só W1
+reprova.
+
+**O que ele não faz, e é metade do desenho:** não cria `.env` no worktree. O
+`usp_mcp.env` acha o do checkout, e um `.env` próprio ali sombreia o verdadeiro —
+defeito que o `token.sh` teve em 11/09 e a checagem 0 do gate teve antes dele.
+Terceira vez o mesmo molde ("o caminho resolvido é o do checkout, não o do
+worktree"); aqui ele entrou como teste (W2) em vez de comentário.
+
+**Duas guardas no gate, e uma delas deliberadamente não reprova.**
+
+A `pre.b` exige venv no diretório, e só quando a checagem 3 vai rodar — sem suíte
+a falta de venv não muda resposta nenhuma, e é assim que o `tests/test_gate.py`
+roda o gate dentro do clone. Ela existe por uma medição desta sessão: num worktree
+sem venv o `PY` do gate cai para o python3 do sistema, que não tem o SDK do MCP, e
+a suíte devolve **"860 passed, 74 skipped"** — 74 pulos por SDK ausente, num placar
+que de longe passa por verde. Um gate que responde sobre o python do sistema não
+respondeu sobre o código.
+
+A linha de defasagem **não recebe número e não reprova**, e a razão é o §6 do
+`CONVENTIONS.md`: verificação que não pode falhar não verifica nada, então esta não
+finge ser uma checagem. Reprovar commit por causa de um ref local velho seria
+reprovar por motivo errado — o mesmo argumento que mantém a camada `live` fora
+daqui. Ela lê o `refs/remotes/origin/main` que o último fetch deixou em disco, e
+por isso o gate continua sem tocar a rede; a mensagem diz que o ref pode ele mesmo
+estar velho, em vez de afirmar o que não sabe. Aparece no cabeçalho e outra vez
+depois do veredito, porque o cabeçalho rola para fora da tela quando a checagem 3
+imprime, e verde no rodapé com a base velha é a combinação que produz o PR
+conflitante.
+
+**O que esta sessão achou e não consertou**, porque não era a tarefa: com a base
+certa e o venv no lugar, a suíte fecha **1 failed, 1087 passed, 11 skipped** — e o
+vermelho é preexistente à sessão, reproduzido também no checkout principal. O
+`raw/users_courses.json` desta máquina tem 74 matrículas (captura de 31/08) e a
+publicada pareada tem 47 (15/09). O comentário do `PARES_CRU` (17/09) trocou o par
+supondo que o cru do dono fosse o de 15/09; nesta máquina não é, e o canário
+reprova sem nada errado com o higienizador — exatamente o que aquele comentário
+dizia querer evitar. Consequência prática, e é o que torna isso urgente: **o gate
+hoje reprova na máquina de quem mais o roda.** Está no `BACKLOG-correcoes.md`.
+
+*Posfácio de 22/09, escrito ao integrar esta branch: o vermelho do T58 descrito no
+último parágrafo foi fechado no dia seguinte, pela entrada de 22/09 sobre o canário —
+e não pela cura que este parágrafo supunha. O que ficou de pé daqui é a linha de
+defasagem do gate e o `novo-worktree.sh`.*
+
 ### 22/09/2026 — o custo do lado de cá foi medido pela primeira vez, e o `bytes/4` do projeto subestima
 
 **O que faltava medir.** Desde a Fase 1 este documento registra o custo do **cru**
