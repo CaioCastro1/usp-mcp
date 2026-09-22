@@ -4381,3 +4381,57 @@ descrição deixaria a duplicação voltar calada.
 E o **L6** fixava a string `"Aula1.pdf [PDF]"` para provar que o nome sai e o
 endereço não. O `[PDF]` era mecanismo; a propriedade está nas quatro asserções
 que sobraram, sobre `pluginfile.php`, `/webservice/` e `token`.
+
+### 22/09/2026 — Jupiter e RUCard medidos, e a maior resposta do projeto estava fora de qualquer teto
+
+A medição de custo de saída cobria só o Moodle. Os outros dois entraram agora,
+pelo mesmo método e sem tocar a rede. Esta entrada registra **medição e dívida**:
+nenhum corte foi feito nos dois, por decisão de escopo.
+
+**O Jupiter já estava otimizado, e o dado confirma em vez de supor.** A ficha
+inteira de PTC3314 custa 789 tokens; o padrão de só-ementa, decidido em 14/09,
+custa **194** — 75% cortados antes de alguém medir o outro lado. O `requisitos`
+sai por 98 a 151 tokens no caso comum.
+
+**E ali o estático custa mais que a chamada:** 622 tokens de `tools/list`
+(sem `instructions` nos dois servidores públicos) contra ~194 de uma consulta
+típica. Três consultas ≈ um `tools/list`. É o inverso do Moodle, onde a resposta
+dominava, e muda onde vale procurar: no Jupiter, o alvo é o esquema do
+`disciplina` (261 tokens, 65% do custo estático dele) — que **não** se mexe,
+porque é o enum de `secoes` que faz o padrão barato existir.
+
+**O achado que importa é do RUCard, e é uma guarda que parou de guardar.** A
+resposta de `dia="semana"` com as duas refeições custa **8.018 B / 2.642
+tokens** — maior que qualquer resposta do Moodle, inclusive o `material` antes
+do corte. O teto do R34 é 4.500 B, e a saída está **78% acima dele sem nada
+ficar vermelho**: o número foi medido em 31/08 sobre "o pior caso (4 RUs × 2
+refeições)", que era verdade então, e o `dia="semana"` chegou depois com o R46
+sem que ninguém remedisse. É a Regra 11 do `CLAUDE.md` outra vez, e desta vez
+contra um teste de custo: **verde na suíte não é verde no que ela não alcança.**
+
+A causa da repetição tem diagnóstico e não palpite: o rodapé que iça item comum
+(`Em todas as refeições acima:`) usa a regra "comum a TODAS as refeições da
+resposta". No dia, com poucos blocos, ela pega `Arroz / feijão / arroz
+integral`. Na semana, a interseção de sete blocos × sete dias encolhe a quase
+nada e o arroz fica inline **32 vezes, 256 tokens, 10% da resposta**. A regra
+falha exatamente onde a repetição é pior.
+
+**Dois desperdícios do Jupiter, medidos e adiados:** `(integral, 3º período
+ideal)` sai 23 vezes em MAT2455 com **um único valor distinto** (230 tokens,
+31% da resposta), e a linha de roteamento do `disciplina` tem **80% de
+sobreposição** com a própria descrição — o limiar exato do canário OR3. Os dois
+são os mesmos padrões que o Moodle acabou de fechar, e estão no backlog com o
+número ao lado.
+
+**Por que nada foi cortado agora.** Os cortes mexem em forma de saída e pedem os
+mesmos cuidados de teste que o Moodle pediu — e o Moodle acabou de entregar
+quatro mudanças ainda não revisadas. Medir é barato e não conflita; cortar sobre
+base não revisada é o que a lição de integração sequencial já custou uma vez.
+O dado fica registrado com o número, que é o que permite decidir depois sem
+remedir.
+
+**E o `bytes/4` erra nos dois sentidos, o que fecha o Achado 4 da nota.** Nome de
+prato em português (`Escondidinho de shimeji`) dá 1,43× no RUCard; ementa de
+disciplina, texto corrido longo, dá **0,89×** no Jupiter — abaixo de 4 B/token.
+A regra não é "português subestima": é que **código, nome próprio e lista curta
+tokenizam mal, e prosa corrida tokeniza bem**.

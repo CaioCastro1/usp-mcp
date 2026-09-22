@@ -204,6 +204,89 @@ saiu da resposta, e encurtar as duas pontas na mesma mudança é como um invaria
 se perde. Quem quiser mexer aí de novo começa por `questionarios` (418 tokens de
 descrição e esquema, e custo de resposta ainda desconhecido — ver o backlog).
 
+## Os outros dois servidores — medidos em 22/09/2026
+
+A medição acima cobriu o Moodle. Jupiter e RUCard entraram depois, pelo mesmo
+método: dublê de transporte, fixtures versionadas, nenhuma chamada à USP.
+Nenhum dos dois tem `instructions`, então o `tools/list` é o estático inteiro.
+
+### Jupiter — 622 tokens de estático, e o estático custa mais que a chamada
+
+| | descrição | esquema | soma |
+|---|---:|---:|---:|
+| `disciplina` | 140 | 261 | **401** |
+| `requisitos` | 138 | 83 | 221 |
+
+| saída | tokens |
+|---|---:|
+| `disciplina` PSI3323 (padrão) | 175 |
+| `disciplina` PTC3314 (padrão) | 194 |
+| `disciplina` PTC3314 + inglês | 276 |
+| `disciplina` PTC3314 `secoes=["todas"]` | 789 |
+| `requisitos` PSI3323 (1 currículo) | 98 |
+| `requisitos` PTC3313 (sem exigência) | 151 |
+| `requisitos` MAT2455 (23 currículos) | **747** |
+
+**O padrão de só-ementa já fez o corte grande, e a medição confirma:** a ficha
+inteira custa 789 tokens e o padrão, 194 — 75% cortados pela decisão de 14/09.
+Três consultas típicas custam menos que o `tools/list` que as anuncia.
+
+Dois desperdícios medidos, e nenhum foi cortado nesta passagem (ver backlog):
+
+- **`requisitos` repete um valor constante 23 vezes.** Em MAT2455,
+  `(integral, 3º período ideal)` sai em toda linha de currículo — **230 tokens,
+  31% da resposta** — e tem **um único valor distinto**. É o mesmo achado do
+  `[tipo, tamanho, data]` do `material`.
+- **`disciplina` repete a própria descrição.** A linha "⚠ Pré-requisito não vem
+  por aqui: use a ferramenta requisitos" tem **80% de sobreposição** com a
+  descrição da ferramenta — exatamente o limiar do canário OR3.
+
+O que **não** vale mexer: os 261 tokens do esquema do `disciplina` são 65% do
+custo estático dele, e carregam o enum de `secoes` — que é o que faz o padrão
+barato existir. Trocar isso por resposta cara é pior negócio.
+
+### RUCard — a resposta mais cara do projeto inteiro, e sem teto que a cubra
+
+Estático: 508 tokens, numa ferramenta só. O `bandejao` tem o **maior esquema
+único do projeto**, 302 tokens.
+
+| saída | bytes | tokens |
+|---|---:|---:|
+| 1 RU, só almoço | 318 | 113 |
+| 4 RUs, só almoço | 926 | 332 |
+| 4 RUs, dia inteiro | 1.601 | 565 |
+| semana, só almoço | 4.560 | 1.482 |
+| **semana, tudo** | **8.018** | **2.642** |
+
+**A semana custa mais que qualquer resposta do Moodle** — 2.642 tokens contra
+2.166 do `material` já cortado — e o teto de `tests/rucard/test_custo.py`
+(R34, 4.500 B) **não a alcança**: ele foi medido em 31/08 sobre "o pior caso
+(4 RUs × 2 refeições)", que era verdade então; o `dia="semana"` chegou depois,
+com o R46, e ninguém remediu. A saída da semana está 78% acima daquele teto sem
+nada ficar vermelho — "verde na suíte não é verde no que ela não alcança",
+outra vez.
+
+E a causa da repetição é específica: o rodapé que iça item comum existe
+(`Em todas as refeições acima:`), e a regra dele é **comum a TODAS as refeições
+da resposta**. No dia, com poucos blocos, ela pega o arroz. Na semana, a
+interseção de sete blocos × sete dias encolhe a quase nada, e
+`Arroz / feijão / arroz integral` fica inline **32 vezes — 256 tokens, 10% da
+resposta**. A regra falha exatamente onde a repetição é pior. Somando os itens
+que aparecem em cinco linhas ou mais: 429 tokens, 16% da resposta.
+
+### E o `bytes/4` erra aqui também, na outra direção
+
+| | `bytes/4` | real | razão |
+|---|---:|---:|---:|
+| RUCard, 1 RU | 79 | 113 | **1,43×** |
+| RUCard, semana | 2.004 | 2.642 | 1,32× |
+| Jupiter `disciplina` (padrão) | 176 | 194 | 1,10× |
+| Jupiter `disciplina` `todas` | 883 | 789 | **0,89×** |
+
+Nome de prato em português (`Escondidinho de shimeji`, `Salada de almeirão`)
+tokeniza pior que prosa; texto corrido longo de ementa tokeniza **melhor** que
+4 B/token. A regra do Achado 4 se confirma nos dois extremos.
+
 ## O que isto virou
 
 O desenho está em
