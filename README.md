@@ -482,6 +482,22 @@ procuram `.venv/bin/python`. Nenhum passo da instalação passa por eles. Se voc
 caminho rápido, a mensagem *No Windows* de lá já traz estes caminhos e este comando da
 chave; a de Mac não serve aqui, e o assistente não tem como perceber sozinho.
 
+Ainda no Windows, uma coisa aparece sozinha logo no começo e assusta. A pasta do projeto
+traz um arquivo chamado `.mcp.json`, e ele registra os três programas de um segundo jeito,
+que vale só enquanto o assistente está aberto dentro daquela pasta. Esse segundo registro
+chama um atalho escrito em bash, e o atalho procura o Python em `.venv/bin/`, que é o
+endereço do Mac e do Linux. No Windows esse endereço não existe, então esse registro não
+funciona aqui e não tem como funcionar. O que você pode ver, se abrir o assistente dentro
+de `$HOME\usp-mcp`: um aviso de que `usp-rucard` e `usp-jupiter` estão registrados em dois
+lugares ao mesmo tempo, e o `usp-moodle` parado, esperando uma aprovação sua. Não é
+defeito da sua instalação, e você não precisa aprovar nada.
+
+A saída é abrir o assistente em qualquer outra pasta. Fora da pasta do projeto esse
+segundo registro nem existe, e vale só o que você fez acima, com o caminho completo até
+`.venv\Scripts\`, que é o que funciona no Windows. Você não perde nada: o bandejão, o
+JupiterWeb e o e-Disciplinas respondem igual de qualquer pasta, porque os programas sabem
+sozinhos onde o projeto está.
+
 ## Configuração
 
 Só o e-Disciplinas precisa disto. Bandejão e JupiterWeb funcionam sem nada.
@@ -737,6 +753,16 @@ caminho absoluto do lançador:
 
 O `.mcp.json` é relativo de propósito, porque é versionado e caminho absoluto de máquina
 não entra em arquivo rastreado. O absoluto fica no arquivo de config da sua máquina.
+
+**Esse arquivo não serve no Windows**, pela mesma razão dos outros scripts de `scripts/`:
+o lançador é bash e procura `.venv/bin/python`, que é endereço de Mac e de Linux. Quem
+abre um cliente MCP dentro do clone num Windows recebe um aviso de servidor registrado em
+dois escopos e um servidor pendente de aprovação, e as entradas de escopo de projeto não
+sobem lá de jeito nenhum. Relatado por quem instalou num Windows real em 21/09/2026. O
+registro que funciona nos três sistemas é o de escopo de usuário, por caminho completo,
+que a seção *Instalando* ensina. Se este arquivo continua versionado, sai do repositório
+ou passa a apontar para outra coisa é decisão em aberto, com as opções e o custo de cada
+uma em `docs/decisions/BACKLOG-correcoes.md`.
 
 ### Detalhes técnicos
 
