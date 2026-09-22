@@ -1,0 +1,182 @@
+# Custo em token do lado de cá — medição de 22/09/2026
+
+Este repositório mediu o custo do **cru** desde a Fase 1: 541 kB para 35 eventos
+de calendário, 1 MB para as entregas sem escopo, e a projeção que reduz isso a
+0,5%–6% (`notas/fase1-moodle.md`, §9 do `SPEC1.md`). O outro lado nunca foi
+medido: **o que a ferramenta devolve ao modelo**, que é o que de fato ocupa
+contexto depois que a projeção já fez o trabalho dela.
+
+Medido aqui, e sem gastar chamada da conta.
+
+## Como
+
+Dois caminhos, ambos offline, nenhum toca a rede da USP.
+
+**Estático** — `initialize` + `tools/list` de cada servidor, pelo cliente stdio de
+`tests/handshake/conftest.py`. Os três servidores respondem essas duas mensagens
+sem construir o cliente da API, que é por que isso roda sem credencial.
+
+**Por chamada** — cada ferramenta via `chamar_ferramenta(..., cliente=dublê)`,
+com as fixtures versionadas como resposta do e-Disciplinas. O `site_info` é
+sintético (o cru tem `userid` e nome) e declara as treze funções que as
+ferramentas pedem, para que a saída medida seja a boa e não a de "não alcança".
+
+**Contagem.** Bytes por `len(texto.encode())`. Tokens por `tiktoken`
+(`o200k_base`), instalado num ambiente efêmero (`uv run --with`) só para esta
+medição e **não adotado** — mesmo tratamento que o `pypdf` recebeu em 01/09. Não
+é o tokenizador do Claude; serve para a ordem de grandeza e, principalmente, para
+a razão entre formas de texto, que é o achado que importa.
+
+## O estático: 5.262 tokens por sessão, antes da primeira pergunta
+
+| servidor | `instructions` | `tools/list` | total | ferramentas |
+|---|---:|---:|---:|---:|
+| moodle | 551 | 3.581 | **4.132** | 11 |
+| jupiter | 0 | 622 | 622 | 2 |
+| rucard | 0 | 508 | 508 | 1 |
+| | | | **5.262** | 14 |
+
+Por ferramenta do Moodle (descrição + esquema, em tokens):
+
+| | descrição | esquema | soma |
+|---|---:|---:|---:|
+| `ja_entreguei` | 223 | 199 | 422 |
+| `questionarios` | 220 | 198 | 418 |
+| `material` | 216 | 197 | 413 |
+| `atrasadas` | 279 | 106 | 385 |
+| `baixar_arquivo` | 109 | 257 | 366 |
+| `o_que_mudou` | 168 | 183 | 351 |
+| `avisos` | 182 | 113 | 295 |
+| `notas` | 166 | 104 | 270 |
+| `o_que_vence` | 110 | 130 | 240 |
+| `disciplinas` | 161 | 76 | 237 |
+| `diagnostico` | 165 | 19 | 184 |
+
+Isto é maior que qualquer resposta individual do servidor, e é pago mesmo na
+sessão em que ninguém pergunta nada.
+
+Dois desperdícios medidos dentro dele:
+
+- **A descrição do parâmetro `disciplina` é idêntica em quatro ferramentas**, 67
+  tokens cada: 268 no total, 201 dos quais são repetição literal.
+- **Os campos `title` gerados pelo pydantic** (`"_ja_entregueiArguments"`,
+  `"Disciplina"`) somam ~127 tokens nos 14 esquemas. **Não são removíveis**: o SDK
+  deriva o schema da assinatura da função (`usp_mcp/adaptador.py`), e suprimi-los
+  exigiria um gerador de schema próprio. Fica registrado como custo que não
+  controlamos.
+
+## Por chamada
+
+Com as fixtures versionadas (PTC3314; 74 matrículas):
+
+| ferramenta | bytes | tokens | resposta | aviso de dado | prosa fixa |
+|---|---:|---:|---:|---:|---:|
+| `material` | 6.712 | **2.569** | 2.369 | 126 | 91 |
+| `disciplinas` | 3.219 | **1.350** | 1.136 | 52 | 168 |
+| `o_que_vence` | 2.807 | 1.093 * | 1.093 | 0 | 0 |
+| `avisos` | 3.289 | 948 | 798 | 43 | 107 |
+| `diagnostico` | 1.874 | 473 † | 473 | 0 | 0 |
+| `atrasadas` | 1.274 | 325 | 73 | 37 | **215** |
+| `ja_entreguei` | 978 | 310 | 153 | 37 | 120 |
+| `o_que_mudou` | 1.018 | 285 | 195 | 22 | 68 |
+| `notas` | 491 | 165 | 88 | 45 | 32 |
+
+\* O dublê devolve a fixture inteira ignorando `timesortfrom/to`: são ~4 meses de
+eventos, não os 14 dias do padrão. Em produção o número é uma fração disto,
+porque a janela vai como parâmetro da chamada (T32/T33). Regra 11 do `CLAUDE.md`.
+
+† Depende do caminho absoluto do `.env` desta máquina e de quantas funções o
+token alcança — por isso `diagnostico` fica fora do orçamento de
+`tests/moodle/test_custo.py`.
+
+Não medidos: `questionarios` (não há fixture de `mod_quiz_*` no repositório) e
+`baixar_arquivo` (devolve caminho em disco; por decisão de 01/09 ela não extrai
+texto, o que economiza ~2.679 tokens por PDF).
+
+## Achado 1 — a prosa invariável é paga duas vezes
+
+**801 tokens**, espalhados por sete ferramentas, saem idênticos a toda chamada. E
+a descrição da própria ferramenta — que o cliente carrega a sessão inteira — já
+os contém. Sobreposição de vocabulário de conteúdo entre o bloco `⚠` e a
+descrição:
+
+| ferramenta | bloco | sobreposição |
+|---|---|---:|
+| `ja_entreguei` | "cobre só TAREFA; questionário use `questionarios`" | **92%** |
+| `atrasadas` | "para ver TODAS as entregas use `ja_entreguei`…" | **85%** |
+| `o_que_mudou` | "diz QUE mudou, nunca O QUE mudou" | 71% |
+| `atrasadas` | "diz o que REGISTRA, não o que você fez" | 58% |
+| `avisos` | "quem escreveu cada tópico não sai daqui" | 50% |
+| `notas` | "esta é a nota FINAL; item a item, diga a disciplina" | 50% |
+| `material` | "o link do arquivo interno não é entregue aqui" | 39% |
+| `disciplinas` | "'Em andamento' sai das datas do espaço" | 21% |
+| `disciplinas` | "use a SIGLA ou o RÓTULO inteiro" | 10% |
+
+O caso extremo é `atrasadas`: **215 dos seus 325 tokens de resposta são texto que
+a descrição de 279 tokens já diz**, quase palavra por palavra. Não é troca de
+custo-por-chamada por custo-por-sessão — é a mesma frase, duas vezes, na mesma
+sessão. As duas últimas linhas da tabela são o contraste que fecha o argumento:
+ali a resposta diz algo que a descrição não diz.
+
+As ressalvas **dependentes de dado** ("2 atividades não puderam ser lidas com
+esta credencial", "38 das 45 matrículas sem nota", "2 tópicos truncados em 600
+caracteres") somam 362 tokens no conjunto e não são repetição: são o Invariante 7
+funcionando.
+
+## Achado 2 — o campo que anota custa mais que o dado anotado
+
+Em `material`, para as 57 linhas de item:
+
+| | tokens |
+|---|---:|
+| os 57 nomes de arquivo | ~460 |
+| os 57 blocos `[tipo, tamanho, data]` | **933** |
+| \- só os trechos `, NNN kB` | 304 |
+| as 55 descrições do professor entre parênteses | 810 |
+
+O bloco que descreve o arquivo custa o dobro do nome do arquivo.
+
+## Achado 3 — `disciplinas` gasta 42% da resposta com o passado
+
+Das 74 matrículas, 62 estão encerradas (2021 a 2026) e saem em toda chamada como
+lista de rótulos por ano: **565 dos 1.350 tokens**. As 10 em andamento, que são a
+resposta à pergunta, custam 476.
+
+## Achado 4 — o `~bytes/4` do projeto subestima, e subestima onde dói
+
+O `CONVENTIONS.md` §1 adota `bytes/4` como estimativa de token. Contra o
+tokenizador:
+
+| saída | `bytes/4` | real | razão |
+|---|---:|---:|---:|
+| `disciplinas` | 804 | 1.350 | **1,68×** |
+| `o_que_vence` | 701 | 1.093 | 1,56× |
+| `material` | 1.678 | 2.569 | 1,53× |
+| `notas` | 122 | 163 | 1,33× |
+| `ja_entreguei` | 244 | 306 | 1,25× |
+| `avisos` | 822 | 943 | 1,15× |
+| `o_que_mudou` | 254 | 282 | 1,11× |
+| `diagnostico` | 468 | 471 | 1,01× |
+| `atrasadas` | 318 | 319 | 1,00× |
+| **conjunto** | 5.415 | 7.496 | **1,38×** |
+
+O padrão explica a si mesmo, e a ordem da tabela é a explicação: **prosa em
+português fica perto de 4 bytes por token; código, nome de arquivo e data não.**
+`atrasadas` é quase só prosa e bate 1,00×; `disciplinas` é quase só rótulo
+(`PSI3322-2026-REOF`, `PME3100-203-2023`) e erra por 68%. `material` mistura os
+dois e fica no meio, com nomes como `tensao_Zl=150_pulso.gif`.
+
+**A consequência:** a tabela de custo do `SPEC1.md` é otimista exatamente nas
+respostas em forma de listagem, que são as caras. O `bytes/4` continua servindo
+para o **cru** — ali a razão medida foi 1,00× a 1,15×, porque JSON do Moodle é
+prosa e chave repetida. Para custo de **saída**, o número honesto sai de
+tokenizador, e esta nota é onde ele mora.
+
+## O que isto virou
+
+O desenho está em
+`docs/superpowers/specs/2026-09-22-custo-em-token-design.md`; a decisão, no §9 do
+`SPEC1.md`. A guarda é `tests/moodle/test_custo.py`, que mede a mesma coisa em
+bytes — determinístico, sem dependência nova — e falha tanto quando a saída
+cresce quanto quando o teto fica frouxo demais para detectar o próximo
+crescimento.

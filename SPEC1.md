@@ -4206,3 +4206,64 @@ por mensagem, espere eu responder* —, porque "explique passo a passo" um model
 cumpre entregando todos os passos numa mensagem só.
 
 ---
+
+### 22/09/2026 — o custo do lado de cá foi medido pela primeira vez, e o `bytes/4` do projeto subestima
+
+**O que faltava medir.** Desde a Fase 1 este documento registra o custo do **cru**
+que vem da USP, e a projeção que o reduz a 0,5%–6%. O outro lado nunca teve
+número: o que a ferramenta **devolve ao modelo** depois que a projeção já
+trabalhou. Medido agora, offline, sem gastar chamada da conta — handshake stdio
+real para o estático, dublê com as fixtures versionadas para cada ferramenta. A
+medição inteira está em `notas/custo-em-token.md`.
+
+**Os números que mudam o mapa.** O estático dos três servidores — `instructions`
+mais `tools/list` — é **5.262 tokens por sessão, pagos antes da primeira
+pergunta**, e é maior que qualquer resposta individual. Depois dele vêm
+`material` (2.569) e `disciplinas` (1.350). Nenhum dos dois é caro por falta de
+projeção: `material` já entrega 11,2% do cru e `o_que_vence`, 0,5%.
+
+**Achado que decide desenho: a prosa invariável é paga duas vezes.** 801 tokens
+saem idênticos a toda chamada em sete ferramentas — e a descrição da própria
+ferramenta, que o cliente carrega a sessão inteira, já os contém. Medida a
+sobreposição de vocabulário entre o bloco `⚠` e a descrição: `ja_entreguei` 92%,
+`atrasadas` 85%, `o_que_mudou` 71%. Em `atrasadas`, **215 dos 325 tokens da
+resposta são o que a descrição de 279 tokens já diz**. Não é troca de
+custo-por-chamada por custo-por-sessão: é a mesma frase duas vezes na mesma
+sessão. O contraste que fecha o argumento está na mesma tabela — as duas
+ressalvas do `disciplinas` dão 21% e 10%, porque ali a resposta diz o que a
+descrição não diz.
+
+**E um erro de método que este documento vinha cometendo.** O `~bytes/4` do
+`CONVENTIONS.md` §1 **subestima em 1,38× no conjunto, e em 1,68× no
+`disciplinas`**. A razão explica a si mesma: prosa em português fica perto de 4
+bytes por token; código, nome de arquivo e data não. `atrasadas`, que é quase só
+prosa, bate 1,00×; `disciplinas`, que é quase só rótulo (`PSI3322-2026-REOF`),
+erra por 68%. Consequência para o que está escrito aqui: as estimativas de custo
+deste §9 são otimistas exatamente nas respostas em forma de listagem, que são as
+caras. Para o **cru** o `bytes/4` segue valendo (1,00×–1,15× medidos) — JSON do
+Moodle é prosa e chave repetida.
+
+**A decisão.** Quatro mudanças, desenhadas em
+`docs/superpowers/specs/2026-09-22-custo-em-token-design.md`: a ressalva
+invariável passa a ser condicional à forma da resposta; os campos redundantes
+saem de `material` e as encerradas do `disciplinas` viram contagem; e a descrição
+repetida do parâmetro `disciplina` encolhe. Esta entrada registra a **medição** e
+a guarda; cada corte tem a sua.
+
+**A guarda, e ela é a parte que dura.** `tests/moodle/test_custo.py` mede a saída
+de cada ferramenta contra as fixtures e falha nos **dois** sentidos: acima do
+teto, e com folga maior que 15% abaixo dele. O segundo é o que importa — um teto
+generoso é um teste que parou de verificar, e sem ele o primeiro corte que
+entrasse deixaria o orçamento cego para o próximo crescimento. Ambos os sentidos
+verificados por sabotagem. O teto é contado em **bytes**, apesar de a medição
+acima mostrar que byte engana: um tokenizador seria a segunda dependência de
+runtime do projeto, e o precedente do `pypdf` (01/09) já decidiu esse caso. Byte
+é péssima unidade de custo e ótima unidade de regressão, e a pergunta do teste
+não é "quanto custa" — é "cresceu?".
+
+**O que ficou de fora do orçamento, com motivo.** `diagnostico` (o tamanho
+depende do caminho do `.env` da máquina e de quantas funções o token alcança),
+`questionarios` (não há fixture de `mod_quiz_*`) e `baixar_arquivo` (devolve
+caminho, não texto). E `o_que_vence` entra sabendo que o dublê ignora a janela: o
+número é de ~4 meses de eventos, não dos 14 dias do padrão — boa medida de
+regressão, não de produção.
