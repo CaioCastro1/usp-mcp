@@ -124,7 +124,7 @@ fonte de verdade sobre o que aquela família cobre.
 | `RS1-RS6` | `tests/moodle/test_ressalvas.py` | quando uma ressalva invariável sai, e quando ela é só repetição |
 | `P1-P6` | `tests/test_pacote.py` | o `pyproject.toml` e os entry points |
 | `P1-P5` | `tests/moodle/test_politica.py` | a allowlist do Moodle (Invariante 2) |
-| `R1-R48` | `tests/rucard/*.py` | o RUCard inteiro, uma faixa por arquivo |
+| `R1-R59` | `tests/rucard/*.py` | o RUCard inteiro, uma faixa por arquivo |
 | `T1-T5` | `tests/test_token_fora_do_argv.py` | o token não passa pela linha de comando do `curl` |
 | `T1-T87` | `tests/jupiter/*.py` | o Jupiter inteiro, uma faixa por arquivo |
 | `T68-T114` | `tests/moodle/*.py` | material, arquivo, depósito, cliente e fronteira do Moodle |
