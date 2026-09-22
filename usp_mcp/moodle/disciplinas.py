@@ -561,17 +561,21 @@ def minhas_disciplinas(
         )
         linhas.extend(f"  {d.sigla} ({d.rotulo})" for d in sem_periodo)
 
+    # Um aviso só, e ele depende do dado — as duas frases invariáveis que saíam
+    # aqui foram para a descrição e para o esquema do parâmetro (22/09/2026). O
+    # `insert(0, ...)` que havia nesta linha existia para pôr o corte ANTES
+    # delas; sem elas, inserir no começo de uma lista vazia é só um `append`
+    # disfarçado de ordem.
     avisos = []
     if encerradas and not todas:
         # Invariante 7: o corte é declarado, com a contagem e com a cura — e
         # dizendo o que exatamente ficou de fora, que aqui é detalhe e não
         # matrícula.
-        avisos.insert(
-            0,
+        avisos.append(
             f"Das {len(encerradas)} encerradas sai só a contagem por ano; o "
             "rótulo, o nome e o período de cada uma ficaram de fora. Peça de "
             "novo com `todas` para vê-los. Nenhuma matrícula foi omitida desta "
-            "contagem.",
+            "contagem."
         )
 
     linhas.extend(f"\n⚠ {a}" for a in avisos)
