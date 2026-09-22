@@ -406,18 +406,28 @@ def _linha_completa(disciplina: Disciplina) -> str:
 
 
 def _bloco_compacto(disciplinas) -> list[str]:
-    """As encerradas, agrupadas pelo ano em que terminaram, só o rótulo.
+    """As encerradas, como CONTAGEM por ano em que terminaram.
 
-    O rótulo e não a sigla: `PSI3322-2026` e `PSI3322-2026-REOF` são duas
-    matrículas da MESMA sigla, e uma lista deduplicada por sigla esconderia uma
-    delas — o corte é de detalhe, nunca de existência.
+    **Até 22/09/2026 isto listava o rótulo de cada uma**, e media 565 dos 1.350
+    tokens da resposta — 42%, para responder a uma pergunta que ninguém fez. As
+    10 em andamento, que são a resposta, custavam 476.
+
+    O ano fica porque é o que orienta a segunda pergunta ("o que eu fiz em
+    2024?"), e ela agora custa uma ida a mais, só para quem a faz. Os rótulos
+    continuam alcançáveis por `todas`, e o rodapé diz isso: o corte é do padrão,
+    não da ferramenta.
+
+    A contagem é de MATRÍCULA e não de sigla: `PSI3322-2026` e
+    `PSI3322-2026-REOF` são duas, e contá-las como uma esconderia uma delas —
+    o mesmo motivo que fazia a lista antiga usar o rótulo.
     """
-    por_ano: dict[int, list[str]] = {}
+    por_ano: dict[int, int] = {}
     for d in disciplinas:
-        por_ano.setdefault(d.fim.year, []).append(d.rotulo)
+        por_ano[d.fim.year] = por_ano.get(d.fim.year, 0) + 1
     return [
-        f"  {ano}: " + ", ".join(sorted(rotulos))
-        for ano, rotulos in sorted(por_ano.items(), reverse=True)
+        "  " + " · ".join(
+            f"{ano}: {quantas}" for ano, quantas in sorted(por_ano.items(), reverse=True)
+        )
     ]
 
 
@@ -428,13 +438,13 @@ def _bloco_compacto(disciplinas) -> list[str]:
 # diz exatamente isso, palavra por palavra. Era a mesma frase paga duas vezes na
 # mesma sessão (`notas/custo-em-token.md`).
 
-_DE_ONDE_SAI = (
-    "'Em andamento' sai das datas que o e-Disciplinas declara para o espaço da "
-    "disciplina, e não da sua matrícula oficial: trancamento e cancelamento "
-    "não chegam até aqui, e uma disciplina que o professor não datou cai no "
-    "bloco sem período. A matrícula oficial é o JupiterWeb, que este servidor "
-    "não alcança com dado pessoal."
-)
+# O `_DE_ONDE_SAI` que morava aqui — "'Em andamento' sai das datas que o
+# e-Disciplinas declara para o espaço da disciplina, e não da sua matrícula
+# oficial" — mudou de casa em 22/09/2026, e foi para a DESCRIÇÃO desta
+# ferramenta, inteiro. Ele não é ressalva sobre esta resposta: é contrato sobre o
+# que a ferramenta significa, verdadeiro em toda chamada e igual em todas. Na
+# descrição o cliente o lê uma vez por sessão; aqui ele saía a cada chamada da
+# ferramenta mais chamada do servidor.
 
 
 def minhas_disciplinas(
@@ -537,8 +547,7 @@ def minhas_disciplinas(
             )
         else:
             linhas.append(
-                f"\nEncerradas ({len(encerradas)}) — só o rótulo, pelo ano em "
-                "que terminaram:"
+                f"\nEncerradas ({len(encerradas)}) — quantas por ano de término:"
             )
             linhas.extend(_bloco_compacto(encerradas))
 
@@ -552,16 +561,21 @@ def minhas_disciplinas(
         )
         linhas.extend(f"  {d.sigla} ({d.rotulo})" for d in sem_periodo)
 
-    avisos = [_DE_ONDE_SAI]
+    # Um aviso só, e ele depende do dado — as duas frases invariáveis que saíam
+    # aqui foram para a descrição e para o esquema do parâmetro (22/09/2026). O
+    # `insert(0, ...)` que havia nesta linha existia para pôr o corte ANTES
+    # delas; sem elas, inserir no começo de uma lista vazia é só um `append`
+    # disfarçado de ordem.
+    avisos = []
     if encerradas and not todas:
         # Invariante 7: o corte é declarado, com a contagem e com a cura — e
         # dizendo o que exatamente ficou de fora, que aqui é detalhe e não
         # matrícula.
-        avisos.insert(
-            0,
-            f"Das {len(encerradas)} encerradas saem só o rótulo e o ano; o "
-            "nome e o período de cada uma ficaram de fora. Peça de novo com "
-            "`todas` para vê-los. Nenhuma matrícula foi omitida desta lista.",
+        avisos.append(
+            f"Das {len(encerradas)} encerradas sai só a contagem por ano; o "
+            "rótulo, o nome e o período de cada uma ficaram de fora. Peça de "
+            "novo com `todas` para vê-los. Nenhuma matrícula foi omitida desta "
+            "contagem."
         )
 
     linhas.extend(f"\n⚠ {a}" for a in avisos)

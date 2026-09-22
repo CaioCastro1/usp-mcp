@@ -4327,3 +4327,57 @@ emiti-la "só nesse caso", que é como a regra volta a ser sempre.
 `ja_entreguei` dispara com qualquer item listado, e o desenho pedia "só quando há
 item já corrigido". `emitir` é binário, e distinguir "corrigido" exigiria ler
 `estado` por substring. Dispara mais do que o desenho pedia, nunca menos.
+
+### 22/09/2026 — as duas listagens caras param de pagar pelo que o nome já diz
+
+Segundo corte. Nenhum dos dois é "resumir mais": a projeção do cru já entrega
+11,2% em `material`, e o gargalo tinha mudado de lado.
+
+**`material`: 6.712 → 5.991 B (−11%).** O bloco `[tipo, tamanho, data]` de cada
+item somava 933 tokens contra ~460 dos 57 nomes de arquivo que ele anotava — o
+que anota custava o dobro do anotado. Saíram duas repetições: o rótulo de tipo
+quando a extensão já o diz (`Lista 1.pdf [PDF, …]` dizia PDF duas vezes na mesma
+linha) e o `arquivo` genérico diante de uma extensão visível (`Provas.zip`). O
+rótulo **fica** quando acrescenta: `.odt` não soletra "documento", e `link` não
+tem extensão nenhuma.
+
+O tamanho passou a sair só acima de **10 MB**. Ele prevê custo de download —
+medido em 01/09, o `filesize` declarado bate exatamente com os bytes recebidos —
+mas prever o custo de um PDF de 400 kB não decide nada. Na mesma disciplina há
+GIF de 178 MB, e é lá que o número muda a decisão. A data ficou inteira: ela
+responde "o que foi postado essa semana", que é pergunta real.
+
+**`disciplinas`: 3.219 → 1.616 B (−50%).** As 62 matrículas encerradas saíam
+como lista de rótulos em toda chamada — 565 dos 1.350 tokens, 42% da resposta,
+contra 476 das 10 em andamento que são a resposta. Viraram contagem por ano
+(`2026: 11 · 2025: 24 · …`), e `todas` traz os rótulos. O ano ficou porque é o
+que orienta a segunda pergunta; ela agora custa uma ida a mais, e só para quem a
+faz.
+
+E o `_DE_ONDE_SAI` mudou de casa em vez de sumir: "'Em andamento' sai das datas
+do espaço da disciplina, não da sua matrícula oficial" não é ressalva sobre
+aquela resposta, é **contrato** sobre o que a ferramenta significa — idêntico em
+toda chamada. Foi para a descrição inteiro. Na ferramenta mais chamada do
+servidor, a diferença entre uma vez por sessão e uma vez por chamada é o
+argumento inteiro deste trabalho.
+
+**Dois testes mudaram de asserção sem mudar de propriedade, e é a parte que vale
+reler.**
+
+O **DI4** exigia que as 74 matrículas saíssem NOMEADAS na resposta padrão —
+Invariante 7 escrito como "o corte é de detalhe, nunca de existência". O medo que
+ele protegia está dito na própria docstring: "uma sigla que suma daqui é uma
+disciplina que quem pergunta não tem como descobrir que existe". Com a contagem e
+o `todas` declarados na resposta, ela é descobrível. O teste passou a exigir o que
+sempre importou: que os três blocos somem o total, que o total seja dito, e que
+`todas` nomeie as 74. Sem a última metade, "cortar" e "perder" seriam a mesma
+coisa para a suíte.
+
+O **DI8** procurava o contrato na resposta; agora exige que ele esteja na
+descrição **e não esteja também na resposta**. As duas metades, porque o ganho
+inteiro é não dizer a mesma coisa duas vezes — um teste que só olhasse a
+descrição deixaria a duplicação voltar calada.
+
+E o **L6** fixava a string `"Aula1.pdf [PDF]"` para provar que o nome sai e o
+endereço não. O `[PDF]` era mecanismo; a propriedade está nas quatro asserções
+que sobraram, sobre `pluginfile.php`, `/webservice/` e `token`.

@@ -610,16 +610,57 @@ def rotulo_do_modulo(item: Item) -> str | None:
     return item.modulo
 
 
+def _extensao(nome: str) -> str:
+    """A extensão do nome do arquivo, sem o ponto e em minúscula. `""` se não há.
+
+    Teto de 5 para não confundir extensão com o resto de um nome que tem ponto
+    no meio ("Aula 3. Revisão"): nenhuma das extensões deste acervo passa disso.
+    """
+    _, ponto, resto = nome.rpartition(".")
+    return resto.lower() if ponto and 0 < len(resto) <= 5 and resto.isalnum() else ""
+
+
+def _rotulo_de_tipo(item: Item) -> str | None:
+    """O tipo, ou `None` quando o nome do arquivo já o diz.
+
+    Medido em 22/09/2026: os 57 blocos `[tipo, tamanho, data]` de PTC3314 custam
+    933 tokens contra ~460 dos 57 nomes que eles anotam. Duas repetições dão
+    quase tudo isso — `Lista 1.pdf [PDF, …]`, que diz PDF duas vezes na mesma
+    linha, e `Provas.zip [arquivo, …]`, em que "arquivo" é o default genérico e
+    não acrescenta nada a uma extensão visível.
+
+    Fica quando acrescenta: `.odt` não soletra "documento", e `link` não tem
+    extensão nenhuma — ali o rótulo é a única coisa que diz o que aquilo é.
+    """
+    extensao = _extensao(item.nome)
+    if not extensao:
+        return item.tipo
+    if item.tipo == "arquivo" or extensao == item.tipo.lower():
+        return None
+    return item.tipo
+
+
+# Acima disto o tamanho muda a decisão de baixar; abaixo, é ruído em toda linha.
+# PTC3314 tem GIF de 178 MB ao lado de PDF de 400 kB, e o `filesize` declarado
+# bate exatamente com os bytes recebidos (medido em 01/09), então ele prevê custo
+# — só que prever custo de 400 kB não decide nada.
+_TAMANHO_QUE_IMPORTA = 10 * 1024 * 1024
+
+
 def _formatar_item(item: Item) -> str:
-    partes = [f"  - {item.nome} [{item.tipo}"]
-    if item.tamanho:
-        partes.append(f", {item.tamanho // 1024} kB")
+    dentro = []
+    if (rotulo := _rotulo_de_tipo(item)) is not None:
+        dentro.append(rotulo)
+    if item.tamanho and item.tamanho >= _TAMANHO_QUE_IMPORTA:
+        dentro.append(f"{item.tamanho // (1024 * 1024)} MB")
     if item.modificado:
-        partes.append(f", {item.modificado.strftime('%d/%m/%Y')}")
+        dentro.append(item.modificado.strftime("%d/%m/%Y"))
     if item.sem_titulo:
-        partes.append(", sem título no texto")
-    partes.append("]")
-    linha = "".join(partes)
+        dentro.append("sem título no texto")
+    # Sem nada dentro não sai colchete vazio: `- Provas.zip []` é pior que
+    # `- Provas.zip`, e é o caso do item sem data, sem tamanho grande e com a
+    # extensão dizendo o tipo.
+    linha = f"  - {item.nome}" + (f" [{', '.join(dentro)}]" if dentro else "")
     if (rotulo := rotulo_do_modulo(item)) is not None:
         linha += f"\n    ({rotulo})"
     if item.url_externa:
