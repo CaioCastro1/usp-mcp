@@ -172,6 +172,38 @@ para o **cru** — ali a razão medida foi 1,00× a 1,15×, porque JSON do Moodl
 prosa e chave repetida. Para custo de **saída**, o número honesto sai de
 tokenizador, e esta nota é onde ele mora.
 
+## O resultado, medido depois (22/09/2026)
+
+Mesmo método, mesmas fixtures, mesmo tokenizador, com os quatro cortes dentro:
+
+| ferramenta | antes | depois | |
+|---|---:|---:|---|
+| `disciplinas` | 1.350 | **664** | −51% |
+| `atrasadas` | 319 | **190** | −40% |
+| `ja_entreguei` | 306 | **220** | −28% |
+| `notas` | 163 | **131** | −20% |
+| `material` | 2.569 | **2.166** | −16% |
+| `o_que_mudou` | 282 | **246** | −13% |
+| `avisos` | 943 | 943 | 0% |
+| `o_que_vence` | 1.093 | 1.093 | 0% |
+| **soma** | **7.025** | **5.653** | **−20%** |
+| estático (3 servidores) | 5.262 | 5.194 | −1,3% |
+
+Uma sessão típica — `disciplinas`, `material`, `o_que_vence` — cai de 5.012 para
+3.923 tokens de resposta, 22% menos.
+
+**Os dois zeros são decisão, não esquecimento.** `avisos` ficou porque o
+`_COBERTURA` dela protege leituras nos dois sentidos, e o teste A15 afirma
+justamente o segundo (§9, 22/09). `o_que_vence` não tinha prosa invariável para
+cortar: a `cobertura` dele é uma frase só, e legítima.
+
+**E o estático mal se moveu, que era o esperado.** Ele é a maior linha isolada da
+tabela (5.194 de ~9.100 numa sessão típica) e ficou quase intacto por decisão: a
+descrição de cada ferramenta virou a casa canônica do contrato quando a ressalva
+saiu da resposta, e encurtar as duas pontas na mesma mudança é como um invariante
+se perde. Quem quiser mexer aí de novo começa por `questionarios` (418 tokens de
+descrição e esquema, e custo de resposta ainda desconhecido — ver o backlog).
+
 ## O que isto virou
 
 O desenho está em
