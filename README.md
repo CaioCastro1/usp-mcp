@@ -16,6 +16,11 @@ Projeto não-oficial, sem nenhum vínculo com a Universidade de São Paulo.
 Você não precisa saber programar para usar, nem contribuir com nada: instale, conecte e
 pergunte. Quem quiser mexer no código encontra o combinado em *Escopo e contribuição*.
 
+[<img src="docs/demo/demo-multi-agente-poster.jpg" alt="Demo: três assistentes respondendo ao vivo pelo usp-mcp" width="100%">](docs/demo/demo-multi-agente.mp4)
+
+Três perguntas reais, respondidas ao vivo por três assistentes diferentes usando o mesmo
+servidor. Clique na imagem para ver o vídeo.
+
 ## O que ele responde
 
 | Pergunta que você faz | Onde ele busca |
