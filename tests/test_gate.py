@@ -231,3 +231,121 @@ def test_d6_a_suite_pulada_nao_sai_com_zero(tmp_path):
         "comentário do próprio script promete o contrário. Faça o caminho do "
         f"pulo sair com código próprio. Saída:\n{r.stdout}{r.stderr}"
     )
+
+
+# --------------------------------------------------------------------------
+# D7-D8: o venv do diretório, e a base em que este HEAD está
+# --------------------------------------------------------------------------
+
+
+def _rodar_gate_sem_pular_a_suite(raiz: pathlib.Path) -> subprocess.CompletedProcess:
+    """Como `_rodar_gate`, mas SEM `USP_MCP_GATE_SEM_SUITE` — porque a pre.b só
+    existe quando a checagem 3 vai rodar, e com a variável ligada ela é pulada.
+
+    Não há recursão aqui, e é por construção: a pre.b aborta o gate do clone
+    antes da checagem 3, justamente por não haver venv. Em D7b, onde há um venv
+    dublê, quem aborta antes da suíte é a checagem 0 — o python falso não
+    imprime caminho de `.env` nenhum.
+    """
+    ambiente = {k: v for k, v in os.environ.items() if k not in ("RUCARD_HASH", "MOODLE_TOKEN")}
+    ambiente.pop("USP_MCP_GATE_SEM_SUITE", None)
+    return subprocess.run(
+        ["./scripts/gate.sh"], cwd=raiz, env=ambiente,
+        capture_output=True, text=True, timeout=300,
+    )
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason=MOTIVO_SEM_GIT)
+def test_d7_o_gate_para_sem_venv_antes_de_responder_sobre_o_python_do_sistema(tmp_path):
+    """Medido em 19/09/2026 num worktree sem venv: `PY` cai para o python3 do
+    sistema, que não tem o SDK do MCP, e a suíte devolve "860 passed, 74
+    skipped" — um placar grande que de longe passa por verde, sobre um
+    interpretador que não é o do projeto."""
+    clone = _clone_limpo(tmp_path / "clone")
+    assert not (clone / ".venv").exists(), "clone mal montado: veio com venv"
+
+    r = _rodar_gate_sem_pular_a_suite(clone)
+
+    assert r.returncode == 1
+    assert "pre.b" in r.stdout, f"a pre.b nem apareceu no relatório:\n{r.stdout}"
+    assert "python3 -m venv .venv" in r.stdout, (
+        f"reprovou sem dizer o comando que cura. Saída:\n{r.stdout}"
+    )
+    assert '-e ".[dev]"' in r.stdout, (
+        "citou a cura sem o `-e`: sem ele não existem os entry points em "
+        "`.venv/bin/` e o test_pacote.py (P6) PULA em vez de exercitar"
+    )
+    assert "3. suite offline" not in r.stdout, (
+        "chegou a rodar a suíte com o python do sistema — a guarda existe "
+        f"justamente para parar antes. Saída:\n{r.stdout}"
+    )
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason=MOTIVO_SEM_GIT)
+def test_d7b_com_venv_no_lugar_a_pre_b_passa(tmp_path):
+    """Sabotagem ao contrário de D7: sem este teste, uma pre.b que reprovasse
+    SEMPRE passaria por correta, e o gate estaria quebrado para todo mundo."""
+    clone = _clone_limpo(tmp_path / "clone")
+    falso = clone / ".venv" / "bin"
+    falso.mkdir(parents=True)
+    (falso / "python").write_text("#!/usr/bin/env bash\nexit 0\n", encoding="utf-8")
+    (falso / "python").chmod(0o755)
+
+    r = _rodar_gate_sem_pular_a_suite(clone)
+
+    linha = [l for l in r.stdout.splitlines() if "pre.b" in l]
+    assert len(linha) == 1, f"esperava uma linha da pre.b, achei {len(linha)}:\n{r.stdout}"
+    assert linha[0].strip().endswith("OK"), (
+        f"a pre.b reprovou com venv no lugar: {linha[0]!r}"
+    )
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason=MOTIVO_SEM_GIT)
+def test_d8_o_gate_diz_quantos_commits_a_base_esta_atras(tmp_path):
+    """O aviso de 21/09/2026: a main local 324 commits atrás do origin/main, e
+    todo worktree aberto dali nascendo dois dias no passado.
+
+    O ref remoto é avançado com `commit-tree`, que não toca a árvore de
+    trabalho — mexer nela apagaria as cópias que `_clone_limpo` acabou de pôr.
+    """
+    clone = _clone_limpo(tmp_path / "clone")
+    tree = subprocess.run(
+        ["git", "-C", str(clone), "rev-parse", "HEAD^{tree}"],
+        check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    novo = subprocess.run(
+        ["git", "-C", str(clone), "commit-tree", tree, "-p", "HEAD", "-m", "avanco"],
+        check=True, capture_output=True, text=True,
+        env={**os.environ, "GIT_AUTHOR_NAME": "T", "GIT_AUTHOR_EMAIL": "t@t.invalido",
+             "GIT_COMMITTER_NAME": "T", "GIT_COMMITTER_EMAIL": "t@t.invalido"},
+    ).stdout.strip()
+    subprocess.run(
+        ["git", "-C", str(clone), "update-ref", "refs/remotes/origin/main", novo],
+        check=True, capture_output=True, text=True,
+    )
+
+    r = _rodar_gate(clone)
+
+    assert "base: 1 commit(s) atras" in r.stdout, (
+        f"não avisou que a base está atrasada. Saída:\n{r.stdout}"
+    )
+    assert "NAO reprova" in r.stdout, (
+        "avisou sem dizer que não reprova — um aviso que parece veredito vira "
+        "ou pânico ou ruído, e o §6 do CONVENTIONS.md não quer nenhum dos dois"
+    )
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason=MOTIVO_SEM_GIT)
+def test_d8b_em_dia_o_gate_nao_inventa_atraso(tmp_path):
+    """Anti-vácuo de D8: um aviso que aparecesse sempre não diria nada."""
+    clone = _clone_limpo(tmp_path / "clone")
+    subprocess.run(
+        ["git", "-C", str(clone), "update-ref", "refs/remotes/origin/main", "HEAD"],
+        check=True, capture_output=True, text=True,
+    )
+
+    r = _rodar_gate(clone)
+
+    assert "commit(s) atras" not in r.stdout, (
+        f"inventou atraso com a base em dia. Saída:\n{r.stdout}"
+    )

@@ -21,6 +21,7 @@ Três camadas de custo, e a do meio é a que torna a ferramenta possível:
 from __future__ import annotations
 
 import json
+from datetime import datetime
 
 import pytest
 
@@ -32,6 +33,7 @@ from tests.moodle.conftest import (
 )
 from usp_mcp.moodle import disciplinas as disc
 from usp_mcp.moodle import erros, material as mat, politica
+from usp_mcp.moodle.projecao import FUSO_SAO_PAULO
 
 COURSEID_PSI3323 = 142033
 COURSEID_PTC3314 = 142036
@@ -545,3 +547,100 @@ def test_T107_o_nome_do_modulo_e_omitido_quando_repete_o_do_arquivo(
 
     # arquivo e módulo idênticos: o rótulo não pode aparecer duas vezes
     assert texto.count("Planilha de Notas - PSI3323 - 2o. Semestre de 2026") == 1
+
+
+# --------------------------------------------------------------------------
+# O que a linha de item NÃO precisa dizer (22/09/2026)
+#
+# Medido em `notas/custo-em-token.md`: os 57 blocos `[tipo, tamanho, data]` de
+# PTC3314 custam 933 tokens contra ~460 dos 57 nomes de arquivo que eles anotam.
+# O que anota custava o dobro do anotado.
+# --------------------------------------------------------------------------
+
+
+def test_o_tipo_nao_se_repete_quando_a_extensao_ja_o_diz():
+    """`Lista 1.pdf [PDF, …]` diz PDF duas vezes na mesma linha."""
+    item = mat.Item(
+        nome="Lista 1.pdf",
+        tipo="PDF",
+        tamanho=None,
+        modificado=None,
+        url_externa=None,
+    )
+
+    linha = mat._formatar_item(item)
+
+    assert "Lista 1.pdf" in linha
+    assert "PDF," not in linha and "[PDF]" not in linha
+
+
+def test_o_tipo_generico_sai_quando_o_nome_tem_extensao():
+    """"arquivo" não acrescenta nada a `Provas.zip` — quem lê vê a extensão."""
+    item = mat.Item(
+        nome="Provas.zip",
+        tipo="arquivo",
+        tamanho=None,
+        modificado=None,
+        url_externa=None,
+    )
+
+    assert "arquivo" not in mat._formatar_item(item)
+
+
+def test_o_tipo_fica_quando_a_extensao_nao_o_diz():
+    """`.odt` não soletra "documento", e `link` não tem extensão nenhuma: nos
+    dois casos o rótulo é a única coisa que diz o que aquilo é."""
+    odt = mat.Item(
+        nome="EP1-2026.odt",
+        tipo="documento",
+        tamanho=None,
+        modificado=None,
+        url_externa=None,
+    )
+    externo = mat.Item(
+        nome="Animação de ondas TEM",
+        tipo="link",
+        tamanho=None,
+        modificado=None,
+        url_externa="https://exemplo.invalid/x",
+    )
+
+    assert "documento" in mat._formatar_item(odt)
+    assert "link" in mat._formatar_item(externo)
+
+
+def test_o_tamanho_so_sai_quando_muda_a_decisao_de_baixar():
+    """O `filesize` prevê o custo do download (medido em 01/09: bate exatamente
+    com os bytes recebidos), e isso decide alguma coisa num GIF de 178 MB, não
+    num PDF de 400 kB. PTC3314 tem os dois."""
+    pequeno = mat.Item(
+        nome="aula05.pdf",
+        tipo="PDF",
+        tamanho=441 * 1024,
+        modificado=None,
+        url_externa=None,
+    )
+    enorme = mat.Item(
+        nome="tensao_Zl=150_senoide_v2.gif",
+        tipo="arquivo",
+        tamanho=178086 * 1024,
+        modificado=None,
+        url_externa=None,
+    )
+
+    assert "kB" not in mat._formatar_item(pequeno)
+    assert "MB" in mat._formatar_item(enorme)
+
+
+def test_a_data_continua_saindo_em_todo_item():
+    """Ela responde "o que foi postado essa semana", que é pergunta real — e foi
+    o único dos três campos que ficou inteiro."""
+    item = mat.Item(
+        nome="aula07.pdf",
+        tipo="PDF",
+        tamanho=None,
+        modificado=datetime(2026, 8, 25, tzinfo=FUSO_SAO_PAULO),
+        url_externa=None,
+    )
+
+    assert "25/08/2026" in mat._formatar_item(item)

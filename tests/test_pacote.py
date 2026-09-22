@@ -98,20 +98,62 @@ def _scripts() -> dict[str, str]:
 # ------------------------------------------------- P1: a tabela contra o disco
 
 
+# Os comandos que NÃO são servidores. Lista fechada e à mão, de propósito: um
+# nome novo aqui exige que alguém escreva no `pyproject.toml` por que ele existe,
+# em vez de a tabela crescer calada. Hoje é um só — o obtentor da chave do
+# e-Disciplinas, portado de bash para Python em 18/09/2026 para o Windows não
+# precisar do Git Bash (`usp_mcp/token/`).
+FERRAMENTAS = {"usp-mcp-token": "usp_mcp.token.cli:main"}
+
+
 def test_p1_ha_um_entry_point_por_servidor_descoberto():
     scripts = _scripts()
     esperado = {
         f"usp-mcp-{sistema}": f"usp_mcp.{sistema}.server:main" for sistema in SISTEMAS
     }
+    servidores = {nome: alvo for nome, alvo in scripts.items() if nome not in FERRAMENTAS}
 
-    assert scripts == esperado, (
+    assert servidores == esperado, (
         "a tabela `[project.scripts]` divergiu de `usp_mcp/*/server.py`.\n"
-        f"  declarado: {scripts}\n"
+        f"  declarado: {servidores}\n"
         f"  no disco : {esperado}\n"
         "Foi a decisão de três entry points que criou esta dívida (está escrita "
         "no `pyproject.toml`), e é este teste que a cobra: um quarto sistema sem "
-        "o quarto comando nasceria instalável e inalcançável."
+        "o quarto comando nasceria instalável e inalcançável. Um comando que NÃO "
+        "é servidor entra em FERRAMENTAS, neste arquivo, com o porquê no pyproject."
     )
+    ferramentas = {nome: alvo for nome, alvo in scripts.items() if nome in FERRAMENTAS}
+    assert ferramentas == FERRAMENTAS, (
+        f"as ferramentas declaradas são {ferramentas}; este teste conhece {FERRAMENTAS}. "
+        "Os dois lados têm de andar juntos: o `pyproject.toml` diz o que existe, e "
+        "esta lista diz que alguém olhou."
+    )
+
+
+def test_p1b_o_entry_point_da_ferramenta_resolve_e_nao_exige_o_sdk():
+    """O `usp-mcp-token` é o comando que uma pessoa roda ANTES de o servidor
+    funcionar, para obter a credencial. Ele não pode depender do SDK do MCP: a
+    instalação da chave falharia por um motivo que não é dela.
+
+    Num processo LIMPO, e não neste: `tests/handshake/conftest.py` já pode ter
+    importado `mcp` aqui, e `"mcp" in sys.modules` mediria o vazio.
+    """
+    import subprocess
+    import sys
+
+    for _nome, alvo in FERRAMENTAS.items():
+        caminho, _, atributo = alvo.partition(":")
+        r = subprocess.run(
+            [
+                sys.executable, "-c",
+                f"import importlib, sys; m = importlib.import_module({caminho!r}); "
+                f"assert callable(getattr(m, {atributo!r}, None)), 'nao resolve'; "
+                "print('mcp' in sys.modules)",
+            ],
+            capture_output=True, text=True, cwd=RAIZ, timeout=60,
+        )
+        assert r.returncode == 0, f"`{alvo}` não resolve:\n{r.stderr}"
+        assert r.stdout.strip() == "False", f"importar `{caminho}` puxou o SDK do MCP"
 
 
 # ------------------------------------------- P2: runtime é só o SDK, não o pytest

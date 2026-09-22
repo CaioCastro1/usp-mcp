@@ -74,21 +74,20 @@ def achar_env(raiz: Path | None = None) -> Path | None:
     return None
 
 
-def carregar_env(raiz: Path | None = None) -> Path | None:
-    """Põe o `.env` em `os.environ` e devolve o arquivo usado (ou None).
+def ler_env(arquivo: Path) -> dict[str, str]:
+    """O que `set -a; . "$arquivo"; set +a` poria no ambiente, como dicionário.
 
-    `setdefault`, e não atribuição: **quem já está no ambiente ganha**. É o que
-    mantém `USP_MCP_LIVE=1 pytest` valendo mesmo se o `.env` disser o
-    contrário, o que deixa o bloco `env` de um cliente MCP sobrescrever o
-    arquivo, e o que impede este carregador de ligar a camada live por baixo de
-    quem não pediu.
+    É o parser que `carregar_env` sempre teve, separado em 18/09/2026 porque o
+    `usp_mcp.token` (o porte do `token.sh`) precisa da MESMA leitura com outra
+    regra de precedência: o bash sourceava o `.env` e o arquivo vencia o
+    ambiente, enquanto `carregar_env` faz `setdefault` e o ambiente vence. Um
+    segundo parser dentro do `token` seria a "mesma pergunta com duas
+    implementações" que o §9 de 12/09 registra como cara.
 
     Nenhum valor é impresso, nem em erro (Invariante 3): linha malformada é
     ignorada em silêncio em vez de ecoada.
     """
-    arquivo = achar_env(raiz)
-    if arquivo is None:
-        return None
+    valores: dict[str, str] = {}
     for linha in arquivo.read_text(encoding="utf-8").splitlines():
         linha = linha.strip()
         if not linha or linha.startswith("#") or "=" not in linha:
@@ -100,5 +99,22 @@ def carregar_env(raiz: Path | None = None) -> Path | None:
         if len(valor) >= 2 and valor[0] == valor[-1] and valor[0] in "\"'":
             valor = valor[1:-1]
         if chave:
-            os.environ.setdefault(chave, valor)
+            valores[chave] = valor
+    return valores
+
+
+def carregar_env(raiz: Path | None = None) -> Path | None:
+    """Põe o `.env` em `os.environ` e devolve o arquivo usado (ou None).
+
+    `setdefault`, e não atribuição: **quem já está no ambiente ganha**. É o que
+    mantém `USP_MCP_LIVE=1 pytest` valendo mesmo se o `.env` disser o
+    contrário, o que deixa o bloco `env` de um cliente MCP sobrescrever o
+    arquivo, e o que impede este carregador de ligar a camada live por baixo de
+    quem não pediu.
+    """
+    arquivo = achar_env(raiz)
+    if arquivo is None:
+        return None
+    for chave, valor in ler_env(arquivo).items():
+        os.environ.setdefault(chave, valor)
     return arquivo

@@ -102,11 +102,18 @@ def test_u2_o_readme_de_fato_manda_baixar_o_projeto():
         for linha, dono, repo in enderecos_de(RAIZ / "README.md")
         if repo == REPO
     ]
-    assert len(nossas) >= 3, (
-        "o README tem menos de três endereços deste repositório. Eram três em "
-        f"14/09/2026 — o prompt do caminho rápido, o `pip install` e o `git "
-        f"clone` —, e agora são {len(nossas)}. Se uma instrução saiu de "
-        "propósito, baixe este número junto; se sumiu sozinha, é o bug."
+    # Eram três em 14/09/2026 (o prompt do caminho rápido, o `pip install` e o
+    # `git clone`). Em 18/09/2026 o caminho rápido virou TRÊS prompts, um por
+    # sistema, cada um com o seu `git clone`, e o piso subiu junto: os três
+    # prompts, o clone do caminho manual e o clone da subseção do Windows. Um
+    # prompt que perdesse o endereço passaria a mandar o assistente adivinhar de
+    # onde clonar, e é isso que este número existe para pegar.
+    assert len(nossas) >= 5, (
+        "o README tem menos de cinco endereços deste repositório. São cinco "
+        "desde 18/09/2026: um em cada prompt do caminho rápido (Mac, Windows, "
+        f"Linux), o `git clone` manual e o do Windows. Agora são {len(nossas)}. "
+        "Se uma instrução saiu de propósito, baixe este número junto; se sumiu "
+        "sozinha, é o bug."
     )
 
 

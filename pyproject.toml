@@ -136,10 +136,21 @@ dev = ["pytest>=8,<10", "pyyaml>=6,<7"]
 # lançador): P1 deriva o conjunto esperado de `usp_mcp/*/server.py` e reprova se
 # esta tabela divergir dele. A lista à mão continua sendo lista à mão — o que
 # muda é que ela não envelhece calada.
+#
+# O QUARTO comando, `usp-mcp-token`, NÃO é um servidor e não sai desse glob: é o
+# obtentor da chave do e-Disciplinas, o `scripts/token.sh` portado para Python
+# em 18/09/2026 (`usp_mcp/token/`). Ele existe aqui por um motivo só, e é o
+# Windows: o pacote instalado põe um `usp-mcp-token.exe` em `.venv\Scripts\`, e
+# com isso a pessoa obtém a chave do PowerShell que já abriu para instalar, sem
+# precisar do Git Bash — que era o degrau em que a instalação parava. Em Mac e
+# Linux o `./scripts/token.sh` continua valendo e chama este mesmo módulo. P1
+# separa os dois grupos: os servidores continuam comparados com o disco, e as
+# ferramentas são uma lista fechada que cresce só quando alguém escreve por quê.
 [project.scripts]
 usp-mcp-jupiter = "usp_mcp.jupiter.server:main"
 usp-mcp-moodle = "usp_mcp.moodle.server:main"
 usp-mcp-rucard = "usp_mcp.rucard.server:main"
+usp-mcp-token = "usp_mcp.token.cli:main"
 
 [tool.setuptools.packages.find]
 # Só `usp_mcp*`. Sem isto o setuptools acha `tests`, `scripts`, `notas` e `docs` na

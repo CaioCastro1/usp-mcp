@@ -12,6 +12,34 @@ As versões seguem `MAIOR.MENOR.CORREÇÃO`. O que a versão promete está escri
 pública, e mudá-los é quebra. O texto das respostas fica de fora dessa promessa,
 porque quem o lê é um modelo e travá-lo congelaria a parte que melhora com uso.
 
+## Não lançado
+
+### Novidades
+
+- **A resposta da semana do bandejão encolheu 9%.** "Que dia tem lasanha essa
+  semana?" ocupava 2.642 tokens do contexto do assistente e passa a ocupar 2.408,
+  sem perder nada: o item que se repete em quase todas as refeições sobe uma vez
+  para o rodapé, e as refeições que trazem outra coisa no lugar são nomeadas ali
+  e seguem com a lista inteira na linha delas. Em bytes o corte é maior, 12%, mas
+  o que conta é o token. A resposta de um dia não mudou.
+
+- **Obter a chave do e-Disciplinas não precisa mais de bash.** O programa que
+  obtém a chave foi reescrito em Python, e o pacote passa a instalar o comando
+  `usp-mcp-token` ao lado dos três servidores. No Windows ele vira
+  `.venv\Scripts\usp-mcp-token.exe`, e a pessoa roda do PowerShell que já abriu
+  para instalar, sem Git Bash. O que ele faz é o mesmo de antes: abre a página,
+  fica de vigia na área de transferência, confere a chave contra a USP e só então
+  grava. `./scripts/token.sh` continua existindo e faz a mesma coisa (ele chama o
+  Python); quem está no Mac ou no Linux não muda nada. No PowerShell, o fluxo em
+  dois passos é `Get-Clipboard | usp-mcp-token`.
+
+### Ainda não verificado contra dado real
+
+- O comando no Windows foi escrito e testado num Mac, com dublês das ferramentas
+  do Windows. O que está provado é que ele escolhe `Get-Clipboard`, `rundll32` e
+  `curl.exe` quando é lá que está; não que essas ferramentas fazem o esperado num
+  Windows de verdade. A lista do que conferir está no desenho de 18/09.
+
 ## 1.1.0 — 18/09/2026
 
 Primeira leva depois da publicação. Nada do que existia mudou de nome ou de

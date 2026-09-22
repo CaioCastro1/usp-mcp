@@ -64,15 +64,27 @@ _spec.loader.exec_module(hig)
 # publicada **sem guardar o cru**. Recapturar custa chamada da conta do dono
 # (Regra de Ouro, §3.1) e é decisão dele, registrada no backlog. Quem publicar
 # a próxima captura sem guardar o cru recria exatamente este buraco.
+#
+# `users_courses_15-09.json` é uma dessas nove, e o par que a nomeava prometia a
+# única coisa que só T58 dá: PROCEDÊNCIA — que o arquivo versionado é mesmo a
+# saída do higienizador sobre o cru, e não algo editado à mão depois. Essa
+# promessa nunca foi cumprida para ela, porque o cru que o par apontava é o de
+# 31/08, de outra captura. Quem cobre agora: ninguém, e ninguém pode enquanto o
+# cru de 15/09 não for recapturado. O que sobra para ela não é procedência, é
+# SEGURANÇA, e isso está coberto sem cru — T48b (estabilidade), T49 (forma e
+# comprimento) e T56 (varredura por conteúdo, o teste que teria ficado vermelho
+# em 15/09) rodam sobre cada publicada, ela inclusive. A procedência que o par
+# de fato entrega, agora que aponta para o cru certo, é a da captura de 31/08.
 PARES_CRU = {
     "action_events.json": "action_events.json",
     "course_contents_142033.json": "course_contents_psi3323.json",
-    # O cru desta é a captura de 15/09 (47 matrículas), e a publicada de mesmo
-    # nome é a de 31/08 (74), mantida de propósito para os testes que contam
-    # matrícula. Parear pelo nome do arquivo comparava duas capturas
-    # DIFERENTES e reprovava na máquina de quem tem o cru, sem que nada
-    # estivesse errado com o higienizador.
-    "users_courses.json": "users_courses_15-09.json",
+    # Este par já foi invertido uma vez, no mesmo 17/09 em que foi medido:
+    # `f453d6a` o reapontou para `users_courses_15-09.json` afirmando na
+    # mensagem ter conferido, e a conferência diz o contrário. O cru do disco é
+    # o de 31/08, com 74 matrículas; a publicada de mesmo nome também tem 74 e é
+    # reproduzida byte a byte; a `users_courses_15-09.json` tem 47 e não é.
+    # Medido de novo em 22/09/2026, offline, no mesmo molde exaustivo.
+    "users_courses.json": "users_courses.json",
 }
 
 # Escrito à mão: sem isto, esvaziar `PARES_CRU` deixaria T58 verde sem comparar

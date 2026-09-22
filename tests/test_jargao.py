@@ -48,7 +48,22 @@ def strings_que_saem(caminho: pathlib.Path):
             yield no.lineno, no.value
 
 
-ARQUIVOS = sorted(p.relative_to(RAIZ) for p in PACOTE.rglob("*.py"))
+# `usp_mcp/token/` fica de fora, e a razão é a da própria regra: J1 é sobre o
+# que "chega ao fio" — a string que um MODELO lê no stdio e que custa tokens sem
+# referente. O `token` não fala com modelo nenhum: é o `scripts/token.sh` portado
+# para Python (18/09/2026), um programa de instalação que fala com uma PESSOA
+# num terminal, dentro de um clone que tem o `SPEC1.md` ao lado. As mensagens
+# dele vieram do bash como estavam — ajustadas contra uso real e afirmadas por
+# testes — e o bash nunca esteve sob J1. Se um dia se decidir tirar o `§` dessas
+# frases, é decisão sobre o texto do obtentor, não sobre esta varredura; até lá,
+# a isenção é por diretório, para não virar isenção por palavra.
+FORA_DE_J1 = (PACOTE / "token",)
+
+ARQUIVOS = sorted(
+    p.relative_to(RAIZ)
+    for p in PACOTE.rglob("*.py")
+    if not any(p.is_relative_to(fora) for fora in FORA_DE_J1)
+)
 
 
 @pytest.mark.parametrize("arquivo", ARQUIVOS, ids=str)

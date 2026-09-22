@@ -163,6 +163,18 @@ def test_c7_as_instrucoes_cabem_no_orcamento_de_toda_conexao(estado, request, en
     repositório, pago em tokens por conexão. O número é generoso e existe para
     reprovar crescimento, não para brigar por uma frase.
 
+    **Subiu de 2600 para 2650 em 22/09/2026, e a troca foi medida.** Entrou o
+    parágrafo de como nomear uma disciplina (~250 caracteres), e ele saiu de
+    SEIS esquemas de parâmetro onde viajava inteiro — 67 tokens cada, em toda
+    sessão. Medido no handshake: o estático dos três servidores caiu de 20.225
+    para 20.064 bytes. É o caso exato que a regra deste campo prevê: o
+    `tools/list` até carrega essa explicação, mas só repetindo-a seis vezes.
+
+    Foi teto subindo por decisão, e não por raspagem: o texto encostou em 2601,
+    e encolher uma frase para caber em 2600 deixaria o número certo e o
+    orçamento desonesto — um teto que se cumpre aparando prosa não mede mais
+    nada.
+
     O teto subiu de 1800 para 2600 em 18/09/2026, e foi decisão, não folga: o
     texto ganhou o caminho do `.env`, a separação entre iniciativa própria e
     pedido explícito, a regra de não imprimir o arquivo e a menção à outra
@@ -174,7 +186,7 @@ def test_c7_as_instrucoes_cabem_no_orcamento_de_toda_conexao(estado, request, en
     request.getfixturevalue(estado)
     texto = capacidades.instrucoes()
 
-    assert len(texto) <= 2600, (
+    assert len(texto) <= 2650, (
         f"as instruções estão com {len(texto)} caracteres. Elas carregam só o "
         "que o `tools/list` não tem como carregar — o que cada ferramenta faz "
         "já viaja na descrição dela."

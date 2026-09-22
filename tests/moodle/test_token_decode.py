@@ -172,6 +172,15 @@ def raiz_falsa(tmp_path):
 
     `tmp_path` nao tem `.git` em pai nenhum, entao `achar_env` fica na raiz
     falsa e nunca alcanca o `.env` de verdade de quem roda a suite.
+
+    `usp_mcp/token/` vem junto desde 18/09/2026, quando o `token.sh` virou
+    involucro de `python -m usp_mcp.token` e a regra do formato saiu de
+    `scripts/_decodificar_token.py` para `usp_mcp/token/decodificar.py` (o
+    arquivo de `scripts/` ficou como casca que importa de la). A raiz falsa
+    copia o que os scripts DEPENDEM, e a dependencia mudou de lugar — sem a
+    copia, o involucro nao teria o que chamar e a casca nao teria de onde
+    importar. E copia, nao symlink, para que o pacote achado seja o desta raiz
+    e o `achar_env` dele continue apontando para o `.env` de mentira.
     """
     (tmp_path / "scripts").mkdir()
     for nome in ("fix-token.sh", "_decodificar_token.py"):
@@ -181,7 +190,16 @@ def raiz_falsa(tmp_path):
     (tmp_path / "usp_mcp").mkdir()
     for nome in ("__init__.py", "env.py"):
         (tmp_path / "usp_mcp" / nome).write_bytes((RAIZ / "usp_mcp" / nome).read_bytes())
+    copiar_pacote_token(tmp_path)
     return tmp_path
+
+
+def copiar_pacote_token(raiz) -> None:
+    """Copia `usp_mcp/token/*.py` para dentro de `raiz/usp_mcp/`. Ver `raiz_falsa`."""
+    destino = raiz / "usp_mcp" / "token"
+    destino.mkdir(exist_ok=True)
+    for arquivo in sorted((RAIZ / "usp_mcp" / "token").glob("*.py")):
+        (destino / arquivo.name).write_bytes(arquivo.read_bytes())
 
 
 def fix_token(raiz):
@@ -269,6 +287,7 @@ def test_fix_token_acha_o_env_do_checkout_e_nao_o_do_worktree(tmp_path):
         d.chmod(0o755)
     for nome in ("__init__.py", "env.py"):
         (wt / "usp_mcp" / nome).write_bytes((RAIZ / "usp_mcp" / nome).read_bytes())
+    copiar_pacote_token(wt)  # a casca de scripts/ importa de la (ver raiz_falsa)
     assert not (wt / ".env").exists(), "montagem errada: o worktree nao pode ter .env"
 
     r = subprocess.run(

@@ -127,25 +127,53 @@ def test_di3_as_do_semestre_em_andamento_vem_primeiro_e_completas(disciplinas_br
         assert sigla in cabeca, f"{sigla} não está na seção do semestre corrente"
 
 
-def test_di4_nenhuma_sigla_some_da_resposta(disciplinas_brutas):
+def test_di4_nenhuma_matricula_some_sem_ser_declarada(disciplinas_brutas):
     """DI4 — Invariante 7 no ponto exato em que esta ferramenta poderia falhar.
 
-    O corte é de DETALHE, nunca de EXISTÊNCIA: as 74 matrículas continuam
-    nomeadas, as antigas em bloco compacto. Uma sigla que suma daqui é uma
-    disciplina que quem pergunta não tem como descobrir que existe — e era
-    exatamente esse o estado anterior à ferramenta, que obrigava a provocar um
-    erro em `material` para ver a lista.
+    **A asserção mudou em 22/09/2026, e a invariante não.** Até aqui, esta
+    exigia que as 74 matrículas saíssem NOMEADAS na resposta padrão, as antigas
+    em bloco compacto de rótulos. Aquele bloco media 565 dos 1.350 tokens da
+    resposta — 42% — e respondia a uma pergunta que ninguém tinha feito
+    (`notas/custo-em-token.md`). As encerradas viraram contagem por ano.
+
+    O medo que esta asserção protegia continua respondido, e é por isso que ela
+    mudou de forma em vez de sair: "uma sigla que suma daqui é uma disciplina
+    que quem pergunta não tem como descobrir que existe". Com a contagem e o
+    `todas` declarados na própria resposta, ela é descobrível — custa uma ida a
+    mais, e só para quem faz a pergunta. O que este teste exige agora é o que
+    sempre importou: que **nada saia da contagem** e que o caminho para os nomes
+    esteja na resposta.
     """
     c = _cliente(disciplinas_brutas)
 
     r = dis.minhas_disciplinas(c, momento=AGORA)
 
+    assert r.total == len(disciplinas_brutas), "a contagem total não fecha"
+    assert r.em_andamento + r.encerradas + r.sem_periodo == r.total, (
+        "matrícula que não caiu em nenhum dos três blocos: some da contagem e "
+        "some da resposta"
+    )
+    assert str(r.total) in r.texto, "o total não é dito a quem lê"
+
+    # Nomeadas, as em andamento e as sem período — que são as que uma pergunta
+    # sobre o semestre alcança sem parâmetro nenhum.
+    nomeadas = [
+        curso["shortname"]
+        for curso in disciplinas_brutas
+        if curso["shortname"] in r.texto
+    ]
+    assert len(nomeadas) == r.em_andamento + r.sem_periodo
+
+    # E com `todas`, as 74 voltam a sair nomeadas: o corte é do padrão, não da
+    # ferramenta. Sem esta metade, "cortar" e "perder" seriam a mesma coisa.
+    dis.limpar_cache()
+    r_todas = dis.minhas_disciplinas(_cliente(disciplinas_brutas), todas=True, momento=AGORA)
     faltando = [
         curso["shortname"]
         for curso in disciplinas_brutas
-        if curso["shortname"] not in r.texto
+        if curso["shortname"] not in r_todas.texto
     ]
-    assert not faltando, f"rótulos que sumiram da resposta: {faltando}"
+    assert not faltando, f"rótulos que `todas` também não mostra: {faltando}"
 
 
 def test_di5_o_corte_de_detalhe_e_declarado_com_a_cura(disciplinas_brutas):
@@ -211,13 +239,30 @@ def test_di8_a_saida_diz_de_onde_sai_o_em_andamento(disciplinas_brutas):
     disciplina, e não a matrícula oficial no JupiterWeb. Trancamento,
     cancelamento e disciplina que o professor nunca datou produzem divergência,
     e quem lê precisa saber disso antes de tratar a lista como matrícula.
+
+    **Onde isso é dito mudou em 22/09/2026, e por isso o teste mudou de alvo.**
+    A frase não é ressalva sobre ESTA resposta: é contrato sobre o que a
+    ferramenta significa, idêntico em toda chamada. Passou para a descrição, que
+    o cliente carrega uma vez por sessão, e saiu da resposta, que é a mais
+    chamada do servidor. O teste exige as duas metades — que ela esteja na
+    descrição, e que não tenha ficado **também** na resposta, porque o ganho
+    inteiro desta mudança é não dizer a mesma coisa duas vezes.
     """
+    from usp_mcp.moodle.server import listar_ferramentas
+
+    descricao = next(
+        f["description"] for f in listar_ferramentas() if f["name"] == "disciplinas"
+    )
+    assert "matrícula oficial" in descricao.lower()
+    assert "jupiter" in descricao.lower()
+
     c = _cliente(disciplinas_brutas)
 
     r = dis.minhas_disciplinas(c, momento=AGORA)
 
-    assert "e-Disciplinas" in r.texto
-    assert "matrícula oficial" in r.texto.lower() or "jupiter" in r.texto.lower()
+    assert "matrícula oficial" not in r.texto.lower(), (
+        "o contrato voltou a sair na resposta, e agora sai nos dois lugares"
+    )
 
 
 def test_di9_o_periodo_traz_o_ano(disciplinas_brutas):
@@ -657,3 +702,39 @@ def test_di23_termo_que_nao_existe_continua_nao_casando(disciplinas_brutas):
         f"'XYZ9999' passou a casar com {[d.rotulo for d in r.candidatas]}"
     )
     assert "XYZ9999" in r.motivo and "PSI3323" in r.motivo
+
+
+# --------------------------------------------------------------------------
+# DI24-DI26: as encerradas param de ocupar 42% da resposta (22/09/2026)
+#
+# Medido em `notas/custo-em-token.md`: das 74 matrículas, 62 estão encerradas e
+# saíam em toda chamada como lista de rótulos — 565 dos 1.350 tokens. As 10 em
+# andamento, que são a resposta à pergunta, custavam 476.
+# --------------------------------------------------------------------------
+
+
+def test_di24_as_encerradas_saem_como_contagem_por_ano(disciplinas_brutas):
+    """O ano fica, porque é o que orienta a segunda pergunta; os ~50 rótulos
+    saem, porque ninguém perguntou por eles."""
+    r = dis.minhas_disciplinas(_cliente(disciplinas_brutas))
+
+    assert "2024: 14" in r.texto, "a contagem do ano não saiu"
+    assert "MAC2166-2024" not in r.texto, "o rótulo de matrícula encerrada ficou"
+    assert "PME3344" in r.texto, "a disciplina EM ANDAMENTO tem de continuar inteira"
+
+
+def test_di25_a_resposta_diz_como_ver_as_encerradas(disciplinas_brutas):
+    """Invariante 7: o corte é declarado, com a contagem e com a cura. Sem a
+    segunda metade, "62 encerradas" vira um beco."""
+    r = dis.minhas_disciplinas(_cliente(disciplinas_brutas))
+
+    assert "62" in r.texto
+    assert "todas" in r.texto
+
+
+def test_di26_com_todas_os_rotulos_voltam(disciplinas_brutas):
+    """O corte é do padrão, não da ferramenta: quem pede a lista recebe a lista,
+    e é isso que faz o corte ser corte e não perda."""
+    r = dis.minhas_disciplinas(_cliente(disciplinas_brutas), todas=True)
+
+    assert "MAC2166-2024" in r.texto

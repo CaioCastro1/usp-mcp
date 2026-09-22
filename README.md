@@ -16,6 +16,11 @@ Projeto não-oficial, sem nenhum vínculo com a Universidade de São Paulo.
 Você não precisa saber programar para usar, nem contribuir com nada: instale, conecte e
 pergunte. Quem quiser mexer no código encontra o combinado em *Escopo e contribuição*.
 
+[<img src="docs/demo/demo-multi-agente-poster.jpg" alt="Demo: três assistentes respondendo ao vivo pelo usp-mcp" width="100%">](docs/demo/demo-multi-agente.mp4)
+
+Três perguntas reais, respondidas ao vivo por três assistentes diferentes usando o mesmo
+servidor. Clique na imagem para ver o vídeo.
+
 ## O que ele responde
 
 | Pergunta que você faz | Onde ele busca |
@@ -63,28 +68,232 @@ medido a esse respeito.
 ## Instalando
 
 Este é um MCP: um conjunto de ferramentas que um assistente passa a saber usar. A
-instalação tem duas partes. Primeiro você baixa o projeto para o seu computador, e isso é
-igual para todo mundo. Depois você avisa o assistente que ele existe, e esse segundo passo
-muda conforme o lugar do quadro acima.
+instalação tem duas partes. Primeiro você baixa o projeto para o seu computador. Depois
+você avisa o assistente que ele existe, e esse segundo passo muda conforme o lugar do
+quadro acima.
+
+Os comandos mudam conforme o sistema do seu computador, e por isso esta seção separa Mac,
+Windows e Linux. Se não tiver certeza de qual é o seu: Mac tem uma maçã no canto de cima
+da tela, Windows tem o botão Iniciar embaixo, e quem usa Linux costuma saber que usa.
 
 ### O caminho rápido
 
-Se você já tem o Claude Code, mande a mensagem abaixo para ele e pule o resto desta seção.
-Ele instala, configura e te guia no único passo que precisa da sua mão.
+Se você já tem o Claude Code, escolha abaixo a mensagem do seu sistema, mande-a para ele
+e pule o resto desta seção. Ele instala, confere, configura e te guia nos passos que
+precisam da sua mão. Um deles acontece sempre, que é o da chave do e-Disciplinas. O outro
+só aparece se faltar o Python ou o `git` no seu computador, e o quanto ele resolve sozinho
+aí depende do sistema.
+
+As três mensagens fazem a mesma coisa. O que muda são os caminhos e os comandos de cada
+sistema, e é por isso que a mensagem de um sistema não serve num computador de outro: o
+assistente segue o que está escrito, e a pessoa que colou não tem como perceber o erro.
+A conferência que elas pedem roda sem internet e sem a chave, e é a mesma nos três.
+
+As três mandam o assistente instalar o que faltar, e não só explicar como se instala. Até
+onde ele consegue ir sozinho, porém, depende do sistema, e as mensagens dizem isso em vez
+de prometer o mesmo nos três. No Windows, o `winget` já vem com o Windows 11 e faz a
+instalação na sua conta: o Python entra sem perguntar nada, e o Git abre uma janela de
+confirmação do sistema que é sua para responder. No Mac, com o Homebrew já instalado nada
+é perguntado, mas instalar o próprio Homebrew pede a sua senha. No Linux, o instalador de
+programas da distribuição exige `sudo`, e senha ninguém digita por você. A regra, nos
+três, é a mesma: o assistente tenta instalar sozinho primeiro, e só pede "abra este site"
+quando não existe instalador de programas ou quando a senha é necessária. Quando for
+necessária, ele avisa logo no começo, em vez de você descobrir no meio.
+
+#### No Mac
 
 ```text
-Instale o usp-mcp neste computador e me conecte a ele.
+Instale o usp-mcp neste computador e me conecte a ele. Estou num Mac.
 
-1. Clone https://github.com/CaioCastro1/usp-mcp em ~/usp-mcp, crie um venv em
-   ~/usp-mcp/.venv e instale com `pip install -e ".[dev]"`. Copie o `.env.example` para
-   `.env`, na mesma pasta, e rode `./scripts/gate.sh` para confirmar que ficou tudo certo.
-2. Registre os três servidores (moodle, jupiter, rucard) no meu Claude Code, no escopo
-   de usuário, apontando para os comandos em ~/usp-mcp/.venv/bin/.
-3. O e-Disciplinas precisa de uma chave pessoal minha. Rode `./scripts/token.sh` e me
-   explique, passo a passo, o que eu preciso fazer no navegador. Não tente fazer esse
-   passo sozinho: ele exige que eu clique.
-4. No fim, chame a ferramenta `diagnostico` e me diga o que ficou funcionando.
+1. Confira se existe Python 3.11 ou mais novo (`python3 --version`) e se existe o `git`,
+   que é o programa que baixa o projeto no passo 2. Se faltar algum, instale você mesmo,
+   em vez de só me explicar como se instala. Veja primeiro se este computador já tem o
+   Homebrew, que é o instalador de programas mais usado no Mac: se `brew --version`
+   responder, rode `brew install` com o que estiver faltando (`brew install python`,
+   `brew install git`, ou os dois) e siga, porque isso não pede senha. Se não
+   houver Homebrew, me diga isso antes de começar qualquer outra coisa: instalar o
+   próprio Homebrew pede a minha senha de administrador, e quem digita a senha sou eu.
+   Nesse caso me passe o comando que a página brew.sh mostra, espere eu rodar e digitar a
+   senha, e continue. Se eu responder que prefiro não instalar o Homebrew, o caminho sem
+   ele é baixar o Python em python.org e rodar `xcode-select --install`, que traz o `git`;
+   aí também espere eu avisar que terminei.
+2. Clone https://github.com/CaioCastro1/usp-mcp em ~/usp-mcp, crie um venv em
+   ~/usp-mcp/.venv e instale com `~/usp-mcp/.venv/bin/pip install -e ~/usp-mcp`. Copie
+   ~/usp-mcp/.env.example para ~/usp-mcp/.env.
+3. Confira a instalação com este comando, que não usa internet nem chave:
+   `~/usp-mcp/.venv/bin/python -m usp_mcp.rucard.server --auto-verificar`. Repita
+   trocando `rucard` por `jupiter` e depois por `moodle`. Os três têm de terminar sem
+   erro. O do moodle vai dizer que o MOODLE_TOKEN está AUSENTE, e isso é esperado: a
+   chave é o passo 5.
+4. Registre os três servidores no meu Claude Code, no escopo de usuário, com os nomes
+   usp-moodle, usp-jupiter e usp-rucard, apontando para
+   ~/usp-mcp/.venv/bin/usp-mcp-moodle, ~/usp-mcp/.venv/bin/usp-mcp-jupiter e
+   ~/usp-mcp/.venv/bin/usp-mcp-rucard. Use o caminho completo, começando em /Users/,
+   no lugar do ~.
+5. O e-Disciplinas precisa de uma chave pessoal minha, e este passo tem duas
+   partes. A primeira parte é sua: rode você mesmo, no seu terminal, o comando
+   `~/usp-mcp/scripts/token.sh`. Não me peça para rodar esse comando; a minha
+   parte aqui é só o navegador.
+   A segunda parte é essa: o navegador que o comando abre na página do
+   e-Disciplinas, e nela quem me guia é você.
+   UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só
+   então mande o próximo. Não me mande a lista inteira de uma vez. Nessa página
+   o que vale é o link azul escrito "Clique aqui se a aplicação não abrir
+   automaticamente"; a caixa verde "O seu cadastro foi confirmado" e o botão
+   cinza "Ambientes" são distração. Mande eu clicar nesse link azul com o botão
+   direito e escolher "copiar endereço do link", e me avise que o botão
+   esquerdo não copia nada, só tenta abrir o aplicativo do Moodle.
+6. No fim, rode de novo o comando do moodle do passo 3: agora ele tem de dizer que o
+   MOODLE_TOKEN está presente. Me diga o que ficou funcionando e o que eu ainda preciso
+   fazer.
+
+Me explique em português comum. Eu não sei o que são MCP, venv, token, Homebrew nem
+escopo de usuário: quando precisar de uma dessas palavras, diga numa frase o que ela
+significa antes de usar.
 ```
+
+#### No Windows
+
+No Windows 11 você não precisa preparar nada antes de mandar a mensagem: o sistema já vem
+com o `winget`, que é o instalador de programas da Microsoft, e a mensagem abaixo manda o
+assistente usá-lo para instalar o Python e o Git se estiverem faltando. O Python entra só
+na sua conta e não pergunta nada. O Git abre a janela de confirmação do Windows, a que
+pergunta se você permite que o programa faça alterações no computador: responder é com
+você, e numa conta que não seja de administrador ela pede a senha de uma que seja. Num
+Windows mais antigo, que não tenha `winget`, o assistente cai no caminho dos sites
+oficiais: o Python em python.org, marcando na instalação a caixa "Add python.exe to
+PATH", e o Git em git-scm.com. Aí a instalação é sua, e ele espera.
+
+```text
+Instale o usp-mcp neste computador e me conecte a ele. Estou no Windows. Não use
+comandos nem caminhos de Mac ou Linux: aqui o ambiente isolado não tem a pasta `bin`,
+tem `Scripts`, e os programas terminam em `.exe`. Os comandos abaixo estão em
+PowerShell; se você rodar por outro terminal, adapte a forma, mas mantenha `Scripts` e
+`.exe`.
+
+1. Confira se existe Python 3.11 ou mais novo (`python --version`) e se existe o `git`,
+   que é o programa que baixa o projeto no passo 2. Se o `python` abrir a Microsoft Store
+   ou não existir, conte como ausente. Se faltar algum dos dois, instale você mesmo, em
+   vez de só me explicar como se instala: use o `winget`, que vem no Windows 11. Os
+   comandos são `winget install --id Python.Python.3.13 -e --scope user` e
+   `winget install --id Git.Git -e --scope user`; se `winget search Python.Python`
+   mostrar uma versão 3 mais nova que a 3.13, use a mais nova. O do Python instala só na
+   minha conta e não pergunta nada. O do Git abre a janela de confirmação do Windows, e
+   quem responde sou eu: me avise antes que ela vai aparecer, e espere. Depois de
+   instalar, abra uma janela nova do PowerShell e siga por ela: a janela que já estava
+   aberta não enxerga o que acabou de ser instalado. Se este Windows não tiver `winget`,
+   aí sim me diga para instalar pelos sites oficiais, o Python em python.org marcando a
+   caixa "Add python.exe to PATH" e o Git em git-scm.com, e espere eu avisar que
+   instalei.
+2. Clone https://github.com/CaioCastro1/usp-mcp em $HOME\usp-mcp, crie um venv em
+   $HOME\usp-mcp\.venv e instale com
+   `& $HOME\usp-mcp\.venv\Scripts\pip install -e $HOME\usp-mcp`. Copie
+   $HOME\usp-mcp\.env.example para $HOME\usp-mcp\.env.
+3. Confira a instalação com este comando, que não usa internet nem chave:
+   `& $HOME\usp-mcp\.venv\Scripts\python.exe -m usp_mcp.rucard.server --auto-verificar`.
+   Repita trocando `rucard` por `jupiter` e depois por `moodle`. Os três têm de terminar
+   sem erro. O do moodle vai dizer que o MOODLE_TOKEN está AUSENTE, e isso é esperado: a
+   chave é o passo 5.
+4. Registre os três servidores no meu Claude Code, no escopo de usuário, com os nomes
+   usp-moodle, usp-jupiter e usp-rucard, apontando para
+   C:\Users\MEU-USUARIO\usp-mcp\.venv\Scripts\usp-mcp-moodle.exe,
+   C:\Users\MEU-USUARIO\usp-mcp\.venv\Scripts\usp-mcp-jupiter.exe e
+   C:\Users\MEU-USUARIO\usp-mcp\.venv\Scripts\usp-mcp-rucard.exe, com o meu nome de
+   usuário no lugar de MEU-USUARIO.
+5. O e-Disciplinas precisa de uma chave pessoal minha, e este passo tem duas
+   partes. A primeira parte é sua: rode você mesmo, no seu terminal, o comando
+   `& $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe`. Ele foi instalado no
+   passo 2, ao lado dos três do passo 4, e roda aqui mesmo no PowerShell, sem
+   trocar de terminal. Não me peça para rodar esse comando; a minha parte aqui é
+   só o navegador.
+   A segunda parte é essa: o navegador que o comando abre na página do
+   e-Disciplinas, e nela quem me guia é você.
+   UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só
+   então mande o próximo. Não me mande a lista inteira de uma vez. Nessa página
+   o que vale é o link azul escrito "Clique aqui se a aplicação não abrir
+   automaticamente"; a caixa verde "O seu cadastro foi confirmado" e o botão
+   cinza "Ambientes" são distração. Mande eu clicar nesse link azul com o botão
+   direito e escolher "copiar endereço do link", e me avise que o botão
+   esquerdo não copia nada, só tenta abrir o aplicativo do Moodle.
+   Se o comando encerrar sem receber o endereço, logo depois de eu copiar rode
+   `Get-Clipboard | & $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe`.
+6. No fim, rode de novo o comando do moodle do passo 3: agora ele tem de dizer que o
+   MOODLE_TOKEN está presente. Me diga o que ficou funcionando e o que eu ainda preciso
+   fazer.
+
+Me explique em português comum. Eu não sei o que são MCP, venv, token, winget nem
+escopo de usuário: quando precisar de uma dessas palavras, diga numa frase o que ela
+significa antes de usar.
+```
+
+#### No Linux
+
+```text
+Instale o usp-mcp neste computador e me conecte a ele. Estou no Linux.
+
+1. Confira se existe Python 3.11 ou mais novo (`python3 --version`) e se existe o `git`,
+   que é o programa que baixa o projeto no passo 2. Se faltar algum, diga de uma vez, no
+   começo, que essa parte é minha: o instalador de programas daqui (`apt`, `dnf` ou
+   `pacman`, conforme a distribuição) só roda com `sudo`, o `sudo` pede a minha senha, e
+   senha quem digita sou eu. Não tente instalar sozinho nem me peça a senha. Veja qual
+   dos três existe nesta máquina, monte o comando, me explique numa frase o que ele
+   instala e espere eu rodar e avisar. Os pacotes são `python3`, `python3-venv` e `git`
+   no Debian e no Ubuntu (`sudo apt install python3 python3-venv git`), `python3` e `git`
+   no Fedora (`sudo dnf install python3 git`), e `python` e `git` no Arch
+   (`sudo pacman -S python git`).
+2. Clone https://github.com/CaioCastro1/usp-mcp em ~/usp-mcp, crie um venv em
+   ~/usp-mcp/.venv e instale com `~/usp-mcp/.venv/bin/pip install -e ~/usp-mcp`. Copie
+   ~/usp-mcp/.env.example para ~/usp-mcp/.env. Se a criação do venv falhar dizendo que
+   falta o ensurepip, o pacote do sistema que falta costuma se chamar python3-venv, e
+   vale a mesma regra do passo 1: monte o comando com `sudo`, me explique e espere eu
+   rodar.
+3. Confira a instalação com este comando, que não usa internet nem chave:
+   `~/usp-mcp/.venv/bin/python -m usp_mcp.rucard.server --auto-verificar`. Repita
+   trocando `rucard` por `jupiter` e depois por `moodle`. Os três têm de terminar sem
+   erro. O do moodle vai dizer que o MOODLE_TOKEN está AUSENTE, e isso é esperado: a
+   chave é o passo 5.
+4. Registre os três servidores no meu Claude Code, no escopo de usuário, com os nomes
+   usp-moodle, usp-jupiter e usp-rucard, apontando para
+   ~/usp-mcp/.venv/bin/usp-mcp-moodle, ~/usp-mcp/.venv/bin/usp-mcp-jupiter e
+   ~/usp-mcp/.venv/bin/usp-mcp-rucard. Use o caminho completo, começando em /home/, no
+   lugar do ~.
+5. O e-Disciplinas precisa de uma chave pessoal minha, e este passo tem duas
+   partes. A primeira parte é sua: rode você mesmo, no seu terminal, o comando
+   `~/usp-mcp/scripts/token.sh`. Não me peça para rodar esse comando; a minha
+   parte aqui é só o navegador.
+   A segunda parte é essa: o navegador que o comando abre na página do
+   e-Disciplinas, e nela quem me guia é você.
+   UM PASSO POR MENSAGEM: diga o que fazer, espere eu responder que fiz, e só
+   então mande o próximo. Não me mande a lista inteira de uma vez. Nessa página
+   o que vale é o link azul escrito "Clique aqui se a aplicação não abrir
+   automaticamente"; a caixa verde "O seu cadastro foi confirmado" e o botão
+   cinza "Ambientes" são distração. Mande eu clicar nesse link azul com o botão
+   direito e escolher "copiar endereço do link", e me avise que o botão
+   esquerdo não copia nada, só tenta abrir o aplicativo do Moodle.
+   O script lê a área de transferência com `wl-paste` ou `xclip`; se não houver
+   nenhum dos dois, ele avisa, e aí, logo depois de eu copiar o endereço, rode
+   `wl-paste | ~/usp-mcp/scripts/token.sh` ou
+   `xclip -selection clipboard -o | ~/usp-mcp/scripts/token.sh`, conforme o que existir.
+6. No fim, rode de novo o comando do moodle do passo 3: agora ele tem de dizer que o
+   MOODLE_TOKEN está presente. Me diga o que ficou funcionando e o que eu ainda preciso
+   fazer.
+
+Me explique em português comum. Eu não sei o que são MCP, venv, token, sudo nem escopo de
+usuário: quando precisar de uma dessas palavras, diga numa frase o que ela significa
+antes de usar.
+```
+
+O que acontece depois de colar, em qualquer dos três: o assistente roda os primeiros
+passos sozinho e mostra o que está fazendo. Se faltar o Python ou o `git`, ele para logo
+no primeiro passo, e o que acontece aí depende do sistema, como está acima: no Windows ele
+instala, com a janela de confirmação do Git para você responder; no Mac com Homebrew ele
+instala e segue sozinho; no Linux, e no Mac sem Homebrew, ele monta o comando e devolve a
+vez para você, porque a senha é sua. No passo da chave ele para de novo e passa a falar
+com você, uma instrução por vez: abrir a página do e-Disciplinas, achar o link, copiar o
+endereço dele. Essa parada acontece sempre, e a seção *Configuração* descreve essa página
+com calma, para o caso de você querer saber o que está clicando. Quando ele disser que
+terminou, feche e abra o Claude Code: é aí que os três servidores passam a existir para
+ele.
 
 ### O caminho manual
 
@@ -96,9 +305,10 @@ python3 --version
 ```
 
 Se o Terminal responder que não conhece o comando `python3`, ou se o número for menor que
-3.11, instale a versão atual pelo site python.org antes de seguir. Com uma versão mais
-antiga, o passo de instalação abaixo falha com uma mensagem do pip que não explica o
-motivo.
+3.11, instale a versão atual pelo site python.org antes de seguir. Se você já usa o
+Homebrew, `brew install python` também serve, e é o que o caminho rápido pede ao
+assistente. Com uma versão mais antiga, o passo de instalação abaixo falha com uma
+mensagem do pip que não explica o motivo.
 
 Depois cole estes quatro comandos, um de cada vez:
 
@@ -129,7 +339,9 @@ Para conferir se deu certo:
 ls ~/usp-mcp/.venv/bin | grep usp
 ```
 
-Tem que aparecer `usp-mcp-jupiter`, `usp-mcp-moodle` e `usp-mcp-rucard`.
+Tem que aparecer `usp-mcp-jupiter`, `usp-mcp-moodle` e `usp-mcp-rucard`. Junto deles
+aparece também `usp-mcp-token`, que é o programa da chave do e-Disciplinas e não um
+servidor; ele entra na seção *Configuração*.
 
 Agora avise o assistente que eles existem. Em qualquer um dos caminhos abaixo você troca
 `SEU-USUARIO` pelo nome da sua conta no computador; se não souber qual é, o comando
@@ -183,17 +395,24 @@ não foi conferido por ninguém.
 Feche e abra o assistente. Pronto: bandejão e JupiterWeb já respondem. O e-Disciplinas
 ainda vai reclamar que falta a chave, e é a próxima seção.
 
-Se algo não funcionar, peça ao assistente para rodar a ferramenta `diagnostico`. Ela diz o
-que está no lugar e o que não está.
+Se algo não funcionar, este comando diz o que está no lugar e o que não está, sem usar
+internet nem chave:
+
+```bash
+~/usp-mcp/.venv/bin/python -m usp_mcp.rucard.server --auto-verificar
+```
+
+Troque `rucard` por `jupiter` e por `moodle` para conferir os outros dois. O do moodle
+dizer que a chave está ausente é o esperado até a próxima seção. No Windows, o comando é
+`& $HOME\usp-mcp\.venv\Scripts\python.exe -m usp_mcp.rucard.server --auto-verificar`.
 
 ### No Windows
 
 Os três programas são Python puro, sem uma linha específica de sistema operacional, e a
-pasta onde guardam arquivos baixados existe no Windows também. Não há razão conhecida para
-não funcionarem lá. Mas há uma diferença entre "não há razão conhecida" e "alguém viu
-funcionar": **nenhum dos autores rodou o projeto no Windows**, e tudo nesta subseção foi
-escrito num Mac, lendo documentação. Se você for a primeira pessoa a tentar, o que
-funcionou e o que não funcionou é exatamente o relato que uma issue pede.
+pasta onde guardam arquivos baixados existe no Windows também. O caminho desta subseção foi
+percorrido do começo ao fim num Windows em 20/09/2026, da instalação até a chave do
+e-Disciplinas, e as ferramentas responderam. Foi uma máquina só: se na sua alguma coisa
+sair diferente, o relato é o que uma issue pede.
 
 O que muda na instalação: o ambiente isolado que o Python cria no Windows não tem a pasta
 `bin`, tem `Scripts`, e os comandos são um pouco diferentes. No PowerShell:
@@ -221,40 +440,68 @@ No Claude Code é o mesmo comando dos outros sistemas, com o caminho do Windows:
 claude mcp add usp-rucard --scope user -- C:\Users\SEU-USUARIO\usp-mcp\.venv\Scripts\usp-mcp-rucard.exe
 ```
 
-Com isso, bandejão e JupiterWeb devem responder. De novo: em teoria; ninguém conferiu.
+Para conferir o que ficou no lugar, sem internet e sem chave:
 
-O e-Disciplinas é o ponto fraco. O script que obtém a chave, `scripts/token.sh`, é escrito
-em bash, e o Windows não tem bash. O caminho é o **Git Bash**, que vem junto com o Git para
-Windows: abra-o e rode
-
-```bash
-bash ~/usp-mcp/scripts/token.sh
+```powershell
+& $HOME\usp-mcp\.venv\Scripts\python.exe -m usp_mcp.rucard.server --auto-verificar
 ```
 
-Desde 18/09/2026 o script sabe achar o Python de `.venv\Scripts`, ler a área de
-transferência pelo PowerShell (`Get-Clipboard`) e abrir o navegador pelo `rundll32`. Antes
-disso a vigia descrita na seção *Configuração* não existia no Windows, e foi isso que o
-dono do projeto encontrou ao instalar lá. Essas três escolhas estão testadas com dublês: o
-que está provado é que o script escolhe a ferramenta certa quando ela existe, não que a
+Com `jupiter` e `moodle` no lugar de `rucard`, confere os outros dois. Com isso, bandejão
+e JupiterWeb respondem.
+
+A chave do e-Disciplinas sai por um quarto comando, instalado junto com os três acima e na
+mesma pasta: `usp-mcp-token.exe`. Ele roda no PowerShell, como o resto desta subseção:
+
+```powershell
+& $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe
+```
+
+Este era o ponto fraco daqui até 18/09/2026, porque o programa que obtém a chave só
+existia em bash e o Windows não tem bash: quem instalava no Windows precisava instalar
+também o Git Bash e trocar de terminal só neste passo. O programa foi reescrito em Python
+e virou o comando acima. O `scripts/token.sh` continua existindo para quem está no Mac ou
+no Linux, e chama o mesmo código.
+
+O programa sabe achar o Python de `.venv\Scripts`, ler a área de transferência pelo
+PowerShell (`Get-Clipboard`) e abrir o navegador pelo `rundll32`. Antes de 18/09/2026 a
+vigia descrita na seção *Configuração* não existia no Windows, e foi isso que o dono do
+projeto encontrou ao instalar lá. Essas três escolhas estão testadas com dublês: o que
+está provado é que o programa escolhe a ferramenta certa quando ela existe, não que a
 ferramenta faz o que se espera num Windows real. Se a vigia não funcionar, o fluxo em dois
-passos continua valendo: copie o endereço do link e, no Git Bash, rode
+passos continua valendo: copie o endereço do link e rode
 
-```bash
-powershell -NoProfile -Command Get-Clipboard | bash ~/usp-mcp/scripts/token.sh
+```powershell
+Get-Clipboard | & $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe
 ```
 
-O WSL também roda o script, e ele reconhece esse caso: lê a área de transferência do
-Windows pelo `powershell.exe` e abre o navegador do Windows pelo `wslview`. Mas o clone, o
-ambiente isolado e o `.env` que o script grava têm de ser os mesmos que o assistente usa, e
-um ambiente isolado criado dentro do WSL não serve a um assistente rodando no Windows. Quem
-instalar pelo WSL tem de instalar tudo lá e apontar o assistente para lá. Isso tampouco foi
-conferido.
+Dentro do WSL vale o caminho do Linux, o `scripts/token.sh`, e ele reconhece esse caso:
+lê a área de transferência do Windows pelo `powershell.exe` e abre o navegador do Windows
+pelo `wslview`. Mas o clone, o ambiente isolado e o `.env` que o script grava têm de ser
+os mesmos que o assistente usa, e um ambiente isolado criado dentro do WSL não serve a um
+assistente rodando no Windows. Quem instalar pelo WSL tem de instalar tudo lá e apontar o
+assistente para lá. Isso tampouco foi conferido.
 
-Duas coisas seguem sem adaptação, de propósito, porque são de quem mantém o projeto e não
-de quem usa: `scripts/gate.sh` e os demais scripts de `scripts/` ainda procuram
-`.venv/bin/python`. Se você usar o caminho rápido do começo desta seção, diga ao
-assistente que está no Windows: o `gate.sh` do passo 1 vai falhar por isso, e o passo 3
-precisa do Git Bash.
+Os outros arquivos de `scripts/`, o de verificação antes de commit incluído, seguem sem
+adaptação de propósito: são de quem mantém o projeto, e não de quem usa, e ainda
+procuram `.venv/bin/python`. Nenhum passo da instalação passa por eles. Se você usar o
+caminho rápido, a mensagem *No Windows* de lá já traz estes caminhos e este comando da
+chave; a de Mac não serve aqui, e o assistente não tem como perceber sozinho.
+
+Ainda no Windows, uma coisa aparece sozinha logo no começo e assusta. A pasta do projeto
+traz um arquivo chamado `.mcp.json`, e ele registra os três programas de um segundo jeito,
+que vale só enquanto o assistente está aberto dentro daquela pasta. Esse segundo registro
+chama um atalho escrito em bash, e o atalho procura o Python em `.venv/bin/`, que é o
+endereço do Mac e do Linux. No Windows esse endereço não existe, então esse registro não
+funciona aqui e não tem como funcionar. O que você pode ver, se abrir o assistente dentro
+de `$HOME\usp-mcp`: um aviso de que `usp-rucard` e `usp-jupiter` estão registrados em dois
+lugares ao mesmo tempo, e o `usp-moodle` parado, esperando uma aprovação sua. Não é
+defeito da sua instalação, e você não precisa aprovar nada.
+
+A saída é abrir o assistente em qualquer outra pasta. Fora da pasta do projeto esse
+segundo registro nem existe, e vale só o que você fez acima, com o caminho completo até
+`.venv\Scripts\`, que é o que funciona no Windows. Você não perde nada: o bandejão, o
+JupiterWeb e o e-Disciplinas respondem igual de qualquer pasta, porque os programas sabem
+sozinhos onde o projeto está.
 
 ## Configuração
 
@@ -271,6 +518,11 @@ baixou. Cole no terminal:
 ```
 
 Se você instalou pelo caminho rápido, a pasta é a mesma.
+
+No Windows o comando é outro, e roda no PowerShell:
+`& $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe`. Ele foi instalado junto com os três
+servidores, e não fica na pasta `scripts`. É o mesmo programa do bloco acima, e tudo o que
+esta seção diz vale para ele.
 
 Ele abre uma página do e-Disciplinas no seu navegador. Você precisa já estar logado na
 Senha Única. A página mostra três coisas, e duas são distração: a caixa verde "O seu
@@ -292,11 +544,20 @@ agir; qualquer outra coisa que você copiar nesse intervalo ele ignora, sem guar
 mostrar ou dizer o tamanho, e o que já estava no clipboard antes não conta. Se você
 copiar o endereço errado, ele diz o que veio errado e continua esperando. Passados os 90
 segundos sem o endereço, ele para de ler e diz como entregar depois:
-`pbpaste | ~/usp-mcp/scripts/token.sh` (no Windows, pelo Git Bash:
-`powershell -NoProfile -Command Get-Clipboard | bash ~/usp-mcp/scripts/token.sh`). Para
-rodar sem essa vigia, defina `USP_MCP_VIGIA_SEGUNDOS=0` antes do comando. Num computador
+`pbpaste | ~/usp-mcp/scripts/token.sh` (no Windows, no PowerShell:
+`Get-Clipboard | & $HOME\usp-mcp\.venv\Scripts\usp-mcp-token.exe`). Para rodar sem essa
+vigia, defina `USP_MCP_VIGIA_SEGUNDOS=0` antes do comando. Num computador
 sem ferramenta de clipboard (sem `pbpaste`, `wl-paste`, `xclip` nem PowerShell) a vigia não
-existe e o script diz isso. O que vale no Windows, e o que ainda não foi conferido lá, está
+existe e o script diz isso.
+
+Quando é você no Terminal, o script para entre um passo e o outro e espera um Enter:
+abrir a página, achar o link, copiar o endereço. É de propósito: as instruções todas de
+uma vez ninguém lê. `USP_MCP_SEM_PAUSA=1` tira as paradas para quem já sabe o caminho.
+
+No WSL, não instale `xclip` achando que resolve: ele lê a área de transferência do lado
+Linux, e a sua está do lado Windows. O script já prefere o caminho certo ali.
+
+Sobre o que vale no Windows, e o que ainda não foi conferido lá, está
 na subseção *No Windows*, acima.
 
 Ela fica guardada no arquivo `~/usp-mcp/.env`, na linha `MOODLE_TOKEN`. É o mesmo
@@ -305,7 +566,8 @@ abra o assistente e o e-Disciplinas passa a responder. Você não precisa abrir 
 arquivo, mas se um dia abrir, é essa a linha.
 
 Ela vence com o tempo e pode ser cancelada em `edisciplinas.usp.br`, em gerenciar tokens.
-Se um dia o e-Disciplinas parar de responder, rode `~/usp-mcp/scripts/token.sh` de novo.
+Se um dia o e-Disciplinas parar de responder, rode `~/usp-mcp/scripts/token.sh` de novo,
+ou, no Windows, o comando do PowerShell acima.
 
 ## Usando
 
@@ -371,10 +633,10 @@ Três coisas para saber antes de ligar:
 
 - Entregar para correção não tem desfazer, nem aqui nem pelo site.
 - Salvar rascunho só funciona em atividade de texto online. Enviar arquivo não existe neste
-  projeto, e é o formato mais comum na prática. Essa metade vai recusar a maioria dos casos,
-  dizendo o motivo.
+  projeto atualmente, mas está sendo implementado.
 - Trabalho em grupo é recusado, porque a entrega valeria também por pessoas que não estão
   na conversa.
+- O MCP não responde testes ou questionários valendo nota, ou com submissões limitadas.
 
 A confirmação em duas etapas protege contra acidente e contra frase ambígua. Ela não é um
 cadeado: quem roda o projeto dentro de um assistente que também tem acesso ao terminal
@@ -438,7 +700,7 @@ e redistribuir, desde que mantenha o aviso de autoria. O texto completo está no
 
 O que este projeto mais precisa não é código: é saber quando a USP mudou alguma coisa e a
 resposta parou de bater. Se uma pergunta que funcionava parou, ou se o passo da chave
-travou, [abra uma issue](https://github.com/CaioCastro1/usp-mcp/issues/new/choose) — há um
+travou, [abra uma issue](https://github.com/CaioCastro1/usp-mcp/issues/new/choose): há um
 modelo para cada um dos dois casos, e o relato leva meio minuto. **Nunca cole o valor do
 seu token**, nem em issue, nem em log.
 
@@ -449,7 +711,7 @@ inteiro está em [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md).
 Uma observação para quem instalou pelo assistente e não veio programar: a pasta do projeto
 tem, junto com o código, os documentos de quem o mantém, e um assistente que os lê pode
 começar a propor mexer no código, abrir PR ou rever decisão do projeto. Isso é engano dele,
-não pedido seu — basta dizer que você só quer usar. Desde 17/09/2026 o padrão já é esse, e
+não pedido seu: basta dizer que você só quer usar. Desde 17/09/2026 o padrão já é esse, e
 o raciocínio está em [`docs/agents/PAPEL-DA-SESSAO.md`](docs/agents/PAPEL-DA-SESSAO.md).
 Na direção contrária vale o mesmo: se você **quer** contribuir, dizer isso uma vez basta.
 
@@ -496,6 +758,16 @@ caminho absoluto do lançador:
 
 O `.mcp.json` é relativo de propósito, porque é versionado e caminho absoluto de máquina
 não entra em arquivo rastreado. O absoluto fica no arquivo de config da sua máquina.
+
+**Esse arquivo não serve no Windows**, pela mesma razão dos outros scripts de `scripts/`:
+o lançador é bash e procura `.venv/bin/python`, que é endereço de Mac e de Linux. Quem
+abre um cliente MCP dentro do clone num Windows recebe um aviso de servidor registrado em
+dois escopos e um servidor pendente de aprovação, e as entradas de escopo de projeto não
+sobem lá de jeito nenhum. Relatado por quem instalou num Windows real em 21/09/2026. O
+registro que funciona nos três sistemas é o de escopo de usuário, por caminho completo,
+que a seção *Instalando* ensina. Se este arquivo continua versionado, sai do repositório
+ou passa a apontar para outra coisa é decisão em aberto, com as opções e o custo de cada
+uma em `docs/decisions/BACKLOG-correcoes.md`.
 
 ### Detalhes técnicos
 
@@ -545,7 +817,39 @@ manuscrita escaneada isso devolveria 9 bytes e chamaria de sucesso (§9, 01/09 e
 arquivo cai em `~/.cache/usp-mcp/moodle/`.
 
 São três comandos e não um com argumento: o nome de cada um é o mesmo `serverInfo.name`
-que o servidor responde no `initialize`. O porquê está no `pyproject.toml`.
+que o servidor responde no `initialize`. O porquê está no `pyproject.toml`. O
+`usp-mcp-token`, que obtém a chave do e-Disciplinas, é um quarto comando instalado ao lado
+deles, e não é servidor: é o mesmo programa que `scripts/token.sh` chama, e existe como
+comando porque no Windows não há bash.
+
+A conferência que a seção *Instalando* pede, `--auto-verificar`, existe nos três
+servidores desde 31/08/2026 e é offline: lista as ferramentas expostas, diz se achou o
+`.env` e se o SDK do MCP está instalado, e compara o schema que o modelo vê com a
+assinatura de cada ferramenta. No Moodle diz também se a chave do e-Disciplinas está
+presente, pela contagem de caracteres e nunca pelo valor. Ela só responde por
+`python -m usp_mcp.<sistema>.server --auto-verificar`, com o Python do `.venv`, e de
+qualquer pasta. Não responde pelo comando instalado: `usp-mcp-rucard --auto-verificar`
+ignora o argumento, sobe o servidor stdio e, sem cliente na outra ponta, sai com código 0
+sem imprimir nada (medido em 18/09/2026). Por isso o README só ensina a primeira forma.
+Ela entrou no lugar do `scripts/gate.sh` e da ferramenta `diagnostico` no roteiro de
+instalação em 18/09/2026: o gate é verificação de pré-commit, procura `.venv/bin/python`
+e no Windows caía para o `python3` da Microsoft Store, com 58 testes reprovando por isso;
+e `diagnostico` exige a chave e faz uma chamada à USP, que é justamente o que ainda não
+existe no meio da instalação.
+
+Desde 18/09/2026 os três prompts do caminho rápido mandam o assistente instalar o que
+faltar, e não só ensinar a instalar. Os nomes de pacote foram conferidos no mesmo dia, e
+não escritos de memória. No `winget`, `Python.Python.3.13` e `Git.Git` existem nos
+manifestos oficiais (`microsoft/winget-pkgs`) e os dois trazem instalador de escopo de
+usuário; o do Python entra com `InstallAllUsers=0 PrependPath=1` e sem exigência de
+elevação, e o do Git declara `ElevationRequirement: elevatesSelf`, que é a janela de
+confirmação do Windows que o README avisa em vez de prometer instalação calada. No
+Homebrew, `brew install python` e `brew install git` resolvem para `python@3.14` e `git`.
+No Linux, `python3`, `python3-venv` e `git` existem no Debian, `python3` e `git` no
+Fedora, e `python` e `git` no Arch. O que está conferido é que os nomes existem e o que os
+manifestos declaram; nenhum desses comandos foi rodado num Windows ou num Linux de
+verdade. O `sudo` do Linux é o motivo de lá o texto parar e devolver a vez: senha não se
+digita por procuração, e descobrir isso no meio do caminho é pior do que ler no começo.
 
 Medido em 14/09/2026: instalação editável num venv limpo, e os três comandos subindo de
 `/tmp` com cliente MCP real. Em 16/09/2026 o caminho manual da seção *Instalando* foi

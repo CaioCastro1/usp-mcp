@@ -65,6 +65,7 @@ import select
 import shutil
 import signal
 import stat
+import sys
 import time
 
 import pytest
@@ -445,6 +446,12 @@ def _rodar_com_tty(raiz, ambiente: dict[str, str], responder, timeout: float = 9
     prompt do passo 3 aparecer — so entao, porque e o `read -s` que desliga o
     eco, e digitar antes ecoaria o payload na tela que este teste afirma limpa.
     Devolve (saida, codigo).
+
+    O passo 2 tem paradas (`pausar`, 18/09/2026), e uma pessoa no terminal
+    responde a cada uma com Enter. O arnes faz o mesmo: uma linha em branco por
+    `[Enter]` NOVO que aparecer na saida. Sem isto o script fica bloqueado no
+    primeiro `read` e o laco so termina no timeout — que foi exatamente como
+    este arnes quebrou quando as paradas entraram.
     """
     pid, fd = pty.fork()
     if pid == 0:  # filho: vira o script
@@ -456,6 +463,7 @@ def _rodar_com_tty(raiz, ambiente: dict[str, str], responder, timeout: float = 9
 
     saida = b""
     respondido = False
+    pausas_respondidas = 0
     fim = time.monotonic() + timeout
     try:
         while time.monotonic() < fim:
@@ -469,6 +477,13 @@ def _rodar_com_tty(raiz, ambiente: dict[str, str], responder, timeout: float = 9
             if not bloco:
                 break
             saida += bloco
+            # As paradas do passo 2, uma linha em branco cada. Vem antes do
+            # prompt do passo 3 e nao colidem com ele: aquele prompt diz "Cole e
+            # aperte Enter" e nao carrega a marca `[Enter]`.
+            vistas = saida.count(b"[Enter]")
+            if vistas > pausas_respondidas:
+                os.write(fd, b"\n" * (vistas - pausas_respondidas))
+                pausas_respondidas = vistas
             if not respondido and b"Cole e aperte Enter" in saida:
                 texto = saida.decode("utf-8", "replace").replace("\r", "")
                 os.write(fd, responder(texto).encode() + b"\n")
@@ -804,3 +819,265 @@ def test_o_passaporte_guardado_e_gitignorado():
     assert esta_ignorado(RAIZ / ".cache" / "passaporte", RAIZ), (
         ".cache/passaporte deixou de ser gitignorado"
     )
+
+
+# ------------------------------- WSL: o leitor, que o lancador ja tinha resolvido
+#
+# A bateria W, e ela e estreita de proposito. O PR de 18/09 (`fix/windows`) poe o
+# PowerShell como ULTIMO candidato a leitor, e para Git Bash isso esta certo: la
+# nao ha `pbpaste`, `wl-paste` nem `xclip`, e o ultimo e o unico.
+#
+# No WSL nao. Sob WSLg — WSL2 com interface grafica, o padrao no Windows 11 —
+# `$DISPLAY` vem preenchido e `xclip` PASSA, entao o leitor escolhido seria o do
+# lado Linux enquanto a pessoa copia o endereco no navegador do WINDOWS: a vigia
+# esperaria os 90 s por uma mudanca do outro lado, calada.
+#
+# O raciocinio ja estava escrito, e para o LANCADOR: o §4 daquele spec poe
+# `wslview` na frente de `open` dizendo "com o WSLg, xdg-open abriria um navegador
+# Linux, que nao esta logado na Senha Unica". Ele valia igual para o leitor, e
+# faltava atravessar. O README daquele PR ja promete o comportamento certo — "no
+# WSL ele le a area de transferencia do Windows pelo powershell.exe" —, entao o
+# que estes testes prendem e a promessa que o codigo ainda nao cumpria.
+
+
+def powershell_dublado(raiz):
+    """Um `powershell.exe` de mentira que grava o argv e, no `Get-Clipboard`,
+    entrega o roteiro de `clipboard_dublado` — o mesmo mecanismo do `pbpaste`."""
+    binario = raiz / "bin-wsl"
+    binario.mkdir(exist_ok=True)
+    clipboard_dublado(raiz)  # escreve raiz/pbpaste.py, que o Get-Clipboard reusa
+    falso = binario / "powershell.exe"
+    falso.write_text(
+        "#!/bin/sh\n"
+        f"printf '%s\\n' \"$*\" >> '{raiz / 'powershell.log'}'\n"
+        "case \"$*\" in\n"
+        f"  *Get-Clipboard*) exec '{sys.executable}' '{raiz / 'pbpaste.py'}' ;;\n"
+        "esac\n"
+    )
+    falso.chmod(0o755)
+    return binario
+
+
+def wsl_com_sessao_grafica(raiz):
+    """Uma maquina que parece WSLg: `xclip` e `wl-paste` presentes e funcionando,
+    e o `powershell.exe` ao lado.
+
+    Os dois primeiros existem de proposito. Sem eles o teste passaria por
+    ausencia — o PowerShell seria escolhido porque nao havia outro — e nao
+    provaria nada sobre a ORDEM, que e a correcao inteira.
+    """
+    binario = powershell_dublado(raiz)
+    for nome in ("xclip", "wl-paste"):
+        falso = binario / nome
+        falso.write_text(f"#!/bin/sh\nprintf '%s\\n' \"$*\" >> '{raiz / f'{nome}.log'}'\n")
+        falso.chmod(0o755)
+    return binario
+
+
+def linhas_do_log(raiz, nome) -> list[str]:
+    log = raiz / f"{nome}.log"
+    return log.read_text(encoding="utf-8").splitlines() if log.exists() else []
+
+
+def path_de_windows(raiz, tmp_path) -> str:
+    """PATH controlado: os dubles do Windows, o `curl` registrado, e o minimo do
+    sistema — SEM o `pbpaste` real desta maquina.
+
+    O PATH do Mac que roda a suite tem `pbpaste` de verdade, e ele venceria a
+    cadeia normal e faria o teste medir a maquina do desenvolvedor em vez do
+    galho sob teste. Descoberto assim: a primeira versao do W2 herdava
+    `os.environ['PATH']` por dentro do `curl_registrado`.
+    """
+    so_o_bin_do_curl = curl_registrado(raiz).split(":", 1)[0]
+    return f"{wsl_com_sessao_grafica(raiz)}:{so_o_bin_do_curl}:{path_minimo(tmp_path)}"
+
+
+def como_wsl(raiz, tmp_path, **kw):
+    """Roda o script numa maquina que se anuncia como WSL, com sessao grafica.
+
+    `WSL_DISTRO_NAME` e o sinal que o proprio WSL define — nao e uma porta dos
+    fundos so para o teste. `DISPLAY`/`WAYLAND_DISPLAY` entram porque sem eles
+    `xclip` e `wl-paste` seriam recusados pelo motivo errado, e o teste deixaria
+    de ser sobre a ordem.
+    """
+    env = dict(kw.pop("env", None) or {})
+    env.setdefault("WSL_DISTRO_NAME", "Ubuntu")
+    env.setdefault("DISPLAY", ":0")
+    env.setdefault("WAYLAND_DISPLAY", "wayland-0")
+    kw.setdefault("path", path_de_windows(raiz, tmp_path))
+    kw.setdefault("clipboard", False)  # o `pbpaste` dublado venceria antes de tudo
+    kw.setdefault("navegador", False)  # o lancador nao e o assunto desta bateria
+    return token_sh(raiz, "", env=env, **kw)
+
+
+def test_w1_no_wsl_o_leitor_e_o_do_windows_mesmo_com_xclip_disponivel(raiz_token, tmp_path):
+    """W1 — a ordem, no lugar onde ela decide se a vigia espera pelo nada.
+
+    `xclip` e `wl-paste` estao no PATH e a sessao grafica esta anunciada: o galho
+    de cima PASSA. O que prova a correcao e o script preferir o do Windows
+    mesmo assim.
+    """
+    r = como_wsl(raiz_token, tmp_path, env={"USP_MCP_VIGIA_SEGUNDOS": "2"})
+    saida = r.stdout + r.stderr
+    assert "vou LER o clipboard desta maquina (`powershell.exe`)" in saida, saida
+    assert "(`xclip`)" not in saida
+    assert linhas_do_log(raiz_token, "xclip") == [], "leu o clipboard do lado Linux"
+    assert linhas_do_log(raiz_token, "wl-paste") == []
+
+
+def test_w2_fora_do_wsl_o_xclip_continua_vencendo(raiz_token, tmp_path):
+    """W2 — o par do W1, e o que impede a correcao de virar regressao.
+
+    Num Linux comum com `xclip` e um `pwsh` instalado por acaso, o leitor tem de
+    continuar sendo o `xclip` — que e o que o WIN3 do PR de 18/09 afirma para o
+    Mac. Sem este teste, "preferir o PowerShell" poderia ter vazado para todo
+    mundo e o W1 sozinho nao notaria.
+    """
+    # PATH sem o `bin/` da raiz de proposito: e la que mora o `pbpaste` dublado
+    # (o `clipboard_dublado` o escreve, e o `powershell_dublado` o reusa para o
+    # roteiro), e ele venceria a cadeia antes de `wl-paste` — deixando o teste
+    # verde sem nunca exercer o galho grafico que ele afirma.
+    r = token_sh(
+        raiz_token,
+        "",
+        path=f"{wsl_com_sessao_grafica(raiz_token)}:{path_minimo(tmp_path)}",
+        clipboard=False,
+        navegador=False,
+        env={"USP_MCP_VIGIA_SEGUNDOS": "2", "DISPLAY": ":0", "WAYLAND_DISPLAY": "wayland-0"},
+    )
+    saida = r.stdout + r.stderr
+    assert "vou LER o clipboard desta maquina (`wl-paste`)" in saida, saida
+    assert "(`powershell.exe`)" not in saida
+
+
+def test_w4_no_wsl_a_vigia_le_pelo_windows_e_vai_ate_gravar(raiz_token, tmp_path):
+    """W4 — o pedido inteiro pelo lado do Windows, numa invocacao.
+
+    Tres segundos e nao um: o roteiro so muda na leitura 1, e uma janela curta
+    demais encerraria a vigia antes — verde sem nunca ter lido, que e o oposto do
+    que este teste afirma.
+    """
+    roteiro(raiz_token, {0: "coisa qualquer", 1: MARCADOR_PAYLOAD})
+    r = como_wsl(raiz_token, tmp_path, env={"USP_MCP_VIGIA_SEGUNDOS": "3"})
+    saida = r.stdout + r.stderr
+    assert r.returncode == 0, saida
+    assert "o clipboard mudou para algo que comeca com" in saida
+    assert f"MOODLE_TOKEN={WSTOKEN}\n" in (raiz_token / ".env").read_text(encoding="utf-8")
+    leituras_win = [l for l in linhas_do_log(raiz_token, "powershell") if "Get-Clipboard" in l]
+    assert leituras_win, "gravou sem ter lido pelo lado do Windows"
+    assert WSTOKEN not in saida, "ecoou o token (Invariante 3)"
+    assert PRIVATE not in saida, "ecoou o privatetoken (§2.2)"
+
+
+# --------------------------------------------- o passo 2 em etapas (18/09/2026)
+#
+# A bateria P. O bloco de instrucoes tinha 23 linhas e saia todo de uma vez,
+# antes de a pessoa ter feito qualquer coisa. Uma terceira usuaria relatou, com
+# estas palavras: "e MUITO texto que aparece quando ele e instalado, ninguem le".
+#
+# Sete dessas linhas nao eram do caminho feliz — o plano B do DevTools, que so
+# interessa quando a pagina NAO renderiza, e o aviso do `urlscheme=http`,
+# enderecado a quem edita a URL a mao. As duas sairam para
+# `dicas_quando_a_pagina_nao_coopera`, e o que prende a mudanca sao os dois lados:
+# que elas NAO aparecem no caminho feliz, e que elas APARECEM quando deu errado.
+# Sem o segundo, "tirar do caminho feliz" e indistinguivel de "apagar".
+
+
+def test_p1_o_caminho_feliz_nao_carrega_as_dicas_de_quando_da_errado(raiz_token):
+    """P1 — o que saiu de cena, e a ordem do que ficou.
+
+    A assercao olha o BLOCO DO PASSO 2, do inicio ate o `3/7`, e nao a saida
+    inteira: esta invocacao termina com a vigia vencendo, que e um "deu errado" e
+    por isso imprime as dicas de proposito (P2). Sem o corte, o teste procuraria o
+    texto na saida onde ele DEVE estar e ficaria vermelho pelo motivo errado.
+    """
+    r = abrir(raiz_token)
+    saida = r.stdout + r.stderr
+    corte = saida.find("3/7")
+    assert corte > 0, saida
+    bloco = saida[:corte]
+    assert "DevTools" not in bloco, "o plano B voltou para o caminho feliz"
+    assert "urlscheme=http" not in bloco, "o aviso de editar a URL voltou ao caminho feliz"
+    # As tres acoes, na ordem em que a pessoa as executa.
+    passos = [
+        saida.find("abra esta URL no navegador"),
+        saida.find("na pagina, ache o link azul"),
+        saida.find("copie o ENDERECO dele, sem clicar"),
+    ]
+    assert all(p >= 0 for p in passos), f"sumiu um dos tres passos: {passos}\n{saida}"
+    assert passos == sorted(passos), f"os passos sairam fora de ordem: {passos}"
+
+
+def test_p2_as_dicas_aparecem_quando_a_vigia_encerra_sem_o_endereco(raiz_token):
+    """P2 — o par do P1, e o que separa "moveu" de "apagou"."""
+    r = vigiar(raiz_token, {0: ""}, segundos=1)
+    saida = r.stdout + r.stderr
+    assert r.returncode == SAIDA_AGUARDANDO, saida
+    assert "DevTools" in saida, saida
+    assert "urlscheme=http" in saida
+
+
+def test_p3_as_dicas_aparecem_quando_o_que_chegou_nao_tem_a_forma(raiz_token):
+    """P3 — o outro momento: veio alguma coisa, e ela nao e o endereco.
+
+    Diferente do P2 de proposito: aqui a pessoa CHEGOU a copiar algo, e a
+    hipotese mais provavel passa a ser a pagina que nao renderizou.
+    """
+    r = token_sh(raiz_token, "isto nao e um endereco de token")
+    saida = r.stdout + r.stderr
+    assert "NAO comeca com" in saida, saida
+    assert "DevTools" in saida
+
+
+def test_p4_sem_terminal_nao_ha_parada_nenhuma(raiz_token):
+    """P4 — a parada e para PESSOA. Um agente de codigo roda sem tty, e um `read`
+    ali travaria o script ate o timeout de quem o chamou — que e um jeito caro de
+    descobrir que a parada nao sabia distinguir os dois casos."""
+    r = abrir(raiz_token)
+    saida = r.stdout + r.stderr
+    assert "[Enter]" not in saida, "pediu Enter a quem nao tem terminal"
+
+
+def test_p5_no_terminal_as_paradas_existem_e_o_fluxo_chega_ao_fim(raiz_token):
+    """P5 — o outro lado do P4, com pty de verdade.
+
+    Duas paradas, uma por acao que a pessoa executa fora do terminal, e o fluxo
+    inteiro ainda terminando em token gravado.
+    """
+    ambiente = {k: v for k, v in os.environ.items() if k not in ("SSH_CONNECTION", "SSH_TTY")}
+    clipboard_dublado(raiz_token)
+    ambiente["PATH"] = f"{navegador_dublado(raiz_token)}:{curl_dublado(raiz_token, JSON_OK)}"
+    ambiente["TERM"] = "dumb"
+
+    def responder(texto: str) -> str:
+        return payload_para(passaporte_da_url(texto))
+
+    saida, codigo = _rodar_com_tty(raiz_token, ambiente, responder)
+
+    assert codigo == 0, saida
+    assert saida.count("[Enter]") == 2, f"esperava DUAS paradas:\n{saida}"
+    assert f"MOODLE_TOKEN={WSTOKEN}\n" in (raiz_token / ".env").read_text(encoding="utf-8")
+    assert WSTOKEN not in saida, "ecoou o token (Invariante 3)"
+
+
+def test_p6_usp_mcp_sem_pausa_desliga_as_paradas(raiz_token):
+    """P6 — a saida para quem ja sabe o caminho e roda isto pela quinta vez.
+
+    Mesma forma das outras chaves do script (`USP_MCP_NAO_ABRIR`,
+    `USP_MCP_VIGIA_SEGUNDOS`): desliga o comportamento novo sem tirar o passo.
+    """
+    ambiente = {k: v for k, v in os.environ.items() if k not in ("SSH_CONNECTION", "SSH_TTY")}
+    clipboard_dublado(raiz_token)
+    ambiente["PATH"] = f"{navegador_dublado(raiz_token)}:{curl_dublado(raiz_token, JSON_OK)}"
+    ambiente["TERM"] = "dumb"
+    ambiente["USP_MCP_SEM_PAUSA"] = "1"
+
+    def responder(texto: str) -> str:
+        return payload_para(passaporte_da_url(texto))
+
+    saida, codigo = _rodar_com_tty(raiz_token, ambiente, responder)
+
+    assert codigo == 0, saida
+    assert "[Enter]" not in saida, "parou mesmo com USP_MCP_SEM_PAUSA=1"
+    assert "na pagina, ache o link azul" in saida, "desligar a parada comeu o passo"
+    assert f"MOODLE_TOKEN={WSTOKEN}\n" in (raiz_token / ".env").read_text(encoding="utf-8")
