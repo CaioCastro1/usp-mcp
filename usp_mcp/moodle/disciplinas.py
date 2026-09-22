@@ -421,13 +421,12 @@ def _bloco_compacto(disciplinas) -> list[str]:
     ]
 
 
-_COMO_USAR = (
-    "Para perguntar sobre uma delas, use a SIGLA ou o RÓTULO INTEIRO (o que "
-    "está entre parênteses): `material`, `notas`, `avisos`, `ja_entreguei`, "
-    "`atrasadas`, `questionarios` e `o_que_mudou` aceitam os dois. Quando a "
-    "mesma sigla aparece "
-    "em mais de um ano, só o rótulo distingue as duas matrículas."
-)
+# O `_COMO_USAR` que morava aqui — "use a SIGLA ou o RÓTULO INTEIRO, que é o que
+# distingue duas matrículas da mesma sigla" — saiu em 22/09/2026. Ele é
+# roteamento, e o roteamento já está no lugar onde o cliente o lê sem custo
+# extra: o esquema do parâmetro `disciplina` das quatro ferramentas que o pedem
+# diz exatamente isso, palavra por palavra. Era a mesma frase paga duas vezes na
+# mesma sessão (`notas/custo-em-token.md`).
 
 _DE_ONDE_SAI = (
     "'Em andamento' sai das datas que o e-Disciplinas declara para o espaço da "
@@ -553,7 +552,7 @@ def minhas_disciplinas(
         )
         linhas.extend(f"  {d.sigla} ({d.rotulo})" for d in sem_periodo)
 
-    avisos = [_COMO_USAR, _DE_ONDE_SAI]
+    avisos = [_DE_ONDE_SAI]
     if encerradas and not todas:
         # Invariante 7: o corte é declarado, com a contagem e com a cura — e
         # dizendo o que exatamente ficou de fora, que aqui é detalhe e não

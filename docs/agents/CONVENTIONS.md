@@ -120,7 +120,8 @@ fonte de verdade sobre o que aquela família cobre.
 | `L1-L6` | `tests/test_lancador.py` | o `scripts/servidor.sh` |
 | `M1-M18` | `tests/moodle/test_o_que_mudou.py` | a ferramenta `o_que_mudou` |
 | `N1-N18` | `tests/moodle/test_notas.py` | a ferramenta `notas` |
-| `OR1-OR2` | `tests/moodle/test_custo.py` | o orçamento de saída: quanto cada ferramenta devolve ao modelo, e o teto que fica vermelho quando cresce |
+| `OR1-OR4` | `tests/moodle/test_custo.py` | o orçamento de saída: quanto cada ferramenta devolve ao modelo, e o canário que reprova resposta repetindo a própria descrição |
+| `RS1-RS6` | `tests/moodle/test_ressalvas.py` | quando uma ressalva invariável sai, e quando ela é só repetição |
 | `P1-P6` | `tests/test_pacote.py` | o `pyproject.toml` e os entry points |
 | `P1-P5` | `tests/moodle/test_politica.py` | a allowlist do Moodle (Invariante 2) |
 | `R1-R48` | `tests/rucard/*.py` | o RUCard inteiro, uma faixa por arquivo |

@@ -58,6 +58,7 @@ from datetime import datetime
 
 from .disciplinas import carregar, resolver
 from .erros import ErroMoodle
+from .ressalvas import PRESENCA, Ressalva, emitir
 from .texto import casa, links, normalizar
 
 # Host + caminho que caracterizam arquivo servido pelo webservice do Moodle, e
@@ -81,6 +82,20 @@ _CAMINHOS_DO_MOODLE = (
 # que cabe numa linha e ainda deixa reconhecer o padrão do nome; o resto vira
 # "e mais N", nunca silêncio.
 _TETO_NOMES_NO_RODAPE = 3
+
+# A única ressalva invariável desta ferramenta. Ela explica por que o ENDEREÇO do
+# arquivo não sai (Invariante 3) e para onde ir para baixar de fato — e só tem
+# sentido diante de arquivo interno listado. Ver `ressalvas.py`.
+_LINK_NAO_SAI = (
+    "O link do arquivo interno do e-Disciplinas não é entregue aqui: um "
+    "endereço sem a credencial não abre, e um com ela poria a credencial "
+    "no seu contexto — por isso ele não sai desta máquina, "
+    "mesmo sabendo que a requisição de download autentica pelo corpo do "
+    "pedido, sem precisar colar a credencial no endereço. Para baixar de "
+    "fato um destes arquivos, use a ferramenta `baixar_arquivo`."
+)
+
+_RESSALVAS = (Ressalva(texto=_LINK_NAO_SAI, quando=PRESENCA),)
 
 _TIPOS = {
     "application/pdf": "PDF",
@@ -723,14 +738,14 @@ def material(cliente, disciplina: str, busca: str | None = None, agora=None) -> 
         linhas.append(f"\n{nome}:" if nome else "\n(sem seção):")
         linhas.extend(_formatar_item(i) for i in itens)
 
-    avisos = [
-        "O link do arquivo interno do e-Disciplinas não é entregue aqui: um "
-        "endereço sem a credencial não abre, e um com ela poria a credencial "
-        "no seu contexto — por isso ele não sai desta máquina, "
-        "mesmo sabendo que a requisição de download autentica pelo corpo do "
-        "pedido, sem precisar colar a credencial no endereço. Para baixar de "
-        "fato um destes arquivos, use a ferramenta `baixar_arquivo`.",
-    ]
+    # A ressalva do link é de PRESENÇA, e o que a dispara é haver arquivo
+    # INTERNO na lista — não haver item. Uma seção só de link externo não tem
+    # endereço nenhum omitido, e explicar a omissão ali é explicar o que não
+    # aconteceu. Até 22/09/2026 ela saía em toda resposta.
+    itens_mostrados = [i for _, itens in secoes for i in itens]
+    avisos = list(
+        emitir(_RESSALVAS, vazio=not any(i.fileid for i in itens_mostrados))
+    )
     if conteudo.sem_conteudo:
         avisos.append(
             "Não estão nesta lista: "
@@ -763,7 +778,7 @@ def material(cliente, disciplina: str, busca: str | None = None, agora=None) -> 
         )
     if conteudo.avisos:
         avisos.extend(conteudo.avisos)
-    avisos.extend(_avisos_do_texto(conteudo, [i for _, itens in secoes for i in itens]))
+    avisos.extend(_avisos_do_texto(conteudo, itens_mostrados))
 
     linhas.extend(f"\n⚠ {a}" for a in avisos)
 
