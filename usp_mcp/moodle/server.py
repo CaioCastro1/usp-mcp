@@ -539,10 +539,17 @@ def listar_ferramentas() -> list[dict]:
                 "cursando', 'qual a sigla de eletrônica', 'me lembra o que eu "
                 "fiz em 2024'. As do semestre em andamento vêm primeiro e "
                 "completas, com nome e período; as de semestres já encerrados "
-                "vêm só com a sigla, agrupadas por ano — nenhuma fica de fora, "
-                "e a resposta diz como abrir o detalhe delas. É a ferramenta "
-                "mais barata daqui: a lista já é buscada para traduzir sigla, "
-                "então a resposta costuma sair sem nenhuma chamada nova."
+                "saem como CONTAGEM por ano — nenhuma fica de fora da conta, e "
+                "`todas` traz os rótulos e o período de cada uma, o que vale a "
+                "pena quando a pergunta é sobre um ano antigo. 'Em andamento' "
+                "sai das datas que o e-Disciplinas declara para o espaço da "
+                "disciplina, e não da sua matrícula oficial: trancamento e "
+                "cancelamento não chegam até aqui, e uma disciplina que o "
+                "professor não datou cai num bloco à parte, sem período. A "
+                "matrícula oficial é o JupiterWeb, que este servidor não "
+                "alcança com dado pessoal. É a ferramenta mais barata daqui: a "
+                "lista já é buscada para traduzir sigla, então a resposta "
+                "costuma sair sem nenhuma chamada nova."
             ),
             "inputSchema": {
                 "type": "object",

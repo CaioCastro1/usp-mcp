@@ -90,9 +90,11 @@ SITE_INFO = {
 # ressalva invariável virando condicional (`ressalvas.py`); os três que ficaram
 # são as ferramentas que aquela mudança não alcançou.
 TETO = {
-    "disciplinas": 3_120,  # 3.300 até 22/09: saiu o roteamento "use a SIGLA"
+    "disciplinas": 1_730,  # 3.300 → 3.120 (saiu o roteamento) → aqui: as 62
+    # encerradas viraram contagem por ano, e o contrato foi para a descrição
     "o_que_vence": 2_900,
-    "material": 6_800,
+    "material": 6_410,  # 6.800: o tipo não se repete quando a extensão o diz,
+    # e o tamanho só sai acima de 10 MB
     "avisos": 3_400,
     "notas": 390,  # 560: a frase "esta é a nota FINAL" era roteamento
     "atrasadas": 820,  # 1.350: duas das três ressalvas eram sempre, agora nunca juntas
