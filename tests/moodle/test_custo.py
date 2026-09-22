@@ -1,4 +1,4 @@
-"""Orçamento de saída: quanto cada ferramenta devolve ao modelo (OR1-OR2).
+"""Orçamento de saída: quanto cada ferramenta devolve ao modelo (OR1-OR4).
 
 Este projeto sempre mediu o **cru** que vem da USP — o §9 registra 541 kB para 35
 eventos de calendário e a projeção que os reduz a 0,5%. O outro lado nunca teve
@@ -42,10 +42,11 @@ regressão — mesma entrada, mesma saída — e não é medida de produção.
 from __future__ import annotations
 
 import json
+import re
 
 import pytest
 
-from usp_mcp.moodle.server import chamar_ferramenta
+from usp_mcp.moodle.server import chamar_ferramenta, listar_ferramentas
 
 from .conftest import ClienteFalso
 
@@ -81,18 +82,22 @@ SITE_INFO = {
     "uploadfiles": 1,
 }
 
-# Teto em bytes da saída de cada ferramenta, com a entrada abaixo. Medido em
-# 22/09/2026 e travado aqui: ver `notas/custo-em-token.md` para o que cada número
-# significa em token, que é outra coisa e varia por ferramenta.
+# Teto em bytes da saída de cada ferramenta, com a entrada abaixo. Ver
+# `notas/custo-em-token.md` para o que cada número significa em token, que é
+# outra coisa e varia por ferramenta.
+#
+# Teto nunca sobe sem motivo escrito. Os cinco que baixaram em 22/09 são a
+# ressalva invariável virando condicional (`ressalvas.py`); os três que ficaram
+# são as ferramentas que aquela mudança não alcançou.
 TETO = {
-    "disciplinas": 3_300,
+    "disciplinas": 3_120,  # 3.300 até 22/09: saiu o roteamento "use a SIGLA"
     "o_que_vence": 2_900,
     "material": 6_800,
     "avisos": 3_400,
-    "notas": 560,
-    "atrasadas": 1_350,
-    "ja_entreguei": 1_050,
-    "o_que_mudou": 1_100,
+    "notas": 390,  # 560: a frase "esta é a nota FINAL" era roteamento
+    "atrasadas": 820,  # 1.350: duas das três ressalvas eram sempre, agora nunca juntas
+    "ja_entreguei": 670,  # 1.050: idem, e a COBERTURA só no ramo vazio
+    "o_que_mudou": 960,  # 1.100: metade do "só ponteiro" era roteamento
 }
 
 # Folga máxima entre o tamanho real e o teto. 15% é apertado o bastante para que
@@ -188,4 +193,129 @@ def test_or2_saida_cabe_no_teto_e_o_teto_nao_e_frouxo(saidas, ferramenta):
         f"{folga:.0%} de folga, acima dos {FOLGA_MAXIMA:.0%} permitidos. "
         "A saída encolheu e o teto não acompanhou — baixe o teto, senão ele "
         "para de detectar o próximo crescimento."
+    )
+
+
+# ---------------------------------------------------------------- duplicação
+
+# Sobreposição de vocabulário a partir da qual duas frases são a mesma frase.
+# 0,8 e não menos: "entrega", "tarefa" e "disciplina" aparecem dos dois lados por
+# serem o assunto, não por serem cópia, e um limiar baixo reprovaria paráfrase
+# legítima. Medido em 22/09: as duplicações reais deste servidor davam 0,85 e
+# 0,92, e a informação nova de `disciplinas` dava 0,10 e 0,21.
+LIMIAR_DUPLICACAO = 0.8
+
+
+def _palavras(frase: str) -> set[str]:
+    """Palavras de conteúdo de uma frase, sem acento, caixa nem crase de código."""
+    import unicodedata
+
+    sem_acento = "".join(
+        c
+        for c in unicodedata.normalize("NFD", frase.lower().replace("`", ""))
+        if unicodedata.category(c) != "Mn"
+    )
+    return set(re.findall(r"[a-z]{5,}", sem_acento))
+
+
+# Massa mínima de palavras de conteúdo para uma frase ser julgada. Abaixo disso a
+# razão é ruído: `2024: MAC2166-2024, MAT2453-107-108-2024, …` rende uma ou duas
+# palavras de cinco letras depois da normalização, e uma delas casando com a
+# descrição já dá 100%. Medido em 22/09: o canário acusava essa linha, que é dado
+# puro.
+PALAVRAS_MINIMAS = 6
+
+
+def _frases(texto: str) -> list[str]:
+    """As frases que o canário julga: as de RESSALVA, e só elas.
+
+    Só as linhas de `⚠`, e não a saída inteira, porque o **corpo** da resposta
+    compartilha vocabulário com a descrição por ser sobre o mesmo assunto, não
+    por ser cópia: "Pelo que o e-Disciplinas registra, não falta entregar nada
+    com prazo já vencido" é a resposta do `atrasadas` quando não há nada, e
+    marcava 83% contra a descrição dele. Reprovar isso seria pedir que a
+    ferramenta escrevesse a própria resposta com outras palavras.
+
+    O limite disso está dito em voz alta: prosa invariável que voltasse a nascer
+    **fora** de um bloco `⚠` passaria por aqui. O canário guarda a ressalva, que
+    é onde os 801 tokens de 22/09 moravam.
+    """
+    linhas = [l.strip() for l in texto.splitlines() if "⚠" in l]
+    frases = []
+    for linha in linhas:
+        frases += [f.strip() for f in re.split(r"[.]", linha) if len(f.strip()) > 40]
+    # Frase que cita número depende do dado desta chamada — "2 atividade(s) não
+    # puderam ser lidas", "38 das 45 matrículas". Ela é o Invariante 7
+    # funcionando, sai sempre por desenho, e não é a repetição que se persegue.
+    return [f for f in frases if not re.search(r"\d", f)]
+
+
+@pytest.mark.parametrize("ferramenta", sorted(TETO))
+def test_or3_a_resposta_nao_repete_o_que_a_descricao_ja_diz(saidas, ferramenta):
+    """OR3: o canário de duplicação.
+
+    A descrição da ferramenta está no contexto do cliente a sessão inteira. Uma
+    frase que já mora nela e sai de novo na resposta é a mesma frase paga duas
+    vezes na mesma sessão — foi assim que `atrasadas` chegou a gastar 215 dos
+    seus 325 tokens repetindo a própria descrição.
+
+    Isto não afrouxa o Invariante 6: ressalva que depende do DADO ("2 atividades
+    não puderam ser lidas") não está na descrição e não é alcançada por este
+    teste. O que ele proíbe é a cópia do contrato, que já foi lida.
+    """
+    descricao = next(
+        f["description"] for f in listar_ferramentas() if f["name"] == ferramenta
+    )
+    vocabulario_da_descricao = _palavras(descricao)
+
+    repetidas = []
+    for frase in _frases(saidas[ferramenta]):
+        palavras = _palavras(frase)
+        if len(palavras) < PALAVRAS_MINIMAS:
+            continue
+        cobertura = len(palavras & vocabulario_da_descricao) / len(palavras)
+        if cobertura >= LIMIAR_DUPLICACAO:
+            repetidas.append((cobertura, frase))
+
+    assert not repetidas, (
+        f"`{ferramenta}` repete na resposta o que a própria descrição já diz:\n"
+        + "\n".join(f"  {c:.0%} — {f[:90]}" for c, f in repetidas)
+        + "\nA descrição está em contexto a sessão inteira. Se a frase precisa "
+        "sair na resposta, ela depende do dado — e então cita o dado."
+    )
+
+
+def test_or4_o_canario_de_duplicacao_reprova_uma_copia_literal():
+    """OR4: o canário verifica alguma coisa.
+
+    Sem isto, OR3 passaria igual se `_palavras` devolvesse conjunto vazio para
+    tudo, ou se `_frases` parasse de achar linha nenhuma — que é a forma mais
+    fácil de este arquivo virar decoração, e que já aconteceu uma vez nesta
+    sessão quando `_frases` passou a olhar só as linhas de `⚠`.
+
+    A entrada é uma cópia literal de uma frase da descrição, posta num bloco de
+    ressalva. Ela TEM de ser reconhecida.
+    """
+    descricao = next(
+        f["description"] for f in listar_ferramentas() if f["name"] == "notas"
+    )
+    frase_da_descricao = max(descricao.split("."), key=len).strip()
+    copia_literal = f"⚠ {frase_da_descricao}."
+
+    frases = _frases(copia_literal)
+    assert frases, (
+        "o extrator não achou frase nenhuma numa linha de ressalva real — OR3 "
+        "estaria passando por não olhar nada"
+    )
+
+    palavras = _palavras(frases[0])
+    assert len(palavras) >= PALAVRAS_MINIMAS, (
+        f"prosa real rendeu só {len(palavras)} palavras de conteúdo, abaixo do "
+        f"mínimo de {PALAVRAS_MINIMAS}: OR3 ignoraria até a cópia literal"
+    )
+
+    cobertura = len(palavras & _palavras(descricao)) / len(palavras)
+    assert cobertura >= LIMIAR_DUPLICACAO, (
+        "uma frase copiada da própria descrição não foi reconhecida como cópia: "
+        f"cobertura {cobertura:.0%}, limiar {LIMIAR_DUPLICACAO:.0%}"
     )

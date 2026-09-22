@@ -239,3 +239,46 @@ Quatro mudanças, nesta ordem, cada uma com a Definição de Pronto do §5 do
 - **Não toca `o_que_vence` nem `diagnostico`.** `o_que_vence` não tem prosa
   invariável (a `cobertura` dele é uma frase só, e é `ausencia` legítima);
   `diagnostico` é chamado uma vez e é só prosa por natureza.
+
+---
+
+## O que a implementação mudou neste desenho (22/09/2026)
+
+Três correções, e a primeira é a que interessa.
+
+**1. `avisos` não entrou, e o desenho estava errado sobre ela.** O `_COBERTURA`
+dela — "aviso dado em sala e não postado não existe aqui, e o que tem PRAZO está
+em `o_que_vence`" — foi classificado acima como `ausencia`. Ele é das duas: na
+lista vazia protege a leitura "o professor não avisou nada", e na lista cheia
+protege "isto é a agenda da disciplina". O teste A15 afirma justamente a segunda,
+e é um teste de Invariante 6. A ferramenta ficou como estava, e o ganho projetado
+para ela (−7%) não existe.
+
+A lição é sobre o método, não sobre `avisos`: a classificação de uma ressalva
+sai de qual leitura errada ela desmente, e uma frase que desmente as duas não é
+condicional. **Nem toda ressalva invariável é repetição.** O que impediu o erro
+de entrar foi um teste que já existia.
+
+**2. `ja_entreguei` dispara `_SEM_NOTA` com qualquer item listado**, e o desenho
+pedia "só quando há item já corrigido". `emitir` é binário por construção, e
+distinguir "corrigido" exigiria ler `estado` por substring. Dispara mais do que
+o desenho pedia, nunca menos.
+
+**3. `o_que_mudou` teve a ressalva partida em duas**, o que o desenho não previa.
+O canário (OR3) reprovou a metade de roteamento — "para ver o arquivo use
+`material`…", 100% de sobreposição com a descrição — enquanto a outra metade,
+"o e-Disciplinas responde esta pergunta com um ponteiro", não está na descrição e
+ficou. O teste M15 procurava os nomes das ferramentas na resposta, isto é, media
+o mecanismo; passou a procurar a palavra "ponteiro", que é a propriedade.
+
+Ganho medido, contra o projetado:
+
+| | hoje | projetado | **medido** |
+|---|---:|---:|---:|
+| `atrasadas` | 1.274 B | — | **758 B** (−41%) |
+| `ja_entreguei` | 978 B | — | **622 B** (−36%) |
+| `notas` | 491 B | — | **361 B** (−26%) |
+| `o_que_mudou` | 1.018 B | — | **893 B** (−12%) |
+| `disciplinas` | 3.219 B | — | **2.914 B** (−9%) |
+| `avisos` | 3.289 B | −7% | **3.289 B** (0%) |
+| `material` | 6.712 B | — | **6.712 B** (0% aqui; o corte dela é o dos campos) |

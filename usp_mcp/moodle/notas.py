@@ -263,10 +263,14 @@ def _de_todas(cliente, disciplinas, userid) -> RespostaNotas:
             "não aparecem acima — inclui semestres anteriores, porque o "
             "e-Disciplinas devolve todas as matrículas e não as deste semestre."
         )
-    avisos.append(
-        "Esta é a nota FINAL de cada disciplina. Para ver item a item, com o "
-        "peso de cada um, pergunte de novo dizendo a disciplina."
-    )
+    # A frase "esta é a nota FINAL; para ver item a item, pergunte de novo
+    # dizendo a disciplina" saiu daqui em 22/09/2026. Ela não era ressalva, era
+    # roteamento — e a descrição desta ferramenta já diz as duas metades, com
+    # estas palavras: "Sem disciplina, dá a nota final de cada uma. Com
+    # disciplina, abre item a item". A descrição está no contexto do cliente a
+    # sessão inteira; repeti-la aqui era pagar a mesma frase duas vezes. Nenhuma
+    # ressalva invariável sobrou nesta ferramenta, e por isso ela não importa
+    # `ressalvas.py`: o que sai daqui para baixo depende todo do dado.
     avisos.extend(_avisos_de(bruto))
 
     partes.extend(f"\n⚠ {a}" for a in avisos)

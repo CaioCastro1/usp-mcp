@@ -4267,3 +4267,63 @@ depende do caminho do `.env` da máquina e de quantas funções o token alcança
 caminho, não texto). E `o_que_vence` entra sabendo que o dublê ignora a janela: o
 número é de ~4 meses de eventos, não dos 14 dias do padrão — boa medida de
 regressão, não de produção.
+
+### 22/09/2026 — a ressalva invariável passa a depender da forma da resposta, e uma delas resistiu
+
+Primeiro dos quatro cortes desenhados na entrada anterior. O que muda: uma
+ressalva que não depende do dado só sai quando a resposta *desta* chamada pode
+ser lida errado sem ela. Duas classes, complementares por construção —
+`ausencia` desmente o "não tem nada" de uma lista vazia, `presenca` desmente o
+"isto é tudo, e é fato" de uma lista cheia — e elas nunca saem juntas. A regra
+mora em `usp_mcp/moodle/ressalvas.py`, um lugar só, pelo motivo que o `texto.py`
+já registrou: a mesma regra em sete módulos são sete lugares para divergir.
+
+**Medido, e é o ponto:** `atrasadas` 1.274 → 758 B (−41%), `ja_entreguei` 978 →
+622 B (−36%), `notas` 491 → 361 B (−26%), `o_que_mudou` 1.018 → 893 B (−12%),
+`disciplinas` 3.219 → 2.914 B (−9%). Nada foi resumido: o que saiu foi frase que
+a descrição da ferramenta já diz, e a descrição está no contexto do cliente a
+sessão inteira.
+
+**O que resistiu, e por quê importa mais que o que cedeu.** O desenho previa sete
+ferramentas e entregou cinco. O `_COBERTURA` do `avisos` — "aviso dado em sala e
+não postado não existe aqui, e o que tem PRAZO está em `o_que_vence`" — tinha
+sido classificado como `ausencia`, e ele é das duas: na lista vazia protege "o
+professor não avisou nada"; na lista cheia protege "isto é a agenda da
+disciplina". O **A15 afirma exatamente a segunda**, e é teste de Invariante 6. A
+ferramenta ficou como estava.
+
+A lição não é sobre `avisos`. É que a classificação sai de *qual leitura errada a
+frase desmente*, e frase que desmente as duas não é condicional — **nem toda
+ressalva invariável é repetição**. O que impediu o erro de entrar foi um teste
+que já existia, escrito por outra sessão para outra finalidade.
+
+**Uma decisão registrada foi desfeita, e está dito onde ela morava.** O
+`_REGISTRO_NAO_E_FATO` do `atrasadas` tinha um comentário defendendo que ele
+saísse em TODA resposta: "quem lê 'nada em atraso' também precisa saber que a
+lista só enxerga o que foi registrado". O argumento não se sustenta: o risco que
+aquela frase cobre é **acusar**, e envio que existiu e o Moodle não registrou
+aparece na lista como falta, nunca como ausência. Na resposta vazia não há
+acusação para desmentir — e o que ela precisa dizer é a `COBERTURA`, que agora é
+a que sai lá. O comentário no código diz isso no lugar em que a próxima sessão o
+leria antes de refazer o caminho.
+
+**O canário achou o que o desenho não tinha visto.** O OR3 reprovou `o_que_mudou`
+depois da mudança: metade do `_SO_PONTEIRO` era roteamento ("para ver o arquivo
+use `material`…", 100% de sobreposição com a descrição) e a outra metade não
+("o e-Disciplinas responde esta pergunta com um ponteiro"). A frase foi partida;
+só a segunda ficou. O M15, que procurava os nomes das ferramentas na resposta,
+media o mecanismo — passou a procurar "ponteiro", que é a propriedade que a
+docstring dele sempre disse defender.
+
+**Também saiu, e não é ressalva:** o `_COMO_USAR` do `disciplinas` ("use a SIGLA
+ou o RÓTULO INTEIRO"), porque o esquema do parâmetro `disciplina` das quatro
+ferramentas que o pedem já diz isso palavra por palavra; e a frase "esta é a nota
+FINAL, para ver item a item pergunte de novo dizendo a disciplina" do `notas`,
+que a descrição dá inteira. Roteamento não é ressalva, e por isso nem chega a
+`ressalvas.py` — deixar a classe existir como dado convidaria a próxima sessão a
+emiti-la "só nesse caso", que é como a regra volta a ser sempre.
+
+**Um desvio menor, dito porque desvio calado vira fato errado:** o `_SEM_NOTA` do
+`ja_entreguei` dispara com qualquer item listado, e o desenho pedia "só quando há
+item já corrigido". `emitir` é binário, e distinguir "corrigido" exigiria ler
+`estado` por substring. Dispara mais do que o desenho pedia, nunca menos.

@@ -383,15 +383,24 @@ def test_m15_a_saida_diz_o_que_o_ponteiro_nao_sabe(
     """M15 — Invariante 6: esta função diz QUE mudou, e nunca O QUE mudou.
 
     Sem dizer isso, "arquivo novo ou trocado" lido por um modelo vira a
-    afirmação de que ele sabe qual arquivo é — e as ferramentas que sabem estão
-    a uma frase de distância.
+    afirmação de que ele sabe qual arquivo é.
+
+    **A asserção mudou em 22/09/2026, e a propriedade não.** Até aqui ela
+    procurava os nomes `material` e `avisos` na resposta — o roteamento para as
+    ferramentas que sabem. Esse roteamento saiu do texto porque a descrição
+    desta ferramenta já o dá, com as mesmas palavras (sobreposição medida: 100%,
+    `notas/custo-em-token.md`), e a descrição está no contexto do cliente a
+    sessão inteira. O que a resposta precisa dizer, e diz, é o que a descrição
+    NÃO diz: que o e-Disciplinas responde esta pergunta com um ponteiro, não com
+    o conteúdo. Procurar nome de ferramenta aqui media o mecanismo; procurar a
+    palavra "ponteiro" mede a propriedade.
     """
     c = _cliente(disciplinas_brutas, conteudo_ptc3314)
 
     r = om.o_que_mudou(c, "PTC3314", agora=AGORA)
 
-    assert "material" in r.texto
-    assert "avisos" in r.texto
+    assert "ponteiro" in r.texto, "não disse que o que chega é ponteiro"
+    assert "nunca O QUE mudou" in r.texto, "não separou QUE mudou de O QUE mudou"
 
 
 def test_m18_nenhuma_url_sai_na_resposta(disciplinas_brutas, conteudo_ptc3314):
