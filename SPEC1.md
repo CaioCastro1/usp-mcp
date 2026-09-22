@@ -4206,3 +4206,63 @@ por mensagem, espere eu responder* —, porque "explique passo a passo" um model
 cumpre entregando todos os passos numa mensagem só.
 
 ---
+
+### 22/09/2026 — o teto do RUCard media o dia, e o caso caro é a semana
+
+Revisão de custo dos servidores públicos. Medido sobre as fixtures da Fase 1, 4 RUs
+× 7 dias: `bandejao` com `dia="semana"` e as duas refeições devolve **8.018 B** de
+texto, contra o `TETO_SAIDA_B = 4.500 B` que `tests/rucard/test_custo.py` declara
+como o orçamento da ferramenta — **78% acima**. O arquivo que responde "quanto custa
+o RUCard" conhecia só o dia, e quem o lesse inteiro concluiria 4.500 B.
+
+**O teto do texto semanal existia**, com os números certos (6.500 B e 11.000 B), e
+essa é a parte que vale registrar: ele morava em `tests/rucard/test_server_mcp.py`
+como R46c, escrito em 14/09 junto com a ferramenta da semana. Não era um teto
+faltando, era um teto **longe da conta** — e um número que ninguém relaciona ao
+orçamento não mostra custo nenhum. O modo de falha é o mesmo que o §9 de 10/09 já
+registrou para a guarda da Regra de Ouro: a asserção certa no lugar em que ninguém
+a lê quando precisa.
+
+**A decisão.** R58 traz o caso da semana para `test_custo.py`, com teto **próprio**:
+`TETO_SEMANA_TEXTO_B` (6.500 B no almoço, 11.000 B nas duas refeições, os mesmos de
+R46c) e `TETO_SEMANA_SAIDA_B` (18.000 B e 27.500 B, que a estrutura não tinha). O
+teto do dia **não sobe** — continua 4.500 B para `bandejao`, e essa é a escolha
+inteira: esticar o orçamento do caso barato até a conta da semana fechar apagaria os
+dois custos de uma vez. R46c sai do arquivo da fronteira, com um comentário no lugar
+dizendo para onde foi.
+
+**Medido em 22/09/2026**, e o pior caso não é a semana alinhada: com um RU
+publicando outra semana (fixture de 14/09 no RU 7), a fatoração de itens comuns
+rende menos e o texto sobe de 4.560 B para 5.406 B (almoço) e de 8.018 B para
+8.677 B (as duas). Os tetos cobrem esse lado, com 20% a 27% de folga, e R58 exercita
+os dois arranjos — teto medido por um lado só é o defeito que o backlog de 12/09 já
+registrou uma vez.
+
+**O que a sabotagem mostrou, e mudou o desenho.** Desligar a fatoração de itens
+comuns leva o texto a 8.841 B; desligar o horário constante no cabeçalho leva a
+8.512 B. **Os dois cabem dentro de 11.000 B** — ou seja, o teto não pega a regressão
+que ele parece guardar, e nenhuma folga compatível com a variação de um cardápio de
+texto livre pegaria. Por isso R58b: a semana numa chamada tem de custar menos que os
+sete dias pedidos um a um, que é a alternativa real de quem pergunta "que dia tem
+lasanha". Medido 8.018 B contra 10.677 B, razão 0,75; o limite ficou em 0,80, e a
+sabotagem dos itens comuns reprova (0,83).
+
+**A do horário não reprova: 0,7972, que passa raspando, e o limite ficou onde
+está.** Apertar até ela cair transformaria a margem no valor medido com outro
+nome, e o próximo cardápio um pouco menos repetitivo reprovaria o commit de
+outra pessoa. Quem guarda o horário no cabeçalho é R48, categoricamente — a
+propriedade ali é "não repetir o que não varia", e não "caber em N bytes". Tanto
+o teto quanto a razão dizem em prosa o que não alcançam; um número que finge
+guardar mais do que guarda é pior que nenhum, porque desestimula a guarda certa.
+A razão varia com o quanto os cardápios se repetem — 0,75 a 0,85 nos três
+arranjos de fixture —, e por isso ela fica presa ao arranjo alinhado. R58c é a
+trava categórica das duas camadas que R36 não enxerga: o envelope da semana e o
+recorte de cada dia dentro dele.
+
+**Descartado:** manter os dois tetos, um em cada arquivo. Dois números para a mesma
+grandeza, um mais frouxo que o outro, é o frouxo nunca disparando e o apertado
+levando a culpa quando dispara. E também descartado subir o teto do dia para um
+número que cubra os dois casos: seria trocar duas medidas por uma média que não
+mede nem uma coisa nem outra.
+
+---

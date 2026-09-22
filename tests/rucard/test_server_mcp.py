@@ -178,17 +178,13 @@ def test_r46b_dia_fechado_na_semana_e_uma_palavra_nao_um_paragrafo(
     assert linha.strip() == "sáb 29/08: não serve"
 
 
-@pytest.mark.contrato
-@pytest.mark.parametrize("refeicao,teto", [("almoco", 6_500), ("todas", 11_000)])
-def test_r46c_o_texto_semanal_tem_teto(gravador, respostas_da_fatia, refeicao, teto):
-    # Medido em 14/09/2026 sobre as fixtures da Fase 1: 4.818 B (almoço) e
-    # 8.381 B (almoço e jantar), 4 RUs × 7 dias. Folga de ~30%.
-    cliente = ClienteRucard(gravador(respostas_da_fatia), hash_rucard=HASH_DE_TESTE)
-    texto = server.chamar_ferramenta(
-        "bandejao", {"dia": "semana", "refeicao": refeicao}, cliente=cliente, hoje=SEGUNDA
-    )
-    assert len(texto.encode()) <= teto, f"{refeicao}: {len(texto.encode())} B"
-    assert len(texto.splitlines()) < 80
+# R46c — o teto do texto semanal — mudou para `test_custo.py` em 22/09/2026, com
+# os mesmos números e a companhia que faltava: o teto do dia, a razão de redução
+# e a asserção de que a semana numa chamada sai mais barata que os sete dias um
+# a um. Aqui ele media o custo longe de onde o custo é declarado, e dava para ler
+# a conta inteira do RUCard sem descobrir que o recorte mais pedido gasta 78%
+# acima do teto do dia. Este arquivo continua com o que só a fronteira erra: a
+# forma do texto (R46, R46b, R47, R48).
 
 
 @pytest.mark.contrato
