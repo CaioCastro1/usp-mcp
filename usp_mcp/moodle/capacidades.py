@@ -102,6 +102,20 @@ _ABERTURA = (
     "ferramentas não tem como dizer."
 )
 
+# Como nomear uma disciplina vale para as SEIS ferramentas que pedem o
+# parâmetro, e até 22/09/2026 esta explicação viajava inteira dentro de cada uma
+# delas: 67 tokens seis vezes, no esquema, em toda sessão. Aqui ela custa uma
+# vez. O esquema de cada parâmetro continua dizendo o essencial — que é sigla, e
+# que espaço e caixa não importam —, porque é ali que o modelo olha na hora de
+# montar a chamada; o que veio para cá é o detalhe que ele só precisa quando a
+# sigla não basta.
+_COMO_NOMEAR_DISCIPLINA = (
+    "Nomear disciplina: a sigla serve quase sempre (PTC3314); quando ela se "
+    "repete em anos diferentes, só o rótulo inteiro separa as matrículas "
+    "(PTC3314-2026, PSI3322-2026-REOF). `disciplinas` lista os rótulos, e "
+    "pedaço do nome também casa."
+)
+
 
 def escrita_ligada() -> bool:
     """A capacidade de escrita está ligada NESTE processo?
@@ -252,4 +266,4 @@ def instrucoes() -> str:
     depende do ambiente: o servidor que sobe com a flag ligada diz outra coisa,
     e o caminho do `.env` é o daquela máquina.
     """
-    return f"{_ABERTURA}\n\n{estado_da_escrita()}"
+    return f"{_ABERTURA}\n\n{_COMO_NOMEAR_DISCIPLINA}\n\n{estado_da_escrita()}"
