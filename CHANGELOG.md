@@ -16,6 +16,12 @@ porque quem o lê é um modelo e travá-lo congelaria a parte que melhora com us
 
 ### Novidades
 
+- **A resposta da semana do bandejão encolheu 12%.** "Que dia tem lasanha essa
+  semana?" devolvia 8.018 B de texto e passa a devolver 7.054 B, sem perder nada:
+  o item que se repete em quase todas as refeições sobe uma vez para o rodapé, e
+  as refeições que trazem outra coisa no lugar são nomeadas ali e seguem com a
+  lista inteira na linha delas. A resposta de um dia não mudou.
+
 - **Obter a chave do e-Disciplinas não precisa mais de bash.** O programa que
   obtém a chave foi reescrito em Python, e o pacote passa a instalar o comando
   `usp-mcp-token` ao lado dos três servidores. No Windows ele vira

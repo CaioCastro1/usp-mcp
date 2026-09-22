@@ -9,9 +9,11 @@ Os tetos são medidos, com folga declarada, e a trava que não envelhece é a
 CATEGÓRICA (R36/R58c) — número aperta com o tempo, conjunto de chaves não.
 
 **São dois casos, e por muito tempo este arquivo só conhecia um.** R34-R37 medem
-o DIA. A semana inteira numa chamada custa 8.018 B de texto contra um teto de
+o DIA. A semana inteira numa chamada custava 8.018 B de texto contra um teto de
 4.500 B escrito para o dia — 78% acima —, e quem lesse este arquivo concluiria
-que a ferramenta cabe em 4.500 B. O teto do texto semanal existia, com o número
+que a ferramenta cabe em 4.500 B. (Com a fatoração por custo de R59, do mesmo
+dia, são 7.054 B; o excesso caiu de 78% para 57%, e não a zero — a semana é sete
+vezes o conteúdo de um dia, e nenhuma formatação desfaz isso.) O teto do texto semanal existia, com o número
 certo, mas morava na suíte da fronteira MCP, longe da conta: um teto que ninguém
 relaciona ao orçamento não mostra custo nenhum. R58 traz o caso da semana para
 cá, com teto PRÓPRIO — o do dia continua 4.500 B e não sobe para acomodá-la — e
@@ -140,31 +142,36 @@ def test_r37b_o_texto_para_o_modelo_tambem_tem_teto(gravador, respostas_da_fatia
 # A semana não custa nada a mais na USP — são as mesmas 5 requisições de um dia,
 # porque o `/menu` já devolve a semana e o cache é por RU (R45b trava isso). O
 # que cresce é a RESPOSTA, e é ela que o modelo paga. Medido em 22/09/2026 sobre
-# as fixtures da Fase 1, 4 RUs × 7 dias, nos dois recortes que se pedem:
+# as fixtures da Fase 1, 4 RUs × 7 dias, nos dois recortes que se pedem, depois
+# da fatoração por custo que R59 trouxe no mesmo dia:
 #
-#     recorte          texto      estrutura
-#     almoço           4.560 B     14.506 B
-#     almoço+jantar    8.018 B     21.932 B
+#     recorte          texto      estrutura     texto antes de R59
+#     almoço           4.058 B     14.506 B      4.560 B
+#     almoço+jantar    7.054 B     21.932 B      8.018 B
+#
+# A estrutura não mudou com R59, e é de propósito: fatorar é decisão de TEXTO, e
+# a projeção continua dizendo item por item o que veio em cada refeição.
 #
 # O pior caso medido NÃO é a semana alinhada: com um RU publicando outra semana
-# (a fixture de 14/09 no RU 7), a fatoração de itens comuns rende menos e o
-# texto sobe para 5.406 B e 8.677 B. Os tetos cobrem esse lado, com 20% a 27% de
-# folga, e os testes exercitam os dois arranjos — teto medido por um lado só já
-# custou um defeito a este projeto (`BACKLOG-correcoes.md`, 12/09).
+# (a fixture de 14/09 no RU 7), a fatoração rende menos e o texto sobe para
+# 5.027 B e 7.836 B. Os tetos cobrem esse lado, com ~25% de folga, e os testes
+# exercitam os dois arranjos — teto medido por um lado só já custou um defeito a
+# este projeto (`BACKLOG-correcoes.md`, 12/09).
 #
-# Os números do texto são os mesmos que a suíte da fronteira MCP guardava como
-# R46c desde 14/09; o que muda é o lugar e a companhia. Teto longe da conta não
-# mostra custo: era possível ler este arquivo inteiro e concluir que a
-# ferramenta cabe em 4.500 B, sendo que o recorte mais pedido gasta 78% mais.
+# Os tetos do texto nasceram em 14/09 na suíte da fronteira MCP, como R46c, em
+# 6.500 B e 11.000 B. Vieram para cá em 22/09 com o caso inteiro, e desceram
+# junto com a medida. Teto longe da conta não mostra custo: era possível ler
+# este arquivo inteiro e concluir que a ferramenta cabe em 4.500 B, sendo que o
+# recorte mais pedido gastava 78% mais.
 #
 # O que estes tetos NÃO fazem: pegar a fatoração parando de render. Com a folga
-# que a variação do cardápio exige, desligar a fatoração de itens ou o horário
-# no cabeçalho cabe dentro deles (medido: 8.841 B e 8.512 B). Quem pega isso é
-# R58b, pela razão contra os sete dias, e as travas categóricas de R47/R48 na
-# fronteira. Teto é guarda de crescimento grosso — campo novo repetido 28 vezes,
-# catálogo cru de volta —, e dizer que ele guarda mais do que guarda é como
-# ficar sem nenhum.
-TETO_SEMANA_TEXTO_B = {"almoco": 6_500, "todas": 11_000}
+# que a variação do cardápio exige, desligá-la cabe dentro deles (medido:
+# 8.018 B sem a regra de custo, 8.841 B sem fatoração nenhuma). Quem pega isso é
+# R58b, pela razão contra os sete dias, e as travas categóricas de R47/R48/R59
+# na fronteira. Teto é guarda de crescimento grosso — campo novo repetido 28
+# vezes, catálogo cru de volta —, e dizer que ele guarda mais do que guarda é
+# como ficar sem nenhum.
+TETO_SEMANA_TEXTO_B = {"almoco": 6_300, "todas": 9_800}
 TETO_SEMANA_SAIDA_B = {"almoco": 18_000, "todas": 27_500}
 
 # Os dois arranjos de fixture, por extenso. O segundo é o caro, e existe porque
@@ -225,23 +232,23 @@ def test_r58b_a_semana_numa_chamada_paga_por_si(gravador, respostas_da_fatia):
 
     Quem pergunta "que dia tem lasanha?" não tem a opção de gastar 1.601 B: ou
     gasta a semana numa chamada, ou gasta sete chamadas de um dia. Medido em
-    22/09/2026 na fixture alinhada: 8.018 B contra 10.677 B, razão 0,75 — e seis
-    idas e voltas de ferramenta a menos, que não aparecem em byte nenhum.
+    22/09/2026 na fixture alinhada: 7.054 B contra 10.421 B, razão 0,677 — e
+    seis idas e voltas de ferramenta a menos, que não aparecem em byte nenhum.
 
-    Esta asserção morde onde o teto não morde. Desligar a fatoração de itens
-    comuns leva o texto a 8.841 B e desligar o horário no cabeçalho leva a
-    8.512 B — os dois dentro dos 11.000 B, porque uma folga dimensionada para a
-    variação do que a USP escreve não tem como pegar uma regressão de 10%. A
-    razão pega a primeira: 0,83 contra o limite de 0,80.
+    Esta asserção morde onde o teto não morde. Desligar a regra de custo de R59
+    leva o texto a 8.018 B e desligar a fatoração inteira leva a 8.841 B — os
+    dois dentro dos 9.800 B, porque uma folga dimensionada para a variação do
+    que a USP escreve não tem como pegar uma regressão de 12%. A razão pega as
+    duas: 0,751 e 0,756 contra o limite de 0,73.
 
-    **E não pega a segunda: 0,7972, que passa raspando.** Está escrito porque a
-    tentação seria apertar o limite até ela reprovar, e aí ele deixaria de ser
-    margem e viraria o valor medido com outro nome — qualquer variação de
-    cardápio reprovaria o commit de outra pessoa. Quem guarda o horário no
-    cabeçalho é R48, categoricamente, e é o lugar certo: a propriedade é "não
-    repetir o que não varia", não "caber em N bytes". A razão varia de 0,75 a
-    0,85 nos três arranjos de fixture, e por isso fica presa ao alinhado, onde a
-    fatoração tem mais a ganhar.
+    **O horário no cabeçalho continua fora do alcance dela: 0,724, que passa
+    raspando.** Está escrito porque a tentação seria apertar o limite até ela
+    reprovar, e a 0,004 de distância ele deixaria de ser margem e viraria o
+    valor medido com outro nome — qualquer variação de cardápio reprovaria o
+    commit de outra pessoa. Quem guarda o horário é R48, categoricamente, e é o
+    lugar certo: a propriedade é "não repetir o que não varia", não "caber em N
+    bytes". A razão varia de 0,68 a 0,79 nos três arranjos de fixture, e por
+    isso fica presa ao alinhado, onde a fatoração tem mais a ganhar.
     """
     cliente_semana = ClienteRucard(
         gravador(respostas_da_fatia), hash_rucard=HASH_DE_TESTE
@@ -265,10 +272,10 @@ def test_r58b_a_semana_numa_chamada_paga_por_si(gravador, respostas_da_fatia):
         for d in ferramentas.dias_da_semana(SEGUNDA)
     )
 
-    assert len(semana.encode()) < um_a_um * 0.80, (
+    assert len(semana.encode()) < um_a_um * 0.73, (
         f"semana {len(semana.encode())} B contra {um_a_um} B em sete chamadas "
-        f"(razão {len(semana.encode()) / um_a_um:.2f}): a economia caiu abaixo "
-        "de 20% e a fatoração parou de render."
+        f"(razão {len(semana.encode()) / um_a_um:.3f}): a economia caiu abaixo "
+        "de 27% e a fatoração parou de render."
     )
 
 

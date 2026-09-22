@@ -4266,3 +4266,61 @@ número que cubra os dois casos: seria trocar duas medidas por uma média que n�
 mede nem uma coisa nem outra.
 
 ---
+
+### 22/09/2026 — o arroz escapava da fatoração por uma vírgula de grafia
+
+Entrada irmã da anterior, e ela **reverte uma decisão registrada** — por isso o dado
+vem primeiro. Medida a composição dos 8.018 B da semana (4 RUs × 7 dias, as duas
+refeições): **88% são linhas de cardápio** (7.083 B), 5% dias fechados, 5%
+cabeçalhos, 1% rodapé e título. Dentro das linhas: pratos 4.605 B, `Opção:` 1.365 B,
+rótulo de dia e kcal 1.075 B. Não há gordura de formatação sobrando — o que sobra é
+repetição de conteúdo.
+
+E a maior é uma só: **arroz e feijão estão nas 38 refeições abertas da semana, em
+duas grafias.** `Arroz / feijão / arroz integral` em 32 e
+`Arroz / feijão preto / arroz integral` nas outras 6. A fatoração de 14/09 é
+interseção estrita, então não vê nenhuma das duas, e paga **1.085 B** de repetição —
+14% do texto.
+
+**A decisão que isto reverte** está na docstring de `_itens_comuns`, de 14/09: "regra
+estrita de propósito: 'na maioria' exigiria marcar exceções, e o ganho medido (~20 B
+por refeição) não paga a complexidade". O ganho por refeição era o mesmo que se mede
+hoje; o que mudou foi saber **quantas refeições** — a ferramenta da semana e o teto
+que a mediu vieram depois, e 20 B em 38 refeições é outra conversa que 20 B em 8.
+
+**A decisão.** `fatorar` substitui `_itens_comuns` e devolve dois grupos: os comuns a
+todas (regra antiga, intacta) e os **quase-comuns**, cada um com os rótulos das
+refeições que não o têm. O critério **não é proporção, é custo**: o item sobe quando
+o que ele economiza nas linhas paga a linha de rodapé que o nomeia com as exceções.
+Nenhum limiar de "maioria" escolhido a dedo — a conta se recusa sozinha quando não
+vale, e é ela que responde à objeção de 14/09: a complexidade que não se pagava cabe
+em duas linhas e tem desligamento automático.
+
+Nomear as exceções não é enfeite. "Em quase todas" sem dizer quais é recorte não
+declarado (Invariante 7), e é justamente nas 6 exceções que está a outra grafia, que
+segue inteira na linha do dia (R59b existe para isso: fatorar não pode apagar a
+variante).
+
+**Medido depois:** semana/almoço 4.560 → **4.058 B** (−11%), semana/almoço+jantar
+8.018 → **7.054 B** (−12%). No pior arranjo, 5.406 → 5.027 B e 8.677 → 7.836 B. O
+excesso da semana sobre o teto do dia cai de 78% para 57%, e **não vai a zero, nem
+deveria**: a semana é sete vezes o conteúdo de um dia. Os tetos de R58 desceram junto
+com a medida, para 6.300 B e 9.800 B, e os da estrutura ficaram — `fatorar` é decisão
+de texto, e a projeção continua dizendo item por item o que veio em cada refeição.
+
+**O dia não mudou**: 926 B e 1.601 B, os mesmos. Não por exceção no código, e sim
+porque a conta se recusou — com 7 ou 8 refeições, nomear exceções custa mais do que
+economiza. É o melhor teste que a regra de custo podia ter, e ele saiu de graça.
+
+**Descartado:** reconhecer que as duas grafias são variantes do mesmo prato e fundi-las.
+Seria adivinhar parentesco entre strings livres que a USP escreve, e a regra deste
+projeto é a medida, não a imaginada — o mesmo motivo por que `_comunicado` reconhece
+só negrito e frase com ponto final. **Também descartado:** encolher por cortar
+conteúdo (kcal, linha `Opção:`, menos RUs por padrão). Cabe discutir, mas é decisão de
+produto sobre o que a ferramenta responde, não fatoração de texto repetido.
+
+R59, R59b e R59c; os três verificados por sabotagem, e a matriz inteira refeita depois
+da mudança — desligar a regra de custo reprova R58b, R59 e R59c; desligar a fatoração
+toda reprova também R47; uma linha a mais por dia reprova os quatro casos de R58.
+
+---
