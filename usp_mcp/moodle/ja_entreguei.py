@@ -52,6 +52,7 @@ from datetime import datetime
 from .disciplinas import carregar, resolver
 from .erros import ErroMoodle
 from .projecao import FUSO_SAO_PAULO
+from .ressalvas import AUSENCIA, PRESENCA, Ressalva, emitir
 from .texto import casa, formatar_data
 
 # Quantas consultas de status uma invocação pode gastar. Ver decisão 2 da
@@ -277,6 +278,21 @@ _SEM_NOTA = (
     "nota: ela não vem neste pedido ao e-Disciplinas."
 )
 
+# As duas ressalvas invariáveis, e a leitura errada que cada uma desmente (ver
+# `ressalvas.py`). Elas nunca saem juntas, e os três ramos desta ferramenta
+# passaram a pedi-las pela mesma porta — antes a COBERTURA era escrita à mão em
+# dois deles e a regra ficava em três lugares.
+#
+# `_SEM_NOTA` dispara com QUALQUER item listado, e o desenho de 22/09 dizia "só
+# quando há item já corrigido". A diferença é deliberada: `emitir` é binário por
+# construção, e distinguir "corrigido" exigiria ler `estado` por substring —
+# frágil, e a economia não paga. Dispara mais do que o desenho pedia, nunca
+# menos.
+_RESSALVAS = (
+    Ressalva(texto=COBERTURA, quando=AUSENCIA),
+    Ressalva(texto=_SEM_NOTA, quando=PRESENCA),
+)
+
 
 def _quantos_warnings(bruto) -> int:
     """`warnings` da resposta, na mesma leitura das outras cinco ferramentas.
@@ -362,7 +378,7 @@ def ja_entreguei(
         # ver", enquanto a frase abaixo, sozinha, diz "não há o que entregar".
         # As duas leem igual e só uma manda dormir tranquilo.
         avisos = [_aviso_da_lista(nao_listadas)] if nao_listadas else []
-        avisos.append(COBERTURA)
+        avisos.extend(emitir(_RESSALVAS, vazio=True))
         return RespostaJaEntreguei(
             texto=f"{cabecalho}\n\nEsta disciplina não tem nenhuma tarefa de "
             "entrega no e-Disciplinas."
@@ -389,7 +405,7 @@ def ja_entreguei(
         # Teste 12?"), e era o único que ficava mudo sobre questionário: listava
         # as quatro entregas e parava (J26).
         avisos = [_aviso_da_lista(nao_listadas)] if nao_listadas else []
-        avisos.append(COBERTURA)
+        avisos.extend(emitir(_RESSALVAS, vazio=True))
         return RespostaJaEntreguei(
             texto=(
                 f"{cabecalho}\n\nNenhuma entrega com {entrega!r} no nome. A "
@@ -448,7 +464,9 @@ def ja_entreguei(
         avisos.append(_aviso_da_lista(nao_listadas))
     if status_incompletos:
         avisos.append(_aviso_do_status(status_incompletos))
-    avisos.extend([COBERTURA, _SEM_NOTA])
+    # Este ramo só existe quando há entrega listada, então a ressalva que sai é
+    # a de presença. A de ausência sai nos dois ramos de vazio, acima.
+    avisos.extend(emitir(_RESSALVAS, vazio=False))
 
     linhas.extend(f"\n⚠ {a}" for a in avisos)
 

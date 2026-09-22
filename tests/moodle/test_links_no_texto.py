@@ -211,7 +211,11 @@ def test_L6_arquivo_embutido_no_texto_e_listado_sem_a_url_e_baixavel(disciplinas
     cliente = _cliente(disciplinas_brutas, conteudo, arquivos={PLUGINFILE: b"%PDF-1.4 x"})
     r = mat.material(cliente, "PSI3323", agora=lambda: 0.0)
 
-    assert "Aula1.pdf [PDF]" in r.texto
+    # O `[PDF]` que esta linha exigia até 22/09/2026 saiu do formato: o nome do
+    # arquivo já diz a extensão, e repeti-la custava 933 tokens em PTC3314
+    # (`notas/custo-em-token.md`). A propriedade que L6 defende é outra — o NOME
+    # sai e o ENDEREÇO não —, e ela está nas quatro asserções abaixo.
+    assert "Aula1.pdf" in r.texto
     assert "(apostila da aula 1)" in r.texto, "o título da âncora é o rótulo do professor"
     assert "pluginfile.php" not in r.texto
     assert "/webservice/" not in r.texto
