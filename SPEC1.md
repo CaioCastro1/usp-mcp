@@ -4287,4 +4287,394 @@ reprova sem nada errado com o higienizador — exatamente o que aquele comentár
 dizia querer evitar. Consequência prática, e é o que torna isso urgente: **o gate
 hoje reprova na máquina de quem mais o roda.** Está no `BACKLOG-correcoes.md`.
 
+*Posfácio de 22/09, escrito ao integrar esta branch: o vermelho do T58 descrito no
+último parágrafo foi fechado no dia seguinte, pela entrada de 22/09 sobre o canário —
+e não pela cura que este parágrafo supunha. O que ficou de pé daqui é a linha de
+defasagem do gate e o `novo-worktree.sh`.*
+
+### 22/09/2026 — o custo do lado de cá foi medido pela primeira vez, e o `bytes/4` do projeto subestima
+
+**O que faltava medir.** Desde a Fase 1 este documento registra o custo do **cru**
+que vem da USP, e a projeção que o reduz a 0,5%–6%. O outro lado nunca teve
+número: o que a ferramenta **devolve ao modelo** depois que a projeção já
+trabalhou. Medido agora, offline, sem gastar chamada da conta — handshake stdio
+real para o estático, dublê com as fixtures versionadas para cada ferramenta. A
+medição inteira está em `notas/custo-em-token.md`.
+
+**Os números que mudam o mapa.** O estático dos três servidores — `instructions`
+mais `tools/list` — é **5.262 tokens por sessão, pagos antes da primeira
+pergunta**, e é maior que qualquer resposta individual. Depois dele vêm
+`material` (2.569) e `disciplinas` (1.350). Nenhum dos dois é caro por falta de
+projeção: `material` já entrega 11,2% do cru e `o_que_vence`, 0,5%.
+
+**Achado que decide desenho: a prosa invariável é paga duas vezes.** 801 tokens
+saem idênticos a toda chamada em sete ferramentas — e a descrição da própria
+ferramenta, que o cliente carrega a sessão inteira, já os contém. Medida a
+sobreposição de vocabulário entre o bloco `⚠` e a descrição: `ja_entreguei` 92%,
+`atrasadas` 85%, `o_que_mudou` 71%. Em `atrasadas`, **215 dos 325 tokens da
+resposta são o que a descrição de 279 tokens já diz**. Não é troca de
+custo-por-chamada por custo-por-sessão: é a mesma frase duas vezes na mesma
+sessão. O contraste que fecha o argumento está na mesma tabela — as duas
+ressalvas do `disciplinas` dão 21% e 10%, porque ali a resposta diz o que a
+descrição não diz.
+
+**E um erro de método que este documento vinha cometendo.** O `~bytes/4` do
+`CONVENTIONS.md` §1 **subestima em 1,38× no conjunto, e em 1,68× no
+`disciplinas`**. A razão explica a si mesma: prosa em português fica perto de 4
+bytes por token; código, nome de arquivo e data não. `atrasadas`, que é quase só
+prosa, bate 1,00×; `disciplinas`, que é quase só rótulo (`PSI3322-2026-REOF`),
+erra por 68%. Consequência para o que está escrito aqui: as estimativas de custo
+deste §9 são otimistas exatamente nas respostas em forma de listagem, que são as
+caras. Para o **cru** o `bytes/4` segue valendo (1,00×–1,15× medidos) — JSON do
+Moodle é prosa e chave repetida.
+
+**A decisão.** Quatro mudanças, desenhadas em
+`docs/superpowers/specs/2026-09-22-custo-em-token-design.md`: a ressalva
+invariável passa a ser condicional à forma da resposta; os campos redundantes
+saem de `material` e as encerradas do `disciplinas` viram contagem; e a descrição
+repetida do parâmetro `disciplina` encolhe. Esta entrada registra a **medição** e
+a guarda; cada corte tem a sua.
+
+**A guarda, e ela é a parte que dura.** `tests/moodle/test_custo.py` mede a saída
+de cada ferramenta contra as fixtures e falha nos **dois** sentidos: acima do
+teto, e com folga maior que 15% abaixo dele. O segundo é o que importa — um teto
+generoso é um teste que parou de verificar, e sem ele o primeiro corte que
+entrasse deixaria o orçamento cego para o próximo crescimento. Ambos os sentidos
+verificados por sabotagem. O teto é contado em **bytes**, apesar de a medição
+acima mostrar que byte engana: um tokenizador seria a segunda dependência de
+runtime do projeto, e o precedente do `pypdf` (01/09) já decidiu esse caso. Byte
+é péssima unidade de custo e ótima unidade de regressão, e a pergunta do teste
+não é "quanto custa" — é "cresceu?".
+
+**O que ficou de fora do orçamento, com motivo.** `diagnostico` (o tamanho
+depende do caminho do `.env` da máquina e de quantas funções o token alcança),
+`questionarios` (não há fixture de `mod_quiz_*`) e `baixar_arquivo` (devolve
+caminho, não texto). E `o_que_vence` entra sabendo que o dublê ignora a janela: o
+número é de ~4 meses de eventos, não dos 14 dias do padrão — boa medida de
+regressão, não de produção.
+
+### 22/09/2026 — a ressalva invariável passa a depender da forma da resposta, e uma delas resistiu
+
+Primeiro dos quatro cortes desenhados na entrada anterior. O que muda: uma
+ressalva que não depende do dado só sai quando a resposta *desta* chamada pode
+ser lida errado sem ela. Duas classes, complementares por construção —
+`ausencia` desmente o "não tem nada" de uma lista vazia, `presenca` desmente o
+"isto é tudo, e é fato" de uma lista cheia — e elas nunca saem juntas. A regra
+mora em `usp_mcp/moodle/ressalvas.py`, um lugar só, pelo motivo que o `texto.py`
+já registrou: a mesma regra em sete módulos são sete lugares para divergir.
+
+**Medido, e é o ponto:** `atrasadas` 1.274 → 758 B (−41%), `ja_entreguei` 978 →
+622 B (−36%), `notas` 491 → 361 B (−26%), `o_que_mudou` 1.018 → 893 B (−12%),
+`disciplinas` 3.219 → 2.914 B (−9%). Nada foi resumido: o que saiu foi frase que
+a descrição da ferramenta já diz, e a descrição está no contexto do cliente a
+sessão inteira.
+
+**O que resistiu, e por quê importa mais que o que cedeu.** O desenho previa sete
+ferramentas e entregou cinco. O `_COBERTURA` do `avisos` — "aviso dado em sala e
+não postado não existe aqui, e o que tem PRAZO está em `o_que_vence`" — tinha
+sido classificado como `ausencia`, e ele é das duas: na lista vazia protege "o
+professor não avisou nada"; na lista cheia protege "isto é a agenda da
+disciplina". O **A15 afirma exatamente a segunda**, e é teste de Invariante 6. A
+ferramenta ficou como estava.
+
+A lição não é sobre `avisos`. É que a classificação sai de *qual leitura errada a
+frase desmente*, e frase que desmente as duas não é condicional — **nem toda
+ressalva invariável é repetição**. O que impediu o erro de entrar foi um teste
+que já existia, escrito por outra sessão para outra finalidade.
+
+**Uma decisão registrada foi desfeita, e está dito onde ela morava.** O
+`_REGISTRO_NAO_E_FATO` do `atrasadas` tinha um comentário defendendo que ele
+saísse em TODA resposta: "quem lê 'nada em atraso' também precisa saber que a
+lista só enxerga o que foi registrado". O argumento não se sustenta: o risco que
+aquela frase cobre é **acusar**, e envio que existiu e o Moodle não registrou
+aparece na lista como falta, nunca como ausência. Na resposta vazia não há
+acusação para desmentir — e o que ela precisa dizer é a `COBERTURA`, que agora é
+a que sai lá. O comentário no código diz isso no lugar em que a próxima sessão o
+leria antes de refazer o caminho.
+
+**O canário achou o que o desenho não tinha visto.** O OR3 reprovou `o_que_mudou`
+depois da mudança: metade do `_SO_PONTEIRO` era roteamento ("para ver o arquivo
+use `material`…", 100% de sobreposição com a descrição) e a outra metade não
+("o e-Disciplinas responde esta pergunta com um ponteiro"). A frase foi partida;
+só a segunda ficou. O M15, que procurava os nomes das ferramentas na resposta,
+media o mecanismo — passou a procurar "ponteiro", que é a propriedade que a
+docstring dele sempre disse defender.
+
+**Também saiu, e não é ressalva:** o `_COMO_USAR` do `disciplinas` ("use a SIGLA
+ou o RÓTULO INTEIRO"), porque o esquema do parâmetro `disciplina` das quatro
+ferramentas que o pedem já diz isso palavra por palavra; e a frase "esta é a nota
+FINAL, para ver item a item pergunte de novo dizendo a disciplina" do `notas`,
+que a descrição dá inteira. Roteamento não é ressalva, e por isso nem chega a
+`ressalvas.py` — deixar a classe existir como dado convidaria a próxima sessão a
+emiti-la "só nesse caso", que é como a regra volta a ser sempre.
+
+**Um desvio menor, dito porque desvio calado vira fato errado:** o `_SEM_NOTA` do
+`ja_entreguei` dispara com qualquer item listado, e o desenho pedia "só quando há
+item já corrigido". `emitir` é binário, e distinguir "corrigido" exigiria ler
+`estado` por substring. Dispara mais do que o desenho pedia, nunca menos.
+
+### 22/09/2026 — as duas listagens caras param de pagar pelo que o nome já diz
+
+Segundo corte. Nenhum dos dois é "resumir mais": a projeção do cru já entrega
+11,2% em `material`, e o gargalo tinha mudado de lado.
+
+**`material`: 6.712 → 5.991 B (−11%).** O bloco `[tipo, tamanho, data]` de cada
+item somava 933 tokens contra ~460 dos 57 nomes de arquivo que ele anotava — o
+que anota custava o dobro do anotado. Saíram duas repetições: o rótulo de tipo
+quando a extensão já o diz (`Lista 1.pdf [PDF, …]` dizia PDF duas vezes na mesma
+linha) e o `arquivo` genérico diante de uma extensão visível (`Provas.zip`). O
+rótulo **fica** quando acrescenta: `.odt` não soletra "documento", e `link` não
+tem extensão nenhuma.
+
+O tamanho passou a sair só acima de **10 MB**. Ele prevê custo de download —
+medido em 01/09, o `filesize` declarado bate exatamente com os bytes recebidos —
+mas prever o custo de um PDF de 400 kB não decide nada. Na mesma disciplina há
+GIF de 178 MB, e é lá que o número muda a decisão. A data ficou inteira: ela
+responde "o que foi postado essa semana", que é pergunta real.
+
+**`disciplinas`: 3.219 → 1.616 B (−50%).** As 62 matrículas encerradas saíam
+como lista de rótulos em toda chamada — 565 dos 1.350 tokens, 42% da resposta,
+contra 476 das 10 em andamento que são a resposta. Viraram contagem por ano
+(`2026: 11 · 2025: 24 · …`), e `todas` traz os rótulos. O ano ficou porque é o
+que orienta a segunda pergunta; ela agora custa uma ida a mais, e só para quem a
+faz.
+
+E o `_DE_ONDE_SAI` mudou de casa em vez de sumir: "'Em andamento' sai das datas
+do espaço da disciplina, não da sua matrícula oficial" não é ressalva sobre
+aquela resposta, é **contrato** sobre o que a ferramenta significa — idêntico em
+toda chamada. Foi para a descrição inteiro. Na ferramenta mais chamada do
+servidor, a diferença entre uma vez por sessão e uma vez por chamada é o
+argumento inteiro deste trabalho.
+
+**Dois testes mudaram de asserção sem mudar de propriedade, e é a parte que vale
+reler.**
+
+O **DI4** exigia que as 74 matrículas saíssem NOMEADAS na resposta padrão —
+Invariante 7 escrito como "o corte é de detalhe, nunca de existência". O medo que
+ele protegia está dito na própria docstring: "uma sigla que suma daqui é uma
+disciplina que quem pergunta não tem como descobrir que existe". Com a contagem e
+o `todas` declarados na resposta, ela é descobrível. O teste passou a exigir o que
+sempre importou: que os três blocos somem o total, que o total seja dito, e que
+`todas` nomeie as 74. Sem a última metade, "cortar" e "perder" seriam a mesma
+coisa para a suíte.
+
+O **DI8** procurava o contrato na resposta; agora exige que ele esteja na
+descrição **e não esteja também na resposta**. As duas metades, porque o ganho
+inteiro é não dizer a mesma coisa duas vezes — um teste que só olhasse a
+descrição deixaria a duplicação voltar calada.
+
+E o **L6** fixava a string `"Aula1.pdf [PDF]"` para provar que o nome sai e o
+endereço não. O `[PDF]` era mecanismo; a propriedade está nas quatro asserções
+que sobraram, sobre `pluginfile.php`, `/webservice/` e `token`.
+
+### 22/09/2026 — Jupiter e RUCard medidos, e a maior resposta do projeto estava fora de qualquer teto
+
+A medição de custo de saída cobria só o Moodle. Os outros dois entraram agora,
+pelo mesmo método e sem tocar a rede. Esta entrada registra **medição e dívida**:
+nenhum corte foi feito nos dois, por decisão de escopo.
+
+**O Jupiter já estava otimizado, e o dado confirma em vez de supor.** A ficha
+inteira de PTC3314 custa 789 tokens; o padrão de só-ementa, decidido em 14/09,
+custa **194** — 75% cortados antes de alguém medir o outro lado. O `requisitos`
+sai por 98 a 151 tokens no caso comum.
+
+**E ali o estático custa mais que a chamada:** 622 tokens de `tools/list`
+(sem `instructions` nos dois servidores públicos) contra ~194 de uma consulta
+típica. Três consultas ≈ um `tools/list`. É o inverso do Moodle, onde a resposta
+dominava, e muda onde vale procurar: no Jupiter, o alvo é o esquema do
+`disciplina` (261 tokens, 65% do custo estático dele) — que **não** se mexe,
+porque é o enum de `secoes` que faz o padrão barato existir.
+
+**O achado que importa é do RUCard, e é uma guarda que parou de guardar.** A
+resposta de `dia="semana"` com as duas refeições custa **8.018 B / 2.642
+tokens** — maior que qualquer resposta do Moodle, inclusive o `material` antes
+do corte. O teto do R34 é 4.500 B, e a saída está **78% acima dele sem nada
+ficar vermelho**: o número foi medido em 31/08 sobre "o pior caso (4 RUs × 2
+refeições)", que era verdade então, e o `dia="semana"` chegou depois com o R46
+sem que ninguém remedisse. É a Regra 11 do `CLAUDE.md` outra vez, e desta vez
+contra um teste de custo: **verde na suíte não é verde no que ela não alcança.**
+
+A causa da repetição tem diagnóstico e não palpite: o rodapé que iça item comum
+(`Em todas as refeições acima:`) usa a regra "comum a TODAS as refeições da
+resposta". No dia, com poucos blocos, ela pega `Arroz / feijão / arroz
+integral`. Na semana, a interseção de sete blocos × sete dias encolhe a quase
+nada e o arroz fica inline **32 vezes, 256 tokens, 10% da resposta**. A regra
+falha exatamente onde a repetição é pior.
+
+**Dois desperdícios do Jupiter, medidos e adiados:** `(integral, 3º período
+ideal)` sai 23 vezes em MAT2455 com **um único valor distinto** (230 tokens,
+31% da resposta), e a linha de roteamento do `disciplina` tem **80% de
+sobreposição** com a própria descrição — o limiar exato do canário OR3. Os dois
+são os mesmos padrões que o Moodle acabou de fechar, e estão no backlog com o
+número ao lado.
+
+**Por que nada foi cortado agora.** Os cortes mexem em forma de saída e pedem os
+mesmos cuidados de teste que o Moodle pediu — e o Moodle acabou de entregar
+quatro mudanças ainda não revisadas. Medir é barato e não conflita; cortar sobre
+base não revisada é o que a lição de integração sequencial já custou uma vez.
+O dado fica registrado com o número, que é o que permite decidir depois sem
+remedir.
+
+**E o `bytes/4` erra nos dois sentidos, o que fecha o Achado 4 da nota.** Nome de
+prato em português (`Escondidinho de shimeji`) dá 1,43× no RUCard; ementa de
+disciplina, texto corrido longo, dá **0,89×** no Jupiter — abaixo de 4 B/token.
+A regra não é "português subestima": é que **código, nome próprio e lista curta
+tokenizam mal, e prosa corrida tokeniza bem**.
+### 22/09/2026 — as duas dívidas do RUCard fechadas no mesmo dia: o teto e o arroz
+
+Continuação direta da entrada acima, que mediu e deixou as duas em aberto no
+backlog. Aqui elas fecham, e o que vale registrar são as duas surpresas do
+caminho — uma em cada.
+
+#### O teto existia, e estava no lugar errado
+
+A entrada acima diz que a semana estava 78% acima do teto de `test_custo.py` "sem
+nada ficar vermelho". Verdade, e incompleta: **o teto do texto semanal existia**,
+com os números certos (6.500 B e 11.000 B), como R46c em
+`tests/rucard/test_server_mcp.py`, escrito em 14/09 junto com a ferramenta da
+semana. Não era teto faltando, era teto **longe da conta** — e um número que
+ninguém relaciona ao orçamento não mostra custo nenhum. Dava para ler
+`test_custo.py` de ponta a ponta e concluir que a ferramenta cabe em 4.500 B.
+Mesmo modo de falha do §9 de 10/09, na guarda da Regra de Ouro: a asserção certa
+no lugar em que ninguém a lê quando precisa.
+
+**A decisão.** R58 traz o caso da semana para `test_custo.py`, com teto próprio e
+na forma de OR2, do Moodle: um caso por recorte × arranjo de fixture, teto de
+texto **e** de estrutura (que não tinha nenhum), e asserção nos **dois sentidos**
+com 15% de folga máxima. Teto que não acompanha um corte deixa de detectar o
+crescimento seguinte — e foi exatamente isso que aconteceu com R46c quando a
+fatoração de 14/09 encolheu a saída e o número ficou onde estava.
+
+O teto do dia **não sobe**: continua 4.500 B. Esticar o orçamento do caso barato
+até a conta da semana fechar apagaria os dois custos de uma vez. R34 e R37b
+seguem na forma antiga, com um sentido só e ~27% de folga, e isso é escolha
+declarada: o `TETO_SAIDA_B` cobre ao mesmo tempo a estrutura de 3.540 B e o texto
+de 1.601 B, e dar folga máxima aos dois exige separá-los — a linha do backlog que
+registra os testes de custo frouxos do Jupiter e do RUCard segue aberta para isso.
+
+Os dois arranjos de fixture existem porque o caso caro **não** é a semana
+alinhada: com um RU publicando outra semana, a fatoração rende menos e o texto
+sobe. Teto medido por um lado só já custou um defeito a este projeto (backlog,
+12/09).
+
+#### O arroz escapava por uma vírgula de grafia, e a cura proposta não o pegaria
+
+A entrada acima diagnostica: a regra de içar é "comum a TODAS as refeições da
+resposta", e na semana a interseção encolhe a quase nada. Medido agora com mais
+resolução: **arroz e feijão estão nas 38 refeições abertas**, em duas grafias —
+`Arroz / feijão / arroz integral` em 32 e `Arroz / feijão preto / arroz integral`
+nas outras 6. E a composição do texto explica por que não havia mais nada a
+cortar: **88% dos 8.018 B são linhas de cardápio** (pratos 4.605 B, `Opção:`
+1.365 B, rótulo de dia e kcal 1.075 B); cabeçalhos, dias fechados e rodapé somam
+12%. Não sobra gordura de formatação — sobra repetição de conteúdo.
+
+**A cura que o backlog propunha foi medida antes de ser descartada.** Içar por
+bloco (RU × refeição) em vez de por resposta pega o arroz em **1 dos 7 blocos**,
+só o `CENTRAL · jantar`: o dia do feijão preto cai em dia diferente em cada RU
+(ter no Central e no Física, qua na Prefeitura, qui no Químicas), então a
+interseção por bloco falha pelo mesmo motivo que a interseção por resposta. Mudar
+o eixo não resolve; o que resolve é deixar de exigir unanimidade.
+
+**A decisão.** `fatorar` substitui `_itens_comuns` e devolve dois grupos: os
+comuns a todas (regra antiga, intacta) e os **quase-comuns**, cada um com os
+rótulos das refeições que não o têm. O critério **não é proporção, é custo**: o
+item sobe quando o que economiza nas linhas paga a linha de rodapé que o nomeia
+com as exceções. Nenhum limiar de "maioria" escolhido a dedo.
+
+**Isto reverte uma decisão registrada**, e o dado é o que mudou. A docstring de
+`_itens_comuns`, de 14/09, dizia: "regra estrita de propósito: 'na maioria'
+exigiria marcar exceções, e o ganho medido (~20 B por refeição) não paga a
+complexidade". O ganho por refeição é o mesmo hoje; o que mudou foi saber
+**quantas refeições** — a ferramenta da semana e o teto que a mediu vieram
+depois, e 20 B em 8 refeições e 20 B em 38 são contas diferentes. A objeção da
+complexidade se responde sozinha: a conta cabe em duas linhas e tem desligamento
+automático.
+
+Nomear as exceções não é enfeite. "Em quase todas" sem dizer quais é recorte não
+declarado (Invariante 7), e é justamente nelas que está a outra grafia, que segue
+inteira na linha do dia — R59b existe para que fatorar nunca apague a variante.
+
+#### Medido depois, e em token, porque byte engana nos dois sentidos
+
+| saída | bytes | tokens |
+|---|---|---|
+| semana, só almoço | 4.560 → **4.058** (−11%) | 1.482 → **1.360** (−8%) |
+| semana, tudo | 8.018 → **7.054** (−12%) | 2.642 → **2.408** (−9%) |
+| dia, tudo | 1.601 → 1.601 | 565 → 565 |
+
+**O corte em byte é maior que em token, e a nota registra a correção**: saíram 32
+cópias de uma string que, repetida, o tokenizador já resolvia bem. Anunciar o
+ganho pelo byte seria arredondar a favor. A guarda continua em byte porque a
+pergunta dela é "cresceu?", não "quanto custa" — é o mesmo argumento de OR2.
+
+**O dia não mudou, e não por exceção no código**: com 7 ou 8 refeições, nomear
+exceções custa mais do que economiza, e a conta se recusa sozinha. É o melhor
+teste que a regra de custo podia ter, e saiu de graça.
+
+**O que não se resolve com formatação.** A semana segue sendo a resposta mais
+cara do projeto (2.408 tokens contra 2.166 do `material` já cortado), e o excesso
+sobre o teto do dia cai de 78% para 57% — não a zero, nem deveria: ela é sete
+vezes o conteúdo de um dia. Daqui para baixo, encolher é devolver menos conteúdo
+(menos RUs por padrão, sem kcal, sem a linha `Opção:`), que é decisão de produto
+e não fatoração de texto repetido.
+
+**Também descartado:** reconhecer que as duas grafias são variantes do mesmo
+prato e fundi-las. Seria adivinhar parentesco entre strings livres que a USP
+escreve, e a regra deste projeto é a medida, não a imaginada — o mesmo motivo por
+que `_comunicado` reconhece só negrito e frase com ponto final.
+
+R58, R58b (a semana numa chamada tem de custar menos que os sete dias um a um:
+razão 0,677, limite 0,73), R58c, R59, R59b e R59c. Matriz de sabotagem refeita
+depois da mudança: desligar a regra de custo reprova R58b, R59 e R59c; desligar a
+fatoração inteira reprova também R47; uma linha a mais por dia reprova os quatro
+casos de R58; tirar as calorias — um ENCOLHIMENTO — também reprova R58, que é o
+sentido novo. Fora do alcance da razão, e declarado: o horário fora do cabeçalho
+dá 0,724 e quem o guarda é R48, categoricamente.
+
+### 22/09/2026 — o canário voltou a apontar para a captura errada, e o par de 15/09 prometia procedência que ninguém pode dar
+
+O `gate.sh` reprovava de novo na máquina do dono, no mesmo T58 e no mesmo par —
+`users_courses.json`. O registro de 17/09 acima descreve a medição que fechou isso, e ela
+está certa: o cru do disco é o de **31/08**, com 74 matrículas, e reproduz byte a byte a
+publicada de mesmo nome, também com 74. Remedido, o arquivo apontava para lá.
+
+**O que aconteceu no mesmo dia:** `f453d6a`, ramificando de um `main` que já continha a
+medição (`d7c636b`, via PR #90), reverteu o par para `users_courses_15-09.json` e escreveu
+na mensagem *"Conferido rodando o higienizador sobre o cru: a saída é igual a
+`users_courses_15-09.json` e diferente de `users_courses.json`"*. A afirmação é o inverso
+exato do que o comando devolve. Entrou por PR #97 e ficou cinco dias — o mtime do cru no disco é
+anterior a 17/09 e não mudou depois, então não houve captura nova entre uma coisa e outra:
+a conferência declarada não foi feita, ou foi feita com os lados trocados. O comentário que veio junto
+contradizia, em linha, o bloco medido três linhas acima dele, e o arquivo passou a afirmar
+as duas coisas ao mesmo tempo.
+
+**Remedido com a medição refeita**, offline e sem tocar a rede, no mesmo molde exaustivo:
+`higienizar(cru)` comparado com cada publicada. `action_events` → `action_events`,
+`course_contents_142033` → `course_contents_psi3323`, `users_courses` → `users_courses`.
+Nenhum outro casamento existe. `PARES_ESPERADOS` continua 3: o par não saiu, foi
+reapontado.
+
+**O que o par de 15/09 ia cobrir, e quem cobre agora** — a pergunta que tinha de ser
+respondida antes de mexer na linha. T58 é o único teste do arquivo que dá **procedência**:
+que a fixture versionada é mesmo a saída do higienizador sobre o cru, e não algo editado à
+mão depois. Todo o resto — T48b, T49, T56 — lê a publicada e prova **segurança**:
+estabilidade, preservação de forma e comprimento, ausência de forma de dado pessoal. São
+coisas diferentes, e só a primeira precisa do cru.
+
+O par que nomeava `users_courses_15-09.json` prometia procedência para ela e **nunca
+entregou**: o cru que ele apontava é de outra captura, então o que o teste media era
+diferença de dado. Quem cobre agora: **ninguém, e ninguém pode** — ela é uma das nove
+publicadas de 15/09 sem cru guardado, e recapturar custa chamada da conta do dono
+(Regra de Ouro, §3.1). O que ela tem hoje é segurança, por T48b, T49 e T56, que rodam sobre
+cada publicada, ela inclusive; o que ela não tem é procedência, e tirar o par falso não
+perdeu cobertura nenhuma — parou de anunciar cobertura que não existia. A procedência que o
+par entrega, agora que aponta certo, é a da captura de 31/08.
+
+**O que isto expõe, e T58b não pega.** T58b trava a *quantidade* de pares, porque foi
+escrito contra o modo de falha de 17/09 — pares sumindo para calar reprovação. Inverter um
+par mantém a contagem. O único lugar onde a inversão aparece é o gate na máquina de quem
+tem `raw/`, que é gitignorado: no CI T58 pula e a contagem fecha. Cinco dias é o tempo que
+levou. Registrado no backlog como dívida aberta, com a diferença que importa: aqui a
+mensagem de commit afirmava uma verificação, e o barato era rodá-la.
+
 ---

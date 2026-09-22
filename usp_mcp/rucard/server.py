@@ -106,20 +106,78 @@ def listar_ferramentas() -> list[dict]:
     ]
 
 
-def _itens_comuns(refeicoes: list[dict]) -> set[str]:
-    """Itens presentes em TODAS as refeições abertas — e só com duas ou mais.
+_SEP_ITENS = " · "
 
-    Regra estrita de propósito: "na maioria" exigiria marcar exceções, e o ganho
-    medido (~20 B por refeição) não paga a complexidade. Com uma refeição só não
-    há o que fatorar. A projeção estruturada não muda: isto é só texto.
+
+def _rodape_quase(item: str, faltam: list[str]) -> str:
+    """A linha do item quase-comum. Nomear as exceções não é enfeite: sem elas,
+    "em quase todas" deixa quem lê sem saber a quais refeições a linha se
+    aplica, e um recorte que não se declara é limite silencioso."""
+    return f"Em quase todas: {item} — não em {', '.join(faltam)}"
+
+
+def fatorar(refeicoes: list[tuple[str, dict]]) -> tuple[set[str], list[tuple[str, list[str]]]]:
+    """Itens que saem das linhas e sobem para o rodapé, em dois grupos.
+
+    Devolve `(comuns, quase)`: os presentes em TODAS as refeições abertas, e uma
+    lista de `(item, rótulos das refeições que NÃO o têm)`. Com menos de duas
+    refeições não há o que fatorar. A projeção estruturada não muda: isto é só
+    texto.
+
+    **A regra estrita sozinha deixava passar o caso mais caro.** Até 22/09/2026
+    só existia a interseção, e o argumento escrito aqui era que "na maioria"
+    exigiria marcar exceções e o ganho (~20 B por refeição) não pagava a
+    complexidade. O que mudou foi a escala do caso semanal, medida depois: a
+    semana custa 8.018 B, 88% disso em linhas de cardápio, e o arroz sozinho são
+    1.085 B — 14% do texto. Ele escapa da interseção por um detalhe de grafia,
+    `Arroz / feijão / arroz integral` em 32 das 38 refeições abertas e
+    `Arroz / feijão preto / arroz integral` nas outras 6.
+
+    **E o critério não é proporção, é custo.** Nenhum limiar de "maioria" foi
+    escolhido a dedo: o item sobe quando o que ele economiza nas linhas paga a
+    linha de rodapé que o nomeia com as exceções — a mesma conta que faria à
+    mão quem estivesse decidindo. É isso que impede a regra de piorar o texto
+    quando as exceções são muitas ou o item é curto, e é isso que responde à
+    objeção original: a complexidade que não se pagava está numa conta de duas
+    linhas, e ela se recusa sozinha quando não vale.
+
+    A economia é estimada em `n × (item + separador)`, o que ignora o caso em
+    que o item era o único da linha. Estimativa para MAIS trabalho, nunca para
+    menos texto: errar aqui adia uma fatoração, não esconde um item.
     """
-    abertas = [r for r in refeicoes if r.get("situacao") == "aberto" and r.get("itens")]
+    abertas = [
+        (rotulo, set(dados["itens"]))
+        for rotulo, dados in refeicoes
+        if dados.get("situacao") == "aberto" and dados.get("itens")
+    ]
     if len(abertas) < 2:
-        return set()
-    return set.intersection(*(set(r["itens"]) for r in abertas))
+        return set(), []
+
+    comuns = set.intersection(*(itens for _, itens in abertas))
+
+    quase: list[tuple[str, list[str]]] = []
+    for item in sorted({i for _, itens in abertas for i in itens} - comuns):
+        faltam = [rotulo for rotulo, itens in abertas if item not in itens]
+        presentes = len(abertas) - len(faltam)
+        if presentes < 2:
+            continue
+        economia = presentes * len((item + _SEP_ITENS).encode())
+        custo = len(_rodape_quase(item, faltam).encode()) + 1
+        if economia > custo:
+            quase.append((item, faltam))
+    return comuns, quase
 
 
-def _linha_da_refeicao(nome_ru: str, qual: str, dados: dict, comuns=frozenset()) -> list[str]:
+def _rodape(comuns: set[str], quase: list[tuple[str, list[str]]]) -> list[str]:
+    linhas = []
+    if comuns:
+        linhas.append("Em todas as refeições acima: " + _SEP_ITENS.join(sorted(comuns)))
+    linhas.extend(_rodape_quase(item, faltam) for item, faltam in quase)
+    return linhas
+
+
+def _linha_da_refeicao(nome_ru: str, qual: str, dados: dict,
+                       fora_da_linha=frozenset()) -> list[str]:
     rotulo = _ROTULO[qual]
     situacao = dados["situacao"]
 
@@ -138,7 +196,7 @@ def _linha_da_refeicao(nome_ru: str, qual: str, dados: dict, comuns=frozenset())
     # Itens numa linha só, separados por ' · ': sete itens por refeição em
     # quatro RUs seriam 56 linhas, e o teto de custo (R37b) existe para impedir
     # que a formatação engorde sem ninguém ver.
-    itens = [i for i in dados.get("itens") or () if i not in comuns]
+    itens = [i for i in dados.get("itens") or () if i not in fora_da_linha]
     if itens:
         linhas.append("  " + " · ".join(itens))
     if dados.get("opcao"):
@@ -152,21 +210,21 @@ def formatar(resposta: dict) -> str:
     linhas = [f"Bandejão — {resposta['dia_semana']} {resposta['data']}"]
 
     refeicoes = [
-        ru["refeicoes"][qual]
+        (f"{ru['nome']} {_ROTULO[qual]}", ru["refeicoes"][qual])
         for ru in resposta["restaurantes"]
         for qual in resposta["refeicoes"]
         if ru["refeicoes"].get(qual)
     ]
-    comuns = _itens_comuns(refeicoes)
+    comuns, quase = fatorar(refeicoes)
+    fora_da_linha = comuns | {item for item, _ in quase}
 
     for ru in resposta["restaurantes"]:
         for qual in resposta["refeicoes"]:
             dados = ru["refeicoes"].get(qual)
             if dados:
-                linhas.extend(_linha_da_refeicao(ru["nome"], qual, dados, comuns))
+                linhas.extend(_linha_da_refeicao(ru["nome"], qual, dados, fora_da_linha))
 
-    if comuns:
-        linhas.append("Em todas as refeições acima: " + " · ".join(sorted(comuns)))
+    linhas.extend(_rodape(comuns, quase))
 
     # Invariante 7: o que a ferramenta NÃO sabe vai junto, nunca por omissão.
     for aviso in resposta.get("avisos") or ():
@@ -210,13 +268,14 @@ def formatar_semana(resposta: dict) -> str:
     refeicoes_pedidas = resposta["refeicoes"]
 
     todas = [
-        ru["refeicoes"][qual]
+        (f"{d['dia_semana']} {ru['nome']} {_ROTULO[qual]}", ru["refeicoes"][qual])
         for d in dias
         for ru in d["restaurantes"]
         for qual in refeicoes_pedidas
         if ru["refeicoes"].get(qual)
     ]
-    comuns = _itens_comuns(todas)
+    comuns, quase = fatorar(todas)
+    fora_da_linha = comuns | {item for item, _ in quase}
 
     # A ordem dos RUs é a do primeiro dia em que cada um aparece: um RU pode
     # faltar num dia (semana não publicada) sem sumir do texto.
@@ -263,7 +322,7 @@ def formatar_semana(resposta: dict) -> str:
                     partes.append(dados["horario"])
                 if dados.get("calorias"):
                     partes.append(f"{dados['calorias']} kcal")
-                itens = [i for i in dados.get("itens") or () if i not in comuns]
+                itens = [i for i in dados.get("itens") or () if i not in fora_da_linha]
                 linha = "  " + " · ".join(partes) + ": " + " · ".join(itens)
                 if dados.get("opcao"):
                     marca = (
@@ -273,8 +332,7 @@ def formatar_semana(resposta: dict) -> str:
                     linha += f" | Opção: {dados['opcao']}{marca}"
                 linhas.append(linha)
 
-    if comuns:
-        linhas.append("Em todas as refeições acima: " + " · ".join(sorted(comuns)))
+    linhas.extend(_rodape(comuns, quase))
 
     for aviso in resposta.get("avisos") or ():
         linhas.append(f"⚠ {aviso}")

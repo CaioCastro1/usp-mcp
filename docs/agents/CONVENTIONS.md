@@ -22,6 +22,18 @@ mais sobre o desenho do que qualquer preferência estética — e são o que sep
 O corolário: nunca despeje payload cru na janela. `scripts/capture.sh` existe para
 que ler uma resposta de 251k tokens seja impossível por acidente.
 
+**E o lado de cá conta igual, com outra régua.** O custo da resposta que a
+ferramenta devolve ao modelo é tão parte do desenho quanto o do cru — medido pela
+primeira vez em 22/09/2026 (`notas/custo-em-token.md`), ele mostrou que o
+estático dos três servidores sozinho custa 5.262 tokens por sessão. Para esse
+lado, **a estimativa `bytes/4` não serve**: ela subestima 1,38× no conjunto e
+1,68× no `disciplinas`, porque prosa em português tokeniza perto de 4 bytes e
+código, nome de arquivo e data não. Número novo de custo de **saída** sai de
+tokenizador e vai para a nota; `bytes/4` continua valendo para o **cru**
+(1,00×–1,15× medidos). Contra regressão, quem vigia é
+`tests/moodle/test_custo.py`, em bytes — unidade ruim de custo, boa de regressão,
+e sem dependência nova.
+
 ## 1. Integrações externas
 
 Uma API não documentada por vez, um client central por API. Regras que já
@@ -108,9 +120,11 @@ fonte de verdade sobre o que aquela família cobre.
 | `L1-L6` | `tests/test_lancador.py` | o `scripts/servidor.sh` |
 | `M1-M18` | `tests/moodle/test_o_que_mudou.py` | a ferramenta `o_que_mudou` |
 | `N1-N18` | `tests/moodle/test_notas.py` | a ferramenta `notas` |
+| `OR1-OR4` | `tests/moodle/test_custo.py` | o orçamento de saída: quanto cada ferramenta devolve ao modelo, e o canário que reprova resposta repetindo a própria descrição |
+| `RS1-RS6` | `tests/moodle/test_ressalvas.py` | quando uma ressalva invariável sai, e quando ela é só repetição |
 | `P1-P6` | `tests/test_pacote.py` | o `pyproject.toml` e os entry points |
 | `P1-P5` | `tests/moodle/test_politica.py` | a allowlist do Moodle (Invariante 2) |
-| `R1-R48` | `tests/rucard/*.py` | o RUCard inteiro, uma faixa por arquivo |
+| `R1-R59` | `tests/rucard/*.py` | o RUCard inteiro, uma faixa por arquivo |
 | `T1-T5` | `tests/test_token_fora_do_argv.py` | o token não passa pela linha de comando do `curl` |
 | `T1-T87` | `tests/jupiter/*.py` | o Jupiter inteiro, uma faixa por arquivo |
 | `T68-T114` | `tests/moodle/*.py` | material, arquivo, depósito, cliente e fronteira do Moodle |

@@ -61,6 +61,7 @@ from .ja_entreguei import (
     projetar_status,
 )
 from .projecao import FUSO_SAO_PAULO
+from .ressalvas import AUSENCIA, PRESENCA, Ressalva, emitir
 from .texto import formatar_data
 
 # Quantas disciplinas uma invocação cobre. Ver a docstring do módulo: é teto de
@@ -70,9 +71,18 @@ TETO_DISCIPLINAS = 10
 _SEM_REGISTRO = "o e-Disciplinas não registra envio seu"
 _RASCUNHO = "RASCUNHO SALVO, NÃO ENVIADO"
 
-# A frase que separa o que o sistema sabe do que aconteceu. Ela sai em TODA
-# resposta, inclusive na que não acusa ninguém: quem lê "nada em atraso" também
-# precisa saber que a lista só enxerga o que foi registrado no e-Disciplinas.
+# A frase que separa o que o sistema sabe do que aconteceu.
+#
+# **Até 22/09/2026 ela saía em TODA resposta**, e o comentário que estava aqui
+# defendia isso: "quem lê 'nada em atraso' também precisa saber que a lista só
+# enxerga o que foi registrado". O argumento não se sustenta, e vale dizer por
+# quê, porque desfazer decisão registrada sem explicação é como a próxima sessão
+# a refaz. O risco que esta frase cobre é **acusar**: envio que existiu e o
+# e-Disciplinas não registrou aparece na lista como falta, nunca como ausência.
+# Na resposta vazia não há acusação nenhuma para desmentir — e o que aquela
+# resposta precisa dizer é outra coisa, que é a `COBERTURA` logo abaixo: pode
+# haver questionário fechado, que esta ferramenta não vê. As duas protegem
+# leituras diferentes, e agora cada uma sai na sua (`ressalvas.py`).
 _REGISTRO_NAO_E_FATO = (
     "Esta resposta diz o que o e-Disciplinas REGISTRA, e não o que você fez. "
     "Entrega no papel, por e-mail, em outro sistema, ou que o professor "
@@ -80,11 +90,17 @@ _REGISTRO_NAO_E_FATO = (
     "da disciplina ou com o professor antes de concluir que ficou faltando."
 )
 
-_ONDE_VER_MAIS = (
-    "Para ver TODAS as entregas de uma disciplina, vencidas ou não, use "
-    "`ja_entreguei`; para o que ainda vai vencer, `o_que_vence`; para "
-    "questionário que fechou sem tentativa finalizada, `questionarios` com a "
-    "disciplina."
+# O `_ONDE_VER_MAIS` que morava aqui saiu em 22/09/2026, e não foi perdido: ele
+# está, quase palavra por palavra, na descrição desta ferramenta — medida a
+# sobreposição de vocabulário, 85%. A descrição fica no contexto do cliente a
+# sessão inteira; repeti-la na resposta era pagar a mesma frase duas vezes na
+# mesma sessão. Roteamento não é ressalva, e por isso nem chega a `ressalvas.py`.
+
+# As duas ressalvas invariáveis desta ferramenta, e a leitura errada que cada uma
+# desmente. Ver `ressalvas.py` para a regra.
+_RESSALVAS = (
+    Ressalva(texto=_REGISTRO_NAO_E_FATO, quando=PRESENCA),
+    Ressalva(texto=COBERTURA, quando=AUSENCIA),
 )
 
 
@@ -300,7 +316,9 @@ def atrasadas(cliente, disciplina: str | None = None, agora=None) -> RespostaAtr
             "ser lidas com esta credencial: pode haver entrega vencida fora "
             "desta lista."
         )
-    avisos.extend([_REGISTRO_NAO_E_FATO, COBERTURA, _ONDE_VER_MAIS])
+    # A ressalva invariável depende da forma da resposta: com item listado sai a
+    # que impede a acusação; sem nenhum, a que impede o falso "não devo nada".
+    avisos.extend(emitir(_RESSALVAS, vazio=not faltando))
 
     linhas.extend(f"\n⚠ {a}" for a in avisos)
 
