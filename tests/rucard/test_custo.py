@@ -141,43 +141,67 @@ def test_r37b_o_texto_para_o_modelo_tambem_tem_teto(gravador, respostas_da_fatia
 #
 # A semana não custa nada a mais na USP — são as mesmas 5 requisições de um dia,
 # porque o `/menu` já devolve a semana e o cache é por RU (R45b trava isso). O
-# que cresce é a RESPOSTA, e é ela que o modelo paga. Medido em 22/09/2026 sobre
-# as fixtures da Fase 1, 4 RUs × 7 dias, nos dois recortes que se pedem, depois
-# da fatoração por custo que R59 trouxe no mesmo dia:
+# que cresce é a RESPOSTA, e é ela que o modelo paga.
 #
-#     recorte          texto      estrutura     texto antes de R59
-#     almoço           4.058 B     14.506 B      4.560 B
-#     almoço+jantar    7.054 B     21.932 B      8.018 B
+# Este teto nasceu de um achado da medição de custo de 22/09 e fecha duas linhas
+# do backlog do mesmo dia: a resposta mais cara do projeto (2.642 tokens antes
+# de R59, mais que qualquer coisa do Moodle) estava 78% acima do único teto que
+# este arquivo declarava, o do DIA. O teto do texto semanal existia — R46c, na
+# suíte da fronteira MCP, desde 14/09 —, e é isso que torna o caso interessante:
+# não era teto faltando, era teto longe da conta. Um número que ninguém
+# relaciona ao orçamento não mostra custo nenhum.
+#
+# **A forma é a de OR2 no Moodle, e a folga é máxima.** Um caso por recorte e
+# arranjo, com teto de texto e de estrutura, e a asserção reprova nos DOIS
+# sentidos: estourou, ou o teto ficou frouxo e parou de medir. Quem cortar bytes
+# baixa o teto no mesmo commit — foi o que R59 fez com estes números.
+#
+# Medido em 22/09/2026 (4 RUs × 7 dias), depois de R59:
+#
+#     recorte · arranjo        texto     estrutura    texto antes de R59
+#     almoço · alinhada        4.058 B    14.506 B     4.560 B
+#     almoço · desencontrada   5.027 B    13.031 B     5.406 B
+#     todas  · alinhada        7.054 B    21.932 B     8.018 B
+#     todas  · desencontrada   7.836 B    19.372 B     8.677 B
 #
 # A estrutura não mudou com R59, e é de propósito: fatorar é decisão de TEXTO, e
 # a projeção continua dizendo item por item o que veio em cada refeição.
 #
-# O pior caso medido NÃO é a semana alinhada: com um RU publicando outra semana
-# (a fixture de 14/09 no RU 7), a fatoração rende menos e o texto sobe para
-# 5.027 B e 7.836 B. Os tetos cobrem esse lado, com ~25% de folga, e os testes
-# exercitam os dois arranjos — teto medido por um lado só já custou um defeito a
-# este projeto (`BACKLOG-correcoes.md`, 12/09).
+# Os dois arranjos existem porque o caro NÃO é a semana alinhada: com um RU
+# publicando outra semana, a fatoração rende menos e o texto sobe. Teto medido
+# por um lado só já custou um defeito a este projeto (`BACKLOG-correcoes.md`,
+# 12/09).
 #
-# Os tetos do texto nasceram em 14/09 na suíte da fronteira MCP, como R46c, em
-# 6.500 B e 11.000 B. Vieram para cá em 22/09 com o caso inteiro, e desceram
-# junto com a medida. Teto longe da conta não mostra custo: era possível ler
-# este arquivo inteiro e concluir que a ferramenta cabe em 4.500 B, sendo que o
-# recorte mais pedido gastava 78% mais.
+# R34 e R37b, do dia, seguem com a forma antiga (um teto só, folga de ~27%, e
+# reprovando num sentido só). Não é esquecimento: o `TETO_SAIDA_B` cobre ao
+# mesmo tempo a estrutura de 3.540 B e o texto de 1.601 B, e dar folga máxima
+# aos dois exige separá-los. Está na linha de 22/09 do backlog que registra os
+# testes de custo mais frouxos do Jupiter e do RUCard.
 #
-# O que estes tetos NÃO fazem: pegar a fatoração parando de render. Com a folga
-# que a variação do cardápio exige, desligá-la cabe dentro deles (medido:
-# 8.018 B sem a regra de custo, 8.841 B sem fatoração nenhuma). Quem pega isso é
-# R58b, pela razão contra os sete dias, e as travas categóricas de R47/R48/R59
-# na fronteira. Teto é guarda de crescimento grosso — campo novo repetido 28
-# vezes, catálogo cru de volta —, e dizer que ele guarda mais do que guarda é
-# como ficar sem nenhum.
-TETO_SEMANA_TEXTO_B = {"almoco": 6_300, "todas": 9_800}
-TETO_SEMANA_SAIDA_B = {"almoco": 18_000, "todas": 27_500}
+# O que estes tetos NÃO fazem: pegar a fatoração parando de render. Desligá-la
+# cabe dentro deles (medido: 8.018 B sem a regra de custo, 8.841 B sem fatoração
+# nenhuma, contra o teto de 9.000 B do pior arranjo). Quem pega isso é R58b,
+# pela razão contra os sete dias, e as travas categóricas de R47/R48/R59 na
+# fronteira. Teto é guarda de crescimento grosso — campo novo repetido 28 vezes,
+# catálogo cru de volta —, e dizer que ele guarda mais do que guarda é como
+# ficar sem nenhum.
 
 # Os dois arranjos de fixture, por extenso. O segundo é o caro, e existe porque
 # um RU fora da semana corrente é o caso comum de virada de semana (R27b).
 ALINHADA = "os quatro RUs na semana da Fase 1"
 DESENCONTRADA = "o RU 7 publicando outra semana"
+
+# (recorte, arranjo) → (teto do texto, teto da estrutura), em bytes.
+TETO_SEMANA_B = {
+    ("almoco", ALINHADA): (4_650, 16_800),
+    ("almoco", DESENCONTRADA): (5_800, 15_100),
+    ("todas", ALINHADA): (8_100, 25_300),
+    ("todas", DESENCONTRADA): (9_000, 22_400),
+}
+
+# A mesma de OR2: apertado o bastante para um parágrafo novo estourar, frouxo o
+# bastante para mexer numa palavra não obrigar a mexer no teto.
+FOLGA_MAXIMA = 0.15
 
 
 def _respostas(arranjo, respostas_da_fatia):
@@ -206,24 +230,39 @@ def _semana(gravador, respostas, refeicao):
     return estrutura, formatado
 
 
-@pytest.mark.parametrize("arranjo", [ALINHADA, DESENCONTRADA])
-@pytest.mark.parametrize("refeicao", ["almoco", "todas"])
-def test_r58_a_semana_tem_teto_proprio(arranjo, refeicao, gravador, respostas_da_fatia):
+@pytest.mark.parametrize("refeicao,arranjo", sorted(TETO_SEMANA_B))
+def test_r58_a_semana_tem_teto_proprio(refeicao, arranjo, gravador, respostas_da_fatia):
     """Teto da semana, e não o do dia esticado para caber nela.
 
     `TETO_SAIDA_B` continua valendo 4.500 B para `bandejao` (R34, R37b): a cura
     de uma resposta 78% acima do orçamento não é afrouxar o orçamento do caso
     barato até a conta fechar — aí os dois custos somem de uma vez.
-    """
-    respostas = _respostas(arranjo, respostas_da_fatia)
-    estrutura, formatado = _semana(gravador, respostas, refeicao)
 
-    assert tamanho(estrutura) <= TETO_SEMANA_SAIDA_B[refeicao], (
-        f"estrutura da semana ({refeicao}, {arranjo}): {tamanho(estrutura)} B"
+    Reprova nos dois sentidos, como OR2: teto que não acompanha um corte deixa
+    de detectar o crescimento seguinte.
+    """
+    estrutura, formatado = _semana(
+        gravador, _respostas(arranjo, respostas_da_fatia), refeicao
     )
-    assert len(formatado.encode()) <= TETO_SEMANA_TEXTO_B[refeicao], (
-        f"texto da semana ({refeicao}, {arranjo}): {len(formatado.encode())} B"
-    )
+    teto_texto, teto_estrutura = TETO_SEMANA_B[(refeicao, arranjo)]
+
+    for medido, teto, o_que in (
+        (len(formatado.encode()), teto_texto, "texto"),
+        (tamanho(estrutura), teto_estrutura, "estrutura"),
+    ):
+        assert medido <= teto, (
+            f"{o_que} da semana ({refeicao}, {arranjo}): {medido} B, acima do "
+            f"teto de {teto} B. Se o crescimento é intencional, suba o teto "
+            "NESTE commit e diga por quê."
+        )
+        folga = (teto - medido) / teto
+        assert folga <= FOLGA_MAXIMA, (
+            f"{o_que} da semana ({refeicao}, {arranjo}): {medido} B contra teto "
+            f"de {teto} B, {folga:.0%} de folga, acima dos "
+            f"{FOLGA_MAXIMA:.0%} permitidos. A saída encolheu e o teto não "
+            "acompanhou — baixe o teto, senão ele para de medir."
+        )
+
     assert len(formatado.splitlines()) < 80
 
 
@@ -237,9 +276,9 @@ def test_r58b_a_semana_numa_chamada_paga_por_si(gravador, respostas_da_fatia):
 
     Esta asserção morde onde o teto não morde. Desligar a regra de custo de R59
     leva o texto a 8.018 B e desligar a fatoração inteira leva a 8.841 B — os
-    dois dentro dos 9.800 B, porque uma folga dimensionada para a variação do
-    que a USP escreve não tem como pegar uma regressão de 12%. A razão pega as
-    duas: 0,751 e 0,756 contra o limite de 0,73.
+    dois dentro do teto de 9.000 B do pior arranjo, porque uma folga de 15% não
+    tem como pegar uma regressão que cabe nela. A razão pega as duas: 0,751 e
+    0,756 contra o limite de 0,73.
 
     **O horário no cabeçalho continua fora do alcance dela: 0,724, que passa
     raspando.** Está escrito porque a tentação seria apertar o limite até ela

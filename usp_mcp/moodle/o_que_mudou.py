@@ -62,6 +62,7 @@ from datetime import datetime, timedelta
 from .disciplinas import carregar, resolver
 from .erros import ErroMoodle
 from .projecao import FUSO_SAO_PAULO
+from .ressalvas import PRESENCA, Ressalva, emitir
 from .texto import formatar_data
 
 # Uma semana. "Mudou alguma coisa?" sem janela dita é a pergunta da semana, e o
@@ -221,12 +222,21 @@ def projetar_mudancas(bruto, indice, courseid) -> tuple[Mudanca, ...]:
     )
 
 
+# A segunda metade desta frase — "para ver o arquivo use `material`, para ler o
+# fórum `avisos`, para prazo `o_que_vence`" — saiu em 22/09/2026: é roteamento, e
+# a descrição desta ferramenta já o diz com as mesmas palavras (sobreposição
+# medida: 100%). Ficou a metade que é ressalva de verdade, e que a descrição não
+# diz: que o e-Disciplinas responde esta pergunta com um ponteiro.
 _SO_PONTEIRO = (
     "Isto diz QUE mudou, nunca O QUE mudou: o e-Disciplinas responde esta "
-    "pergunta com um ponteiro, não com o conteúdo. Para ver o arquivo, use "
-    "`material`; para ler o que foi escrito no fórum, use `avisos`; para o que "
-    "tem prazo, `o_que_vence`."
+    "pergunta com um ponteiro, não com o conteúdo."
 )
+
+# Uma ressalva só, e de presença: ela existe para impedir a leitura "isto me
+# conta o que mudou" de uma lista cheia de ponteiros. Na resposta vazia não há
+# ponteiro nenhum para confundir com conteúdo, e até 22/09/2026 ela saía lá
+# também — 245 tokens para avisar sobre uma lista que não existe.
+_RESSALVAS = (Ressalva(texto=_SO_PONTEIRO, quando=PRESENCA),)
 
 
 def _formatar_linha(m: Mudanca) -> str:
@@ -304,7 +314,7 @@ def o_que_mudou(
                 f"{avisos_da_api} atividade(s) não puderam ser verificadas com "
                 "esta credencial, então este 'nada mudou' não cobre todas."
             )
-        partes.append(_SO_PONTEIRO)
+        partes.extend(emitir(_RESSALVAS, vazio=True))
         return RespostaOQueMudou(
             texto="\n".join([partes[0], *(f"\n⚠ {a}" for a in partes[1:])]),
             total=0,
@@ -335,7 +345,7 @@ def o_que_mudou(
             f"{avisos_da_api} atividade(s) não puderam ser verificadas com esta "
             "credencial e não estão acima."
         )
-    lista_avisos.append(_SO_PONTEIRO)
+    lista_avisos.extend(emitir(_RESSALVAS, vazio=False))
 
     partes.extend(f"\n⚠ {a}" for a in lista_avisos)
 
