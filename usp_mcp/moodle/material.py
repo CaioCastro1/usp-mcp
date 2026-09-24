@@ -181,6 +181,10 @@ class Conteudo:
     # Links do texto que NÃO viraram item (para dentro do Moodle, e-mail, âncora)
     # e blocos de texto sem link nenhum. Contados, nunca omitidos calados.
     links_ignorados: int = 0
+    # Desde 24/09/2026 não vira mais linha no rodapé de `material` — o texto do
+    # `label` passou a fazer parte de `Secao.texto`, e é `_secoes_com_texto` que
+    # avisa disso, nomeando a seção em vez de contar blocos. O campo fica, porque
+    # L1 o usa para travar o fato de que a amostra versionada não tem `label`.
     textos_sem_link: int = 0
 
 
@@ -689,14 +693,18 @@ def _entregas_sem_anexo(conteudo: Conteudo) -> tuple[str, ...]:
     return tuple(e.nome for e in conteudo.entregas if e.nome not in com_arquivo)
 
 
+def _secoes_com_texto(conteudo: Conteudo) -> list[str]:
+    """Os nomes das seções que têm prosa na página, na ordem da página."""
+    return [s.nome or "(sem seção)" for s in conteudo.secoes if s.texto]
+
+
 def _avisos_do_texto(conteudo: Conteudo, mostrados: list[Item]) -> list[str]:
     """O que a leitura do texto da página achou e o que ela deixou de fora.
 
     Três contagens, e nenhuma some calada (Invariante 7): quantos itens da lista
     vieram do texto (para quem lê saber que o nome é o texto da âncora), quantos
-    links não eram material, e quantos blocos de texto não tinham link nenhum —
-    este último é o que avisa que a página tem texto que esta ferramenta não
-    mostra.
+    links não eram material, e quais seções têm texto que esta lista não mostra —
+    é essa terceira que avisa que a página tem texto a mais para pedir.
     """
     avisos: list[str] = []
     if do_texto := sum(1 for i in mostrados if i.no_texto):
@@ -713,10 +721,22 @@ def _avisos_do_texto(conteudo: Conteudo, mostrados: list[Item]) -> list[str]:
             "para e-mail ou para âncora da própria página, e não foram listados: "
             "não são material."
         )
-    if conteudo.textos_sem_link:
+    # Substitui a contagem de "blocos de texto sem link", que só via `label`: o
+    # resumo de seção sumia calado, e é ali que o professor costuma escrever o
+    # critério de avaliação (24/09/2026). O texto do `label` agora é texto da seção,
+    # então os dois avisos diriam a mesma coisa. Nomear a seção é o que deixa o
+    # modelo pedir a certa; dizer para que serve é o que o faz ligar a pergunta
+    # "como é a avaliação" a este parâmetro.
+    if com_texto := _secoes_com_texto(conteudo):
+        nomeadas = ", ".join(com_texto[:_TETO_NOMES_NO_RODAPE])
+        if (sobra := len(com_texto) - _TETO_NOMES_NO_RODAPE) > 0:
+            nomeadas += f", e mais {sobra}"
+        quantas = "1 seção tem" if len(com_texto) == 1 else f"{len(com_texto)} seções têm"
         avisos.append(
-            f"{conteudo.textos_sem_link} bloco(s) de texto da página não têm link "
-            "nenhum e ficaram de fora: são texto, não arquivo nem link."
+            f"{quantas} texto escrito na página da disciplina, fora de arquivo e "
+            f"de link, que esta lista não reproduz: {nomeadas}. É onde o professor "
+            "costuma pôr critério de avaliação, pré-requisitos e bibliografia — "
+            "para ler, chame de novo com `texto` igual ao nome da seção, ou `tudo`."
         )
     return avisos
 

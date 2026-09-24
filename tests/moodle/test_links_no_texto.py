@@ -270,8 +270,8 @@ def test_L8_link_sem_titulo_sai_com_o_host_como_nome_e_diz_que_nao_tem_titulo(di
 @pytest.mark.contrato
 def test_L9_texto_sem_link_nenhum_fica_de_fora_e_o_rodape_conta(disciplinas_brutas):
     """Bloco de texto puro ("não haverá aula dia 20") não é arquivo nem link. Fica
-    de fora, mas o rodapé diz quantos há — quem lê sabe que a página tem texto que
-    esta ferramenta não mostra."""
+    de fora, mas o rodapé nomeia a SEÇÃO que tem texto — quem lê sabe que a página
+    tem texto que esta ferramenta não mostra, e onde pedi-lo."""
     conteudo = [_secao("Geral", [
         _label(7005, "Não haverá aula dia 20", "<p>Não haverá aula dia 20.</p>"),
         _label(7006, "Tragam calculadora", "<p>Tragam calculadora.</p>"),
@@ -279,7 +279,7 @@ def test_L9_texto_sem_link_nenhum_fica_de_fora_e_o_rodape_conta(disciplinas_brut
     r = mat.material(_cliente(disciplinas_brutas, conteudo), "PSI3323", agora=lambda: 0.0)
 
     assert r.vazio_por == "sem_material"
-    assert "2 bloco" in r.texto
+    assert "1 seção tem texto escrito na página" in r.texto and "Geral" in r.texto
     assert "atividades" not in r.texto, "texto não é atividade, e o rodapé antigo dizia que era"
 
 
