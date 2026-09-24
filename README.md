@@ -29,6 +29,7 @@ servidor. Clique na imagem para ver o vídeo.
 | "Quais matérias eu tenho?" | Suas disciplinas no e-Disciplinas: as do semestre primeiro, com a sigla que as outras perguntas usam |
 | "O que eu tenho para entregar essa semana?" | Tarefas e questionários do e-Disciplinas, com prazo |
 | "Que arquivos tem em PTC3314?" | Lista o material da disciplina: regras, listas, provas antigas |
+| "Como é a avaliação de PTC3314?" | Lê o texto que o professor escreveu na página da disciplina |
 | "Baixa a lista 2 pra mim" | Baixa o arquivo e diz onde ele ficou no seu computador |
 | "Já entreguei o EP1?" | O que você já enviou, o que ficou só como rascunho e se saiu no prazo |
 | "Perdi algum prazo?" | O que já venceu e o e-Disciplinas não registra como entregue, rascunho salvo incluído |

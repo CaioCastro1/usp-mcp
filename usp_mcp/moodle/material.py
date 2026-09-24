@@ -47,6 +47,15 @@ que o motivou fica por medir quando ela for capturada. O que se mediu foi o
 contrário: emitir o texto ao redor do link custaria mais que a projeção inteira
 (~6.500 B), e por isso o que sai por link é o título da âncora, a URL e o começo
 do bloco — que o Moodle já cortou em `name`.
+
+**O texto da página, sob demanda (24/09/2026).** Numa sessão de uso, o critério de
+avaliação de uma disciplina estava escrito no corpo da seção do topo da página, e
+`material` não mostrava esse texto nem avisava que ele existia. O rodapé passou a
+nomear as seções que têm prosa fora de arquivo e link; para lê-la, `material`
+aceita `texto` (nome de seção, ou `tudo`) e devolve o texto com a mesma chamada
+que já fazia, `core_course_get_contents`. Ela não sai em toda resposta porque o
+custo é medido: emitir sempre custaria de +150% a +220% na pergunta que não usa
+esse texto. Ver `docs/superpowers/specs/2026-09-24-texto-da-pagina-design.md`.
 """
 from __future__ import annotations
 
@@ -59,7 +68,7 @@ from datetime import datetime
 from .disciplinas import carregar, resolver
 from .erros import ErroMoodle
 from .ressalvas import PRESENCA, Ressalva, emitir
-from .texto import casa, links, normalizar
+from .texto import casa, links, normalizar, sem_html
 
 # Host + caminho que caracterizam arquivo servido pelo webservice do Moodle, e
 # que por isso exigiria o token para ser baixado.
@@ -82,6 +91,10 @@ _CAMINHOS_DO_MOODLE = (
 # que cabe numa linha e ainda deixa reconhecer o padrão do nome; o resto vira
 # "e mais N", nunca silêncio.
 _TETO_NOMES_NO_RODAPE = 3
+
+# Teto do modo `texto`, em bytes. A maior amostra (`tudo` em PSI3323) dá ~14,3 kB;
+# o teto corta por seção inteira e declara o que ficou de fora.
+_TETO_TEXTO = 20_000
 
 # A única ressalva invariável desta ferramenta. Ela explica por que o ENDEREÇO do
 # arquivo não sai (Invariante 3) e para onde ir para baixar de fato — e só tem
@@ -142,6 +155,12 @@ class Item:
 class Secao:
     nome: str
     itens: tuple[Item, ...]
+    # A prosa que o professor escreveu na página, em texto puro: o resumo da
+    # seção e os blocos de texto dela, na ordem da página. Não sai na lista — sai
+    # quando `material` é chamado com `texto`, e o rodapé diz que ela existe.
+    # Medido em 24/09/2026: é onde o professor costuma escrever objetivos,
+    # critério de avaliação e bibliografia (seção do topo de PTC3314: 5.414 B).
+    texto: str = ""
 
 
 @dataclass(frozen=True)
@@ -175,6 +194,10 @@ class Conteudo:
     # Links do texto que NÃO viraram item (para dentro do Moodle, e-mail, âncora)
     # e blocos de texto sem link nenhum. Contados, nunca omitidos calados.
     links_ignorados: int = 0
+    # Desde 24/09/2026 não vira mais linha no rodapé de `material` — o texto do
+    # `label` passou a fazer parte de `Secao.texto`, e é `_secoes_com_texto` que
+    # avisa disso, nomeando a seção em vez de contar blocos. O campo fica, porque
+    # L1 o usa para travar o fato de que a amostra versionada não tem `label`.
     textos_sem_link: int = 0
 
 
@@ -248,6 +271,7 @@ def projetar_material(bruto) -> Conteudo:
         )
         links_ignorados += ignorados
         total += len(itens)
+        prosa = [t for t in (sem_html(secao.get("summary") or ""),) if t]
         for modulo in secao.get("modules") or ():
             modname = modulo.get("modname") or ""
             nome_modulo = modulo.get("name") or ""
@@ -265,6 +289,8 @@ def projetar_material(bruto) -> Conteudo:
                     textos_sem_link += 1
                 itens.extend(do_texto)
                 total += len(do_texto)
+                if (t := sem_html(modulo.get("description") or "")):
+                    prosa.append(t)
                 continue
             if modname == "assign":
                 # Registrada mesmo sem `contents`, e é o registro que decide se
@@ -302,7 +328,7 @@ def projetar_material(bruto) -> Conteudo:
             links_ignorados += ignorados
             itens.extend(do_texto)
             total += len(do_texto)
-        secoes.append(Secao(nome=nome_secao, itens=tuple(itens)))
+        secoes.append(Secao(nome=nome_secao, itens=tuple(itens), texto="\n".join(prosa)))
 
     return Conteudo(
         secoes=tuple(secoes),
@@ -511,7 +537,7 @@ def _com_anexos(conteudo: Conteudo, anexos: AnexosDeEntrega) -> Conteudo:
         por_secao.setdefault(item.secao, []).append(item)
 
     secoes = [
-        Secao(nome=s.nome, itens=s.itens + tuple(por_secao.pop(s.nome, ())))
+        Secao(nome=s.nome, itens=s.itens + tuple(por_secao.pop(s.nome, ())), texto=s.texto)
         for s in conteudo.secoes
     ]
     secoes += [Secao(nome=nome, itens=tuple(itens)) for nome, itens in por_secao.items()]
@@ -680,14 +706,18 @@ def _entregas_sem_anexo(conteudo: Conteudo) -> tuple[str, ...]:
     return tuple(e.nome for e in conteudo.entregas if e.nome not in com_arquivo)
 
 
+def _secoes_com_texto(conteudo: Conteudo) -> list[str]:
+    """Os nomes das seções que têm prosa na página, na ordem da página."""
+    return [s.nome or "(sem seção)" for s in conteudo.secoes if s.texto]
+
+
 def _avisos_do_texto(conteudo: Conteudo, mostrados: list[Item]) -> list[str]:
     """O que a leitura do texto da página achou e o que ela deixou de fora.
 
     Três contagens, e nenhuma some calada (Invariante 7): quantos itens da lista
     vieram do texto (para quem lê saber que o nome é o texto da âncora), quantos
-    links não eram material, e quantos blocos de texto não tinham link nenhum —
-    este último é o que avisa que a página tem texto que esta ferramenta não
-    mostra.
+    links não eram material, e quais seções têm texto que esta lista não mostra —
+    é essa terceira que avisa que a página tem texto a mais para pedir.
     """
     avisos: list[str] = []
     if do_texto := sum(1 for i in mostrados if i.no_texto):
@@ -704,27 +734,122 @@ def _avisos_do_texto(conteudo: Conteudo, mostrados: list[Item]) -> list[str]:
             "para e-mail ou para âncora da própria página, e não foram listados: "
             "não são material."
         )
-    if conteudo.textos_sem_link:
+    # Substitui a contagem de "blocos de texto sem link", que só via `label`: o
+    # resumo de seção sumia calado, e é ali que o professor costuma escrever o
+    # critério de avaliação (24/09/2026). O texto do `label` agora é texto da seção,
+    # então os dois avisos diriam a mesma coisa. Nomear a seção é o que deixa o
+    # modelo pedir a certa; dizer para que serve é o que o faz ligar a pergunta
+    # "como é a avaliação" a este parâmetro.
+    if com_texto := _secoes_com_texto(conteudo):
+        nomeadas = ", ".join(com_texto[:_TETO_NOMES_NO_RODAPE])
+        if (sobra := len(com_texto) - _TETO_NOMES_NO_RODAPE) > 0:
+            nomeadas += f", e mais {sobra}"
+        quantas = "1 seção tem" if len(com_texto) == 1 else f"{len(com_texto)} seções têm"
         avisos.append(
-            f"{conteudo.textos_sem_link} bloco(s) de texto da página não têm link "
-            "nenhum e ficaram de fora: são texto, não arquivo nem link."
+            f"{quantas} texto escrito na página da disciplina, fora de arquivo e "
+            f"de link, que esta lista não reproduz: {nomeadas}. É onde o professor "
+            "costuma pôr critério de avaliação, pré-requisitos e bibliografia — "
+            "para ler, chame de novo com `texto` igual ao nome da seção, ou `tudo`."
         )
     return avisos
 
 
-def material(cliente, disciplina: str, busca: str | None = None, agora=None) -> RespostaMaterial:
+def _texto_da_pagina(cliente, alvo, pedido: str) -> RespostaMaterial:
+    """O que o professor escreveu na página, por seção. UMA chamada.
+
+    Só `core_course_get_contents`: os anexos de entrega (a segunda chamada de
+    `acervo`) são arquivo, não texto, e pedi-los aqui seria martelar a USP por
+    uma resposta que esta pergunta não usa.
+    """
+    conteudo = projetar_material(
+        cliente.chamar("core_course_get_contents", courseid=alvo.courseid)
+    )
+    cabecalho = f"{alvo.sigla} ({alvo.rotulo}) — texto da página da disciplina"
+    com_texto = [s for s in conteudo.secoes if s.texto]
+
+    if not com_texto:
+        return RespostaMaterial(
+            texto=(
+                f"{cabecalho}\n\nA página não tem texto escrito fora dos arquivos "
+                "e links: tudo o que ela publica sai em `material` sem `texto`."
+            ),
+            total=0, mostrados=0, vazio_por="sem_texto",
+        )
+
+    escolhidas = (
+        com_texto if normalizar(pedido) == "TUDO"
+        else [s for s in com_texto if casa(pedido, s.nome)]
+    )
+    if not escolhidas:
+        nomes = ", ".join(s.nome or "(sem seção)" for s in com_texto)
+        return RespostaMaterial(
+            texto=(
+                f"{cabecalho}\n\nNenhuma seção com texto tem {pedido!r} no nome. "
+                f"As {len(com_texto)} que têm: {nomes}. Repita com uma delas, "
+                "ou com `tudo`."
+            ),
+            total=len(com_texto), mostrados=0, vazio_por="secao_sem_texto",
+        )
+
+    linhas = [cabecalho]
+    usados = len(cabecalho.encode())
+    mostradas = 0
+    for s in escolhidas:
+        nome = s.nome or "(sem seção)"
+        bloco = f"\n{nome}:\n{s.texto}"
+        tamanho = len(bloco.encode())
+        if usados + tamanho > _TETO_TEXTO:
+            if mostradas == 0:
+                # Uma seção sozinha maior que o teto: sai até o teto, e o corte
+                # é dito — nunca uma resposta vazia por ser grande demais.
+                linhas.append(bloco.encode()[: _TETO_TEXTO - usados].decode("utf-8", "ignore"))
+                linhas.append(f"\n⚠ O texto de {nome!r} é maior que o limite desta resposta e foi cortado aqui.")
+                mostradas = 1
+            break
+        linhas.append(bloco)
+        usados += tamanho
+        mostradas += 1
+
+    if fora := escolhidas[mostradas:]:
+        nomes = ", ".join(s.nome or "(sem seção)" for s in fora)
+        linhas.append(
+            f"\n⚠ {len(fora)} seção(ões) ficaram de fora para caber no limite "
+            f"desta resposta: {nomes}. Peça cada uma pelo nome."
+        )
+
+    return RespostaMaterial(texto="\n".join(linhas), total=len(com_texto), mostrados=mostradas)
+
+
+def material(
+    cliente, disciplina: str, busca: str | None = None, agora=None, texto: str | None = None
+) -> RespostaMaterial:
     """Uma pergunta, uma disciplina. Resolve a sigla antes de gastar chamada.
 
     Sigla que não resolve levanta erro legível **sem** pedir conteúdo: consultar
     o Moodle para descobrir que a pergunta estava errada é gastar chamada da
     conta do dono à toa.
+
+    Com `texto`, responde outra pergunta sobre o mesmo espaço: o que o professor
+    ESCREVEU na página, e não o que publicou como arquivo. Ver `_texto_da_pagina`.
     """
+    pedido_texto = (texto or "").strip()
+    if pedido_texto and (busca or "").strip():
+        # Antes de qualquer chamada, como sigla inválida: combinar os dois calado
+        # faria um deles ser ignorado.
+        raise ErroMoodle(
+            "`busca` procura pelo nome de arquivo e `texto` pelo nome de seção; "
+            "juntos, um deles seria ignorado. Chame com um de cada vez."
+        )
+
     lista = carregar(cliente, agora=agora)
     resolucao = resolver(lista, disciplina)
     if resolucao.disciplina is None:
         raise ErroMoodle(resolucao.motivo)
 
     alvo = resolucao.disciplina
+    if pedido_texto:
+        return _texto_da_pagina(cliente, alvo, pedido_texto)
+
     conteudo = acervo(cliente, alvo.courseid)
 
     total = conteudo.total_itens
