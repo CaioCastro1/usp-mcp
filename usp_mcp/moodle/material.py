@@ -47,6 +47,15 @@ que o motivou fica por medir quando ela for capturada. O que se mediu foi o
 contrário: emitir o texto ao redor do link custaria mais que a projeção inteira
 (~6.500 B), e por isso o que sai por link é o título da âncora, a URL e o começo
 do bloco — que o Moodle já cortou em `name`.
+
+**O texto da página, sob demanda (24/09/2026).** Numa sessão de uso, o critério de
+avaliação de uma disciplina estava escrito no corpo da seção do topo da página, e
+`material` não mostrava esse texto nem avisava que ele existia. O rodapé passou a
+nomear as seções que têm prosa fora de arquivo e link; para lê-la, `material`
+aceita `texto` (nome de seção, ou `tudo`) e devolve o texto com a mesma chamada
+que já fazia, `core_course_get_contents`. Ela não sai em toda resposta porque o
+custo é medido: emitir sempre custaria de +150% a +220% na pergunta que não usa
+esse texto. Ver `docs/superpowers/specs/2026-09-24-texto-da-pagina-design.md`.
 """
 from __future__ import annotations
 

@@ -4678,3 +4678,49 @@ levou. Registrado no backlog como dívida aberta, com a diferença que importa: 
 mensagem de commit afirmava uma verificação, e o barato era rodá-la.
 
 ---
+
+### 24/09/2026 — o texto da página sai sob demanda, e a decisão de 03/09 julgou o corpo da seção pelo título
+
+**O achado, numa sessão de uso:** o critério de avaliação de uma disciplina estava no
+texto da seção do topo da página, junto com objetivos, pré-requisitos e bibliografia.
+`material` não mostrava esse texto **nem dizia que ele existia**, e a sessão respondeu
+sem base. O defeito que levou à resposta errada não foi não ler o texto — foi o
+silêncio: um modelo que soubesse que a seção tinha texto teria pedido antes de
+responder.
+
+**O dado, medido sem rede sobre as capturas versionadas:** PSI3323 tem 11 seções com
+`summary` não vazio (14.278 B de texto puro); PTC3314 tem 19 (9.893 B), e a seção do
+topo sozinha soma 5.414 B — o lugar típico de objetivos, critério de avaliação e
+bibliografia. A amostra já tinha o caso; não foi preciso capturar nada novo.
+
+**O que isto revê da entrada de 03/09** ("a busca semântica é do modelo"): ali ficou
+descartado emitir os `summary` de seção, a partir dos títulos medidos (`AULA 1`,
+`Geral`, datas). O título não é o corpo: uma seção de nome genérico pode ter, no
+corpo, o texto que decide a resposta. **O que continua certo daquela entrada é o
+custo** — emitir o texto em toda chamada de `material` custaria de +150% a +220%
+na pergunta que não precisa dele, e é por isso que a decisão de agora não reverte a
+de 03/09, e sim resolve o mesmo custo de outro jeito.
+
+**A decisão:** sob demanda, nunca junto da lista. `material` ganha um parâmetro,
+`texto` (nome de seção, ou `tudo`) — não uma ferramenta nova, porque a pergunta é
+sobre o mesmo espaço que `material` já cobre, e a descoberta de que há texto sai no
+rodapé dele. O modo `texto` usa só `core_course_get_contents`, a mesma chamada que
+`material` já faz — nunca `mod_assign_get_assignments`, que só serve aos anexos
+(Invariante 5 intacto). Descartado: emitir sempre (custo medido acima) e ferramenta à
+parte (obrigaria o modelo a saber de antemão que o texto existe, o que já falhou uma
+vez).
+
+**O rodapé** trocou o aviso "bloco(s) de texto sem link" — que só olhava o texto de
+`label` — por um que nomeia as seções com texto (até 3, "e mais N", mesmo teto das
+entregas sem anexo) e diz para que serve: "é onde o professor costuma pôr critério de
+avaliação, pré-requisitos e bibliografia". É a frase que liga a pergunta ao
+parâmetro.
+
+**Os números que ficam registrados:** o teto de `material` no orçamento de saída
+(`tests/moodle/test_custo.py`, OR2) não mudou — a saída de PTC3314 sem `texto` mediu
+6.348 B contra o teto de 6.410 B, folga de 0,97%, dentro dos 15% máximos. O modo
+`texto` ganhou teto próprio, `_TETO_TEXTO = 20.000` bytes: a maior amostra (`tudo` em
+PSI3323) dá ~14,3 kB, e o teto corta por seção inteira, declarando o que ficou de
+fora — nunca uma resposta vazia por ser grande demais.
+
+---
