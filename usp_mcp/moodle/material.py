@@ -59,7 +59,7 @@ from datetime import datetime
 from .disciplinas import carregar, resolver
 from .erros import ErroMoodle
 from .ressalvas import PRESENCA, Ressalva, emitir
-from .texto import casa, links, normalizar
+from .texto import casa, links, normalizar, sem_html
 
 # Host + caminho que caracterizam arquivo servido pelo webservice do Moodle, e
 # que por isso exigiria o token para ser baixado.
@@ -142,6 +142,12 @@ class Item:
 class Secao:
     nome: str
     itens: tuple[Item, ...]
+    # A prosa que o professor escreveu na página, em texto puro: o resumo da
+    # seção e os blocos de texto dela, na ordem da página. Não sai na lista — sai
+    # quando `material` é chamado com `texto`, e o rodapé diz que ela existe.
+    # Medido em 24/09/2026: é onde o professor costuma escrever objetivos,
+    # critério de avaliação e bibliografia (seção do topo de PTC3314: 5.414 B).
+    texto: str = ""
 
 
 @dataclass(frozen=True)
@@ -248,6 +254,7 @@ def projetar_material(bruto) -> Conteudo:
         )
         links_ignorados += ignorados
         total += len(itens)
+        prosa = [t for t in (sem_html(secao.get("summary") or ""),) if t]
         for modulo in secao.get("modules") or ():
             modname = modulo.get("modname") or ""
             nome_modulo = modulo.get("name") or ""
@@ -265,6 +272,8 @@ def projetar_material(bruto) -> Conteudo:
                     textos_sem_link += 1
                 itens.extend(do_texto)
                 total += len(do_texto)
+                if (t := sem_html(modulo.get("description") or "")):
+                    prosa.append(t)
                 continue
             if modname == "assign":
                 # Registrada mesmo sem `contents`, e é o registro que decide se
@@ -302,7 +311,7 @@ def projetar_material(bruto) -> Conteudo:
             links_ignorados += ignorados
             itens.extend(do_texto)
             total += len(do_texto)
-        secoes.append(Secao(nome=nome_secao, itens=tuple(itens)))
+        secoes.append(Secao(nome=nome_secao, itens=tuple(itens), texto="\n".join(prosa)))
 
     return Conteudo(
         secoes=tuple(secoes),
@@ -511,7 +520,7 @@ def _com_anexos(conteudo: Conteudo, anexos: AnexosDeEntrega) -> Conteudo:
         por_secao.setdefault(item.secao, []).append(item)
 
     secoes = [
-        Secao(nome=s.nome, itens=s.itens + tuple(por_secao.pop(s.nome, ())))
+        Secao(nome=s.nome, itens=s.itens + tuple(por_secao.pop(s.nome, ())), texto=s.texto)
         for s in conteudo.secoes
     ]
     secoes += [Secao(nome=nome, itens=tuple(itens)) for nome, itens in por_secao.items()]
