@@ -6,15 +6,12 @@
 
 ## O que aconteceu
 
-O dono perguntou quantas faltas ainda podia ter nos testes de Ondas e Linhas
-(PTC3314). A regra — média das ⌊0,7·N⌋ melhores notas de teste — está escrita no
-texto da seção do topo da página da disciplina, junto com objetivos,
-pré-requisitos e bibliografia. `material` não mostra esse texto, e **não diz que
-ele existe**. O assistente respondeu por chute, com base na configuração do
-livro de notas do Moodle (peso de 1/11 por teste), e só admitiu que não tinha
-visto a regra quando o dono colou um print da página.
+Numa sessão de uso, a pergunta era sobre o critério de avaliação de uma
+disciplina. O critério estava escrito no texto da seção do topo da página, junto
+com objetivos, pré-requisitos e bibliografia. `material` não mostra esse texto, e
+**não diz que ele existe**, então o assistente respondeu sem ele.
 
-São dois defeitos, e o segundo é o que causou o chute:
+São dois defeitos, e o segundo é o que levou à resposta sem base:
 
 1. **Não há como ler o texto.** `projetar_material` lê o `summary` de cada seção
    e o `description` de cada `label` só para extrair links (`_links_do_texto`); a
@@ -22,8 +19,8 @@ São dois defeitos, e o segundo é o que causou o chute:
 2. **O descarte é calado para o `summary`** (Invariante 7). O rodapé conta
    "bloco(s) de texto da página sem link" — mas só para módulo `label`
    (`material.py`, `textos_sem_link`). Seção com texto e sem link some sem aviso.
-   Um modelo que visse "a seção 'Ondas e Linhas' tem texto que esta lista não
-   mostra" teria pedido esse texto antes de chutar.
+   Um modelo que visse "a seção X tem texto que esta lista não mostra" teria
+   pedido esse texto antes de responder.
 
 ## O que foi medido
 
@@ -38,13 +35,13 @@ sílabas sintéticas mas preserva o tamanho — `scripts/higienizar.py`,
 | seção do topo, texto puro | 1.795 B | **5.414 B** |
 | `material` hoje (saída inteira) | ~6.400 B | 6.410 B de teto (OR2) |
 
-**PTC3314 é a disciplina do achado**, e a fixture tem a seção "Ondas e Linhas"
-com 5.414 B — é ali que mora a regra de avaliação. Não é preciso capturar nada
-novo para medir: o custo real está na amostra.
+A seção do topo é a que concentra o texto — é o lugar típico de objetivos,
+critério de avaliação e bibliografia. Não é preciso capturar nada novo para
+medir: o custo real está na amostra.
 
 A decisão de 03/09 disse que os `summary` "são o campo que menos promete", a
-partir dos títulos medidos (`AULA 1`, `Geral`, datas). O título não é o texto: o
-título da seção era "Ondas e Linhas", e o texto dela era o contrato da disciplina.
+partir dos títulos medidos (`AULA 1`, `Geral`, datas). O título não é o texto: uma
+seção de título genérico pode ter, no corpo, as regras da disciplina.
 O custo medido naquela data continua certo — o erro foi concluir, do título, o
 valor do corpo.
 
@@ -100,9 +97,6 @@ que ficou de fora e como pedir (Invariante 7).
 
 ## O que isto não resolve
 
-- **O livro de notas diverge do texto do professor** (1/11 por teste no Moodle ×
-  ⌊0,7·N⌋ no texto). Isso é fato sobre o sistema, não defeito: vai para o §9 como
-  lição — a regra da disciplina é o texto, não a configuração de `notas`.
 - **Texto em `page`, `book` ou PDF** não é coberto; nenhum dos dois aparece na
   amostra (0 `page`, medido em 17/09).
 - O texto é de terceiro (o professor) e sai inteiro, como o corpo de post em

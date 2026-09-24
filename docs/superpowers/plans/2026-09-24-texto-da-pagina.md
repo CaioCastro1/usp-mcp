@@ -52,10 +52,10 @@ Crie `tests/moodle/test_texto_da_pagina.py`:
 ```python
 """TP1-TP9: o texto escrito na página da disciplina, sob demanda.
 
-O achado do dono (24/09/2026): a regra de avaliação de PTC3314 mora no texto da
-seção do topo, `material` não o mostrava nem dizia que existia, e o assistente
-chutou a regra pelo livro de notas. A fixture de PTC3314 é a mesma disciplina — a
-seção "Ondas e Linhas" tem 5.414 B de texto (higienizado, com o tamanho real).
+O achado de uso (24/09/2026): o critério de avaliação de uma disciplina estava no
+texto da seção do topo da página, e `material` não o mostrava nem dizia que ele
+existia. A fixture de PTC3314 tem o caso — a seção do topo tem 5.414 B de texto
+(higienizado, com o tamanho real).
 """
 from __future__ import annotations
 
@@ -85,14 +85,14 @@ def test_TP1_o_texto_da_secao_junta_resumo_e_blocos_de_texto_em_ordem():
     modulo_assign = {"id": 8001, "name": "EC-1", "modname": "assign",
                      "description": "<p>Aberto: 1 set. Vencimento: 8 set.</p>", "contents": []}
     conteudo = [_secao("Geral", [
-        _label(7101, "Avaliação", "<p>MF = (8P + 2T)/10</p>"),
+        _label(7101, "Avaliação", "<p>Critério: média das provas.</p>"),
         modulo_assign,
         _label(7102, "Slides", f'<p>Os <a href="{DRIVE}">slides</a> ficam aqui.</p>'),
-    ], summary="<p>Haverá 2 provas.</p>")]
+    ], summary="<p>Objetivos da disciplina.</p>")]
 
     (secao,) = mat.projetar_material(conteudo).secoes
 
-    assert secao.texto == "Haverá 2 provas.\nMF = (8P + 2T)/10\nOs slides ficam aqui."
+    assert secao.texto == "Objetivos da disciplina.\nCritério: média das provas.\nOs slides ficam aqui."
     assert "Vencimento" not in secao.texto, "description de atividade não é texto da página"
 
 
@@ -132,7 +132,8 @@ class Secao:
     # A prosa que o professor escreveu na página, em texto puro: o resumo da
     # seção e os blocos de texto dela, na ordem da página. Não sai na lista — sai
     # quando `material` é chamado com `texto`, e o rodapé diz que ela existe.
-    # Medido em 24/09/2026: a regra de avaliação de PTC3314 mora aqui (5.414 B).
+    # Medido em 24/09/2026: é onde o professor costuma escrever objetivos,
+    # critério de avaliação e bibliografia (seção do topo de PTC3314: 5.414 B).
     texto: str = ""
 ```
 
@@ -199,7 +200,7 @@ Acrescente a `tests/moodle/test_texto_da_pagina.py`:
 ```python
 @pytest.mark.contrato
 def test_TP2_o_rodape_diz_que_ha_texto_e_como_pedir(disciplinas_brutas, conteudo_ptc3314):
-    """O defeito que causou o chute: o resumo de seção sumia calado."""
+    """O defeito do achado: o resumo de seção sumia calado."""
     r = mat.material(_cliente(disciplinas_brutas, conteudo_ptc3314), "PTC3314", agora=lambda: 0.0)
 
     assert "19 seções têm texto escrito na página" in r.texto
@@ -249,8 +250,8 @@ Em `_avisos_do_texto`, **substitua** o bloco `if conteudo.textos_sem_link: ...` 
 
 ```python
     # Substitui a contagem de "blocos de texto sem link", que só via `label`: o
-    # resumo de seção sumia calado, e foi ali que a regra de avaliação de
-    # PTC3314 se escondeu (24/09/2026). O texto do `label` agora é texto da seção,
+    # resumo de seção sumia calado, e é ali que o professor costuma escrever o
+    # critério de avaliação (24/09/2026). O texto do `label` agora é texto da seção,
     # então os dois avisos diriam a mesma coisa. Nomear a seção é o que deixa o
     # modelo pedir a certa; dizer para que serve é o que o faz ligar a pergunta
     # "como é a avaliação" a este parâmetro.
@@ -282,7 +283,7 @@ PTC3314 cresceu (~+330 B). Leia o tamanho real na mensagem do OR2 e troque o tet
 
 ```python
     "material": <novo>,  # 6.410 → aqui: o rodapé nomeia as seções com texto na
-    # página (24/09/2026), e é o que impede o chute sobre critério de avaliação
+    # página (24/09/2026), para o modelo saber que há texto a pedir
 ```
 
 Se algum outro teste de `test_material.py` quebrar por contar linhas `⚠`, corrija a
@@ -630,19 +631,18 @@ git commit -m "server: material aceita \`texto\` para ler a página da disciplin
 - [ ] **Passo 1: §9 do SPEC1.md**
 
 Entrada nova, depois da última, com o título
-`### 24/09/2026 — o resumo de seção tinha a regra de avaliação, e a decisão de 03/09 julgou o corpo pelo título`.
+`### 24/09/2026 — o texto da página sai sob demanda, e a decisão de 03/09 julgou o corpo da seção pelo título`.
 Conteúdo, em prosa no estilo das vizinhas:
 
-- o achado (sessão de uso: PTC3314, faltas nos testes, chute pelo livro de notas,
-  print da página);
+- o achado, em uma frase e sem detalhe da disciplina: numa sessão de uso, o
+  critério de avaliação estava no texto da página, e `material` não mostrava nem
+  avisava que ele existia;
 - o dado: tabela da spec (19 seções com texto, 9.893 B; topo 5.414 B; PSI3323
   14.278 B), e que a amostra já tinha o caso;
 - o que se revê da entrada de 03/09 ("Descartado junto: os `summary` de seção") e o
   que continua certo nela (o custo);
 - a decisão (sob demanda, parâmetro, rodapé, uma chamada) e o descartado (emitir
   sempre; ferramenta nova), com os números;
-- a lição: **o livro de notas do Moodle não é a regra da disciplina** — o peso
-  configurado em `notas` divergiu do texto do professor, e o texto vence;
 - o novo teto do OR2 de `material` e o `_TETO_TEXTO`.
 
 - [ ] **Passo 2: docstring de `material.py`**
