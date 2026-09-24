@@ -83,6 +83,10 @@ _CAMINHOS_DO_MOODLE = (
 # "e mais N", nunca silêncio.
 _TETO_NOMES_NO_RODAPE = 3
 
+# Teto do modo `texto`, em bytes. A maior amostra (`tudo` em PSI3323) dá ~14,3 kB;
+# o teto corta por seção inteira e declara o que ficou de fora.
+_TETO_TEXTO = 20_000
+
 # A única ressalva invariável desta ferramenta. Ela explica por que o ENDEREÇO do
 # arquivo não sai (Invariante 3) e para onde ir para baixar de fato — e só tem
 # sentido diante de arquivo interno listado. Ver `ressalvas.py`.
@@ -741,19 +745,102 @@ def _avisos_do_texto(conteudo: Conteudo, mostrados: list[Item]) -> list[str]:
     return avisos
 
 
-def material(cliente, disciplina: str, busca: str | None = None, agora=None) -> RespostaMaterial:
+def _texto_da_pagina(cliente, alvo, pedido: str) -> RespostaMaterial:
+    """O que o professor escreveu na página, por seção. UMA chamada.
+
+    Só `core_course_get_contents`: os anexos de entrega (a segunda chamada de
+    `acervo`) são arquivo, não texto, e pedi-los aqui seria martelar a USP por
+    uma resposta que esta pergunta não usa.
+    """
+    conteudo = projetar_material(
+        cliente.chamar("core_course_get_contents", courseid=alvo.courseid)
+    )
+    cabecalho = f"{alvo.sigla} ({alvo.rotulo}) — texto da página da disciplina"
+    com_texto = [s for s in conteudo.secoes if s.texto]
+
+    if not com_texto:
+        return RespostaMaterial(
+            texto=(
+                f"{cabecalho}\n\nA página não tem texto escrito fora dos arquivos "
+                "e links: tudo o que ela publica sai em `material` sem `texto`."
+            ),
+            total=0, mostrados=0, vazio_por="sem_texto",
+        )
+
+    escolhidas = (
+        com_texto if normalizar(pedido) == "TUDO"
+        else [s for s in com_texto if casa(pedido, s.nome)]
+    )
+    if not escolhidas:
+        nomes = ", ".join(s.nome or "(sem seção)" for s in com_texto)
+        return RespostaMaterial(
+            texto=(
+                f"{cabecalho}\n\nNenhuma seção com texto tem {pedido!r} no nome. "
+                f"As {len(com_texto)} que têm: {nomes}. Repita com uma delas, "
+                "ou com `tudo`."
+            ),
+            total=len(com_texto), mostrados=0, vazio_por="secao_sem_texto",
+        )
+
+    linhas = [cabecalho]
+    usados = len(cabecalho.encode())
+    mostradas = 0
+    for s in escolhidas:
+        nome = s.nome or "(sem seção)"
+        bloco = f"\n{nome}:\n{s.texto}"
+        tamanho = len(bloco.encode())
+        if usados + tamanho > _TETO_TEXTO:
+            if mostradas == 0:
+                # Uma seção sozinha maior que o teto: sai até o teto, e o corte
+                # é dito — nunca uma resposta vazia por ser grande demais.
+                linhas.append(bloco.encode()[: _TETO_TEXTO - usados].decode("utf-8", "ignore"))
+                linhas.append(f"\n⚠ O texto de {nome!r} é maior que o limite desta resposta e foi cortado aqui.")
+                mostradas = 1
+            break
+        linhas.append(bloco)
+        usados += tamanho
+        mostradas += 1
+
+    if fora := escolhidas[mostradas:]:
+        nomes = ", ".join(s.nome or "(sem seção)" for s in fora)
+        linhas.append(
+            f"\n⚠ {len(fora)} seção(ões) ficaram de fora para caber no limite "
+            f"desta resposta: {nomes}. Peça cada uma pelo nome."
+        )
+
+    return RespostaMaterial(texto="\n".join(linhas), total=len(com_texto), mostrados=mostradas)
+
+
+def material(
+    cliente, disciplina: str, busca: str | None = None, agora=None, texto: str | None = None
+) -> RespostaMaterial:
     """Uma pergunta, uma disciplina. Resolve a sigla antes de gastar chamada.
 
     Sigla que não resolve levanta erro legível **sem** pedir conteúdo: consultar
     o Moodle para descobrir que a pergunta estava errada é gastar chamada da
     conta do dono à toa.
+
+    Com `texto`, responde outra pergunta sobre o mesmo espaço: o que o professor
+    ESCREVEU na página, e não o que publicou como arquivo. Ver `_texto_da_pagina`.
     """
+    pedido_texto = (texto or "").strip()
+    if pedido_texto and (busca or "").strip():
+        # Antes de qualquer chamada, como sigla inválida: combinar os dois calado
+        # faria um deles ser ignorado.
+        raise ErroMoodle(
+            "`busca` procura pelo nome de arquivo e `texto` pelo nome de seção; "
+            "juntos, um deles seria ignorado. Chame com um de cada vez."
+        )
+
     lista = carregar(cliente, agora=agora)
     resolucao = resolver(lista, disciplina)
     if resolucao.disciplina is None:
         raise ErroMoodle(resolucao.motivo)
 
     alvo = resolucao.disciplina
+    if pedido_texto:
+        return _texto_da_pagina(cliente, alvo, pedido_texto)
+
     conteudo = acervo(cliente, alvo.courseid)
 
     total = conteudo.total_itens
