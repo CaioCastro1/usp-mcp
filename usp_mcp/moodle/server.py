@@ -258,6 +258,10 @@ def listar_ferramentas() -> list[dict]:
                 "PSI3323', 'cadê as regras da disciplina', 'tem prova antiga em "
                 "PTC3314', 'onde está a lista de exercícios', 'me dá o enunciado "
                 "do EC-1', 'onde estão os slides'. "
+                "Com `texto`, devolve em vez da lista o que o professor ESCREVEU "
+                "na própria página — como a disciplina é avaliada, o que ela "
+                "exige antes, que livros usa: 'como é a avaliação de PTC3314', "
+                "'quantos testes posso perder'. "
                 "NÃO devolve o link de download do arquivo "
                 "interno — um endereço sem a credencial não abre, e um com ela "
                 "exporia o token — mas diz o nome, o tipo e o tamanho de cada "
@@ -280,6 +284,14 @@ def listar_ferramentas() -> list[dict]:
                             "'lista', 'regras'. Opcional: sem ele vem tudo, e "
                             "a saída diz quantos itens ficaram de fora quando "
                             "o filtro é usado."
+                        ),
+                    },
+                    "texto": {
+                        "type": "string",
+                        "description": (
+                            "Nome ou pedaço do nome de uma seção da página, ou "
+                            "'tudo'. Troca a lista de arquivos pelo texto escrito "
+                            "nessas seções. Não combina com `busca`."
                         ),
                     },
                 },
@@ -758,6 +770,7 @@ def chamar_ferramenta(
             cliente,
             argumentos["disciplina"],
             busca=argumentos.get("busca"),
+            texto=argumentos.get("texto"),
         ).texto
 
     if nome == _NOME_ARQUIVO:
@@ -906,18 +919,22 @@ def main() -> None:  # pragma: no cover — casca stdio; ver nota abaixo.
     anotar(_o_que_vence, descritor["inputSchema"], {"dias": int, "limite": int | None})
     _registrar(descritor, _o_que_vence)
 
-    def _material(disciplina, busca=None) -> str:
+    def _material(disciplina, busca=None, texto=None) -> str:
         # `disciplina` SEM default de propósito: no SDK é a ausência de default
         # que torna o parâmetro obrigatório no fio, e o `inputSchema` a declara
         # em `required`. Com `=None` os dois divergiam e o modelo via uma
         # ferramenta que aceita ser chamada sem disciplina — H6 pegou.
         return _chamar(
-            porta_material["name"], {"disciplina": disciplina, "busca": busca}
+            porta_material["name"],
+            {"disciplina": disciplina, "busca": busca, "texto": texto},
         )
 
     # Mesmo motivo: sem `anotar`, "Espaço e caixa não importam" e a explicação de
     # `busca` não chegam ao modelo — ele veria só {"title": "Disciplina"}.
-    anotar(_material, porta_material["inputSchema"], {"disciplina": str, "busca": str | None})
+    anotar(
+        _material, porta_material["inputSchema"],
+        {"disciplina": str, "busca": str | None, "texto": str | None},
+    )
     _registrar(porta_material, _material)
 
     def _baixar_arquivo(disciplina, nome, todos=False) -> str:
@@ -1196,7 +1213,7 @@ def _auto_verificar() -> int:  # pragma: no cover — utilitário de linha de co
         return ""
 
     @servidor.tool(name="material", description="verificação")
-    def _sonda_material(disciplina: str, busca: str | None = None) -> str:
+    def _sonda_material(disciplina: str, busca: str | None = None, texto: str | None = None) -> str:
         return ""
 
     @servidor.tool(name="baixar_arquivo", description="verificação")
