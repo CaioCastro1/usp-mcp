@@ -23,12 +23,20 @@ gastaria estudando. Na V0, a semente é feita pelo dono e pelo Gunthen.
 2. Um validador determinístico, rodando no CI do repositório do acervo.
 3. A semente: as quatro disciplinas abaixo, com provas e listas que o dono cursou,
    baixadas pelo usp-mcp.
-4. Duas saídas geradas a partir dos JSON: um site estático restrito, para quem
-   não usa IA, e um arquivo por tema, para os agentes lerem.
+4. O sync do git para um Postgres no Supabase, a cada merge na `main`.
+5. Um site que lê o Supabase, com login Google restrito a `@usp.br`, para quem
+   não usa IA.
+6. Um export de um arquivo por tema para uma pasta do Drive. É a única peça
+   **provisória**: serve para os colegas testarem pela IA enquanto o conector não
+   existe.
 
-**Não entra (V1 ou depois):** upload por terceiros, Supabase, conector MCP
-remoto com login, a ferramenta `questoes` no usp-mcp, conferência de gabarito
-por LLM, apelido público de crédito.
+As peças 1, 2, 4 e 5 já são as da arquitetura final (próxima seção). A V0 adia
+só o que é caro e incerto.
+
+**Não entra (V1 ou depois):** o conector MCP remoto com login, o envio por
+terceiros via bot, as funções "análogas ao GitHub" (status do envio, propor
+correção, histórico), a ferramenta `questoes` no usp-mcp, a conferência de
+gabarito por LLM e o apelido público de crédito.
 
 | Disciplina | Sigla | Origem da sigla |
 |---|---|---|
@@ -37,12 +45,62 @@ por LLM, apelido público de crédito.
 | Cálculo Diferencial e Integral IV | MAT2456 | Moodle do dono (MAT2456-2025) e Jupiter |
 | Física IV | 4323204 | Moodle do dono (4323204-203-2025) e Jupiter |
 
+## Arquitetura final
+
+```
+ESCRITA                                       LEITURA
+
+mantenedores ──── PR ─────┐                   ┌── conector MCP remoto ── Claude, Gemini, celular (V1)
+                          ▼                   │
+aluno via conector ─▶ bot abre PR ─▶ git ──CI (validar.py)──merge──CD (sincronizar.py)──▶ Supabase Postgres
+        (V1)                                  ├── site, login Google @usp.br (V0)
+                                              ├── export por tema no Drive (V0, provisório)
+                                              └── usp-mcp local, ferramenta `questoes` (V1)
+```
+
+Princípios:
+
+- **O git é a fonte da verdade; o banco é cópia de leitura.** O CI valida, e o
+  CD reescreve o banco a cada merge. O banco é descartável: se corromper, ou se o
+  schema mudar, ele é reconstruído do git.
+- **Toda escrita passa pelo git, e ninguém precisa usar o GitHub.** Na V0 só os
+  mantenedores escrevem, por PR direto. Na V1 o aluno diz ao assistente "envia
+  essa questão", o conector chama uma função de envio, e um bot (uma GitHub App)
+  faz o commit num branch e abre o PR. O merge é automático quando o CI passa, e
+  o aluno recebe pelo assistente "publicada como …" ou "recusada: regra V11, NUSP
+  no enunciado".
+- **Um validador só**, o mesmo script, para PR de mantenedor e envio pelo bot.
+- **O git dá de graça** histórico, revisão e retirada: a resposta a
+  envenenamento é reverter todos os commits de um envio.
+- **Toda leitura passa pelo Supabase.** Conector, site e ferramenta local
+  consultam o mesmo banco, e o login `@usp.br` e as regras de acesso (RLS) ficam
+  num lugar só.
+
+### Análogo ao GitHub, sem o GitHub na frente (direção da V1)
+
+Como o git está embaixo, as ideias do GitHub viram funções do produto, pelo
+conector ou pelo site:
+
+| No GitHub | No acervo |
+|---|---|
+| Pull request | **Envio**, com status (validando, publicada, recusada) e o motivo |
+| PR que muda um arquivo existente | **Propor correção** numa questão: gabarito, tema, LaTeX |
+| `git log` de um arquivo | **Histórico da questão**: quem mudou o gabarito de inferido para oficial, e quando |
+| Revert | **Retirada** de todos os envios de uma conta |
+| Página de contribuidor | **Apelido público opcional** |
+
+"Propor correção" é a mais valiosa: é o que deixa o acervo melhorar com o uso sem
+curadoria humana.
+
+Os contratos não dependem do GitHub. Se o volume de envios um dia tornar o fluxo
+de PR lento demais, a fonte da verdade pode virar o banco (uma tabela de versões
+por questão), com o git como backup. O usuário não percebe a troca. Isso só se
+decide com medida.
+
 ## Onde mora
 
 Num **repositório próprio e privado** (`acervo`), separado do usp-mcp, que é
-público. O repositório guarda JSON, o validador e o gerador das saídas. O git é
-a fonte da verdade: o Drive, o site e, na V1, o Supabase são saídas geradas, e
-trocar de saída não muda os dados.
+público. O repositório guarda os JSON, o validador, o sync e o gerador do export.
 
 ```
 acervo/
@@ -55,8 +113,13 @@ acervo/
       avulsa-3f9a2c1e.json
   scripts/
     validar.py                   o CI inteiro
-    gerar.py                     site e um arquivo por tema
-  .github/workflows/validar.yml
+    sincronizar.py               CD: reescreve o Postgres a partir dos JSON
+    exportar.py                  um arquivo por tema para o Drive (provisório)
+  supabase/                      schema das tabelas e regras de acesso
+  site/                          o site, que lê o Supabase
+  .github/workflows/
+    validar.yml                  em todo PR
+    publicar.yml                 no push para a main: sincronizar e exportar
 ```
 
 Nome de arquivo: `{ano}-{semestre}-{tipo}{rotulo}.json`, e `avulsa-{hash8}.json`
@@ -164,11 +227,15 @@ Decisões, com a razão de cada uma:
   de direito autoral.
 - **`completa: false`** existe pelo Invariante 7: uma prova com uma questão
   transcrita não pode parecer uma prova de uma questão.
-- **A autoria fica fora do conteúdo.** O que circula não leva e-mail. Na V0 o
-  registro é o histórico do git; na V1, `envio` vira um UUID aleatório que aponta
-  para uma tabela visível só para os mantenedores. Nunca um hash do e-mail: com a
-  lista de e-mails `@usp.br`, ele se desfaz por força bruta. É isso que permite
-  retirar e bloquear todos os envios de quem envenenar o acervo.
+- **A autoria fica fora do conteúdo.** O que circula não leva e-mail. Na V0 os
+  únicos autores são os mantenedores, e o histórico do git basta. Na V1 o commit
+  é do bot, nunca da pessoa: no lugar do e-mail, ele leva o UUID do envio num
+  trailer (`Envio: e_7f3a…`), e o mesmo UUID vai no campo `envio`. A ligação
+  entre envio e conta fica numa tabela `envios` no Supabase, legível só pelos
+  mantenedores. Assim nem quem lê o repositório sabe de quem é cada questão. O
+  UUID é aleatório, nunca um hash do e-mail: com a lista de e-mails `@usp.br`, o
+  hash se desfaz por força bruta. É essa tabela que permite retirar e bloquear
+  todos os envios de quem envenenar o acervo.
 
 ### IDs
 
@@ -214,26 +281,58 @@ Moodle fica desligada por padrão e pede confirmação por chamada
 (`2026-09-15-entrega-com-confirmacao-design.md`). Essa proteção passa a defender
 também contra o acervo, e não pode ser afrouxada sem pensar nele.
 
-## As saídas (`scripts/gerar.py`)
+## O banco (`scripts/sincronizar.py`)
 
-As duas são geradas no CI depois do validador, e nenhuma é editada à mão.
+Roda no `publicar.yml`, a cada push na `main`, depois do validador. Lê todos os
+JSON e reescreve as tabelas numa transação só. Com alguns milhares de questões,
+reescrever tudo leva segundos e não guarda estado que possa divergir do git;
+sync incremental só se a medida pedir. A chave de serviço do Supabase fica como
+segredo do GitHub, e só o CD a usa.
 
-- **Um arquivo por tema**, `{sigla}/{tema}.md`, com todas as questões daquele
-  tema (enunciado, gabarito, resolução e rótulos), mais um `{sigla}/indice.md`.
-  Isso responde à crítica de que o Drive agrega mal: a agregação vem pronta, e o
-  agente abre um arquivo por pergunta. Um tema com ~15 questões de ~5 KB dá
-  ~20 mil tokens.
-- **Um site estático**, com uma página por disciplina, por tema e por documento,
-  e LaTeX renderizado no navegador. É para quem não usa IA: navegar e imprimir
-  uma lista de questões de um tema. Hospedado no Cloudflare Pages, com o
-  Cloudflare Access na frente restringindo a `@usp.br`.
+Tabelas:
 
-## O que medir antes de construir as saídas
+- `disciplinas` e `temas`: o conteúdo dos `temas.json`.
+- `documentos`: um por arquivo, com `tipo`, `ano`, `semestre`, `completa` e
+  `fonte`.
+- `questoes`: uma por sub-item. Colunas indexadas para filtrar (`sigla`, `tipo`,
+  `ano`, `gabarito`, `temas text[]` com índice GIN), o JSON inteiro em `dados
+  jsonb`, e um `tsvector` em português sobre enunciado e contexto para busca por
+  texto.
+- `envios` (V1): envio e conta, legível só pelos mantenedores.
+
+A consulta típica é SQL comum:
+
+```sql
+select dados from questoes
+where sigla = 'MAT2454' and 'regra-da-cadeia' = any(temas) and gabarito = 'oficial';
+```
+
+**Acesso:** Supabase Auth com o provedor Google. Só entra conta `@usp.br`, e
+isso é conferido no servidor, pelo domínio do e-mail verificado; o parâmetro
+`hd` sozinho é burlável. Uma regra de RLS dá leitura a qualquer usuário
+autenticado e escrita a ninguém: escrever é privilégio do CD.
+
+## As saídas de leitura
+
+- **O site** lê o Supabase com o login acima: uma página por disciplina, por
+  tema e por documento, LaTeX renderizado no navegador, e uma lista de questões
+  de um tema para imprimir. É para quem não usa IA. Hospedagem estática
+  (Cloudflare Pages, GitHub Pages ou Vercel); o login é do Supabase, e por isso
+  não precisa de Cloudflare Access.
+- **O export por tema** (`scripts/exportar.py`, provisório): `{sigla}/{tema}.md`
+  com todas as questões daquele tema, mais um `{sigla}/indice.md`, numa pasta do
+  Drive compartilhada com `@usp.br`. Ele existe porque, no Claude e no Gemini
+  web, o agente só lê uma fonte restrita por um conector, e o do Drive já existe.
+  A agregação vem pronta, então o agente abre um arquivo por pergunta. Um tema
+  com ~15 questões de ~5 KB dá ~20 mil tokens. Sai quando o conector remoto
+  entrar.
+
+## O que medir
 
 | # | Medida | O que decide |
 |---|---|---|
 | M1 | O Gemini e o Claude leem `.md` cru de uma pasta do Drive compartilhada com o usuário? | Se o export por tema sai como `.md` ou precisa virar Google Doc |
-| M2 | O Cloudflare Access aceita login Google restrito a `@usp.br` no plano gratuito, e com quantos usuários? | Se o site restrito fica de graça na V0 |
+| M2 | O Supabase Auth aceita restringir o login Google a `@usp.br` no servidor (hook de autenticação ou checagem na RLS)? | Como o site e, depois, o conector restringem o acesso |
 | M3 | Quanto tempo leva transcrever uma prova inteira com o assistente? | A premissa do impacto (~15 min) |
 
 ## Ordem de construção
@@ -243,9 +342,17 @@ As duas são geradas no CI depois do validador, e nenhuma é editada à mão.
 2. Os quatro `temas.json`, a partir dos rascunhos do Apêndice A.
 3. Uma prova transcrita de ponta a ponta, para achar onde o contrato está errado
    antes de transcrever o resto.
-4. O resto da semente: umas 3 a 5 provas por disciplina, espalhadas nos anos.
-5. M1 e M2, e depois o `gerar.py`.
-6. O teste com colegas numa prova real deste semestre.
+4. O projeto no Supabase, o schema das tabelas e o `sincronizar.py`. M2.
+5. O resto da semente: umas 3 a 5 provas por disciplina, espalhadas nos anos.
+6. O site.
+7. M1, e depois o `exportar.py`.
+8. O teste com colegas numa prova real deste semestre.
+
+## Depois da V0
+
+Se a V0 mostrar uso: o conector MCP remoto lendo o mesmo Supabase (o que também
+leva o acervo ao celular), o envio pelo bot, as funções da tabela "análogo ao
+GitHub" e a ferramenta `questoes` no usp-mcp. Cai o export para o Drive.
 
 ## Como saber se a V0 deu certo
 
@@ -263,6 +370,7 @@ As duas são geradas no CI depois do validador, e nenhuma é editada à mão.
 - Se o app do Gemini aceita conector MCP próprio (V1).
 - Se o Moodle expõe identificador estável do arquivo além do `cmid`.
 - Termo de uso e LGPD, antes de entrar gente de fora.
+- Quando, e se, a fonte da verdade sai do git para o banco.
 
 ## Apêndice A: rascunho dos temas (a revisar)
 
