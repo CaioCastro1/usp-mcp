@@ -4724,3 +4724,30 @@ PSI3323) dá ~14,3 kB, e o teto corta por seção inteira, declarando o que fico
 fora — nunca uma resposta vazia por ser grande demais.
 
 ---
+
+### 19/10/2026 — o orçamento de saída media o calendário, e a `main` ficou vermelha sem commit
+
+**O sintoma:** todo push desde 19/10 reprovou no `offline` do CI, inclusive o PR
+#121, que só acrescenta um `.md`. A `main` (10a90fe, verde em 24/09) reproduz a
+falha sem mudança nenhuma: `atrasadas` devolve 941 B contra o teto de 820 B em
+`tests/moodle/test_custo.py` (OR2).
+
+**A causa, medida:** o orçamento chamava as ferramentas com o relógio de verdade.
+A fixture tem a "Prova Presencial - 1" de PTC3314 em 28/09/2026 16:50; os tetos
+foram medidos em 22/09, quando ela era futura. Depois de 28/09 ela entrou no bloco
+"Venceram e não aceitam envio" de `atrasadas` — os 121 B a mais. O formato não
+mudou; mudou a data.
+
+**A decisão:** o orçamento congela a hora em 22/09/2026 12:00 (São Paulo), o dia
+da medida, trocando `datetime` nos módulos de ferramenta que leem `datetime.now`.
+"Cresceu?" só tem resposta com a mesma entrada, e a hora é entrada. Prova
+contrária feita: com o relógio parado em 19/10 o mesmo teste volta a reprovar
+`atrasadas`, então é o congelamento que decide, não acaso. Uma guarda nova (OR0)
+compara a lista congelada com os módulos que de fato chamam `datetime.now(` e
+reprova módulo novo que leia o relógio fora dela.
+
+**Descartado:** subir o teto de `atrasadas` (registraria como custo do formato um
+efeito da data, e o próximo prazo da fixture quebraria de novo) e passar `agora`
+por `chamar_ferramenta` (mudaria a fronteira de produção para servir a um teste).
+
+---

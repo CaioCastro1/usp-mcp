@@ -41,11 +41,15 @@ regressão — mesma entrada, mesma saída — e não é medida de produção.
 """
 from __future__ import annotations
 
+import importlib
 import json
 import re
+from datetime import datetime
+from pathlib import Path
 
 import pytest
 
+from usp_mcp.moodle.projecao import FUSO_SAO_PAULO
 from usp_mcp.moodle.server import chamar_ferramenta, listar_ferramentas
 
 from .conftest import ClienteFalso
@@ -152,8 +156,65 @@ CASOS = [
 ]
 
 
+# O relógio desta medida, congelado no dia em que os tetos foram medidos. Com o
+# relógio de verdade o orçamento media o calendário, não o formato: a "Prova
+# Presencial - 1" da fixture vence em 28/09/2026, e a partir daí `atrasadas`
+# passou a listá-la e cresceu 121 B sem uma linha de código mudar — a `main`
+# ficou vermelha sozinha (§9, 19/10/2026). "Cresceu?" só tem resposta com a
+# mesma entrada, e a hora é entrada.
+AGORA = datetime(2026, 9, 22, 12, 0, tzinfo=FUSO_SAO_PAULO)
+
+# Os módulos de ferramenta que leem a hora com `datetime.now`. A guarda
+# `test_or0_todo_modulo_que_le_o_relogio_esta_congelado` reprova módulo novo
+# que leia o relógio e não esteja aqui.
+_MODULOS_COM_RELOGIO = (
+    "atrasadas",
+    "disciplinas",
+    "entrega",
+    "ja_entreguei",
+    "o_que_mudou",
+    "o_que_vence",
+    "questionarios",
+)
+
+
+class _RelogioParado(datetime):
+    @classmethod
+    def now(cls, tz=None):
+        return AGORA if tz is None else AGORA.astimezone(tz)
+
+
 @pytest.fixture
-def saidas(conteudo_ptc3314, entregas_ptc3314, disciplinas_brutas, eventos_brutos):
+def relogio_parado(monkeypatch):
+    for nome in _MODULOS_COM_RELOGIO:
+        modulo = importlib.import_module(f"usp_mcp.moodle.{nome}")
+        monkeypatch.setattr(modulo, "datetime", _RelogioParado)
+
+
+def test_or0_todo_modulo_que_le_o_relogio_esta_congelado():
+    """OR0: o relógio parado alcança todo módulo que lê a hora.
+
+    Sem isto, um módulo novo com `datetime.now` faria o orçamento voltar a
+    depender da data, e ele só ficaria vermelho semanas depois, quando um prazo
+    da fixture passasse.
+    """
+    pasta = Path(importlib.import_module("usp_mcp.moodle").__file__).parent
+    leem = {
+        p.stem
+        for p in pasta.glob("*.py")
+        if "datetime.now(" in p.read_text(encoding="utf-8")
+    }
+    assert leem == set(_MODULOS_COM_RELOGIO), (
+        "Os módulos que leem `datetime.now` mudaram: "
+        f"sem congelar {sorted(leem - set(_MODULOS_COM_RELOGIO))}, "
+        f"na lista à toa {sorted(set(_MODULOS_COM_RELOGIO) - leem)}"
+    )
+
+
+@pytest.fixture
+def saidas(
+    relogio_parado, conteudo_ptc3314, entregas_ptc3314, disciplinas_brutas, eventos_brutos
+):
     """O texto que cada ferramenta devolve, com as fixtures versionadas."""
     respostas = _respostas(
         conteudo_ptc3314, entregas_ptc3314, disciplinas_brutas, eventos_brutos
