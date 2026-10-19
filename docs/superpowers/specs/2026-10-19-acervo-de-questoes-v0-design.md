@@ -23,9 +23,9 @@ gastaria estudando. Na V0, a semente é feita pelo dono e pelo Gunthen.
 2. Um validador determinístico, rodando no CI do repositório do acervo.
 3. A semente: as quatro disciplinas abaixo, com provas e listas que o dono cursou,
    baixadas pelo usp-mcp.
-4. O sync do git para um Postgres no Supabase, a cada merge na `main`.
-5. Um site que lê o Supabase, com login Google restrito a `@usp.br`, para quem
-   não usa IA.
+4. A publicação do git num Worker da Cloudflare, a cada merge na `main`.
+5. Um site servido pelo mesmo Worker, com login Google restrito a `@usp.br`, para
+   quem não usa IA.
 6. Um export de um arquivo por tema para uma pasta do Drive. É a única peça
    **provisória**: serve para os colegas testarem pela IA enquanto o conector não
    existe.
@@ -52,7 +52,7 @@ ESCRITA                                       LEITURA
 
 mantenedores ──── PR ─────┐                   ┌── conector MCP remoto ── Claude, Gemini, celular (V1)
                           ▼                   │
-aluno via conector ─▶ bot abre PR ─▶ git ──CI (validar.py)──merge──CD (sincronizar.py)──▶ Supabase Postgres
+aluno via conector ─▶ bot abre PR ─▶ git ──CI (validar.py)──merge──CD (publicar)──▶ Worker Cloudflare (+ D1)
         (V1)                                  ├── site, login Google @usp.br (V0)
                                               ├── export por tema no Drive (V0, provisório)
                                               └── usp-mcp local, ferramenta `questoes` (V1)
@@ -72,9 +72,9 @@ Princípios:
 - **Um validador só**, o mesmo script, para PR de mantenedor e envio pelo bot.
 - **O git dá de graça** histórico, revisão e retirada: a resposta a
   envenenamento é reverter todos os commits de um envio.
-- **Toda leitura passa pelo Supabase.** Conector, site e ferramenta local
-  consultam o mesmo banco, e o login `@usp.br` e as regras de acesso (RLS) ficam
-  num lugar só.
+- **Toda leitura passa por um Worker da Cloudflare.** Site, conector e
+  ferramenta local falam com o mesmo Worker, e o login `@usp.br` fica num lugar
+  só. O banco é descartável e fica atrás dele.
 
 ### Análogo ao GitHub, sem o GitHub na frente (direção da V1)
 
@@ -100,7 +100,8 @@ decide com medida.
 ## Onde mora
 
 Num **repositório próprio e privado** (`acervo`), separado do usp-mcp, que é
-público. O repositório guarda os JSON, o validador, o sync e o gerador do export.
+público. O repositório guarda os JSON, o validador, o gerador da publicação, o
+Worker e o gerador do export.
 
 ```
 acervo/
@@ -113,13 +114,12 @@ acervo/
       avulsa-3f9a2c1e.json
   scripts/
     validar.py                   o CI inteiro
-    sincronizar.py               CD: reescreve o Postgres a partir dos JSON
+    publicar.py                  CD: gera o pacote de leitura (e, quando houver, o D1)
     exportar.py                  um arquivo por tema para o Drive (provisório)
-  supabase/                      schema das tabelas e regras de acesso
-  site/                          o site, que lê o Supabase
+  worker/                        o Worker: site, API de leitura, login; depois o conector
   .github/workflows/
     validar.yml                  em todo PR
-    publicar.yml                 no push para a main: sincronizar e exportar
+    publicar.yml                 no push para a main: gerar, implantar o Worker, exportar
 ```
 
 Nome de arquivo: `{ano}-{semestre}-{tipo}{rotulo}[-{variante}].json`, e `avulsa-{hash8}.json`
@@ -233,7 +233,7 @@ Decisões, com a razão de cada uma:
   únicos autores são os mantenedores, e o histórico do git basta. Na V1 o commit
   é do bot, nunca da pessoa: no lugar do e-mail, ele leva o UUID do envio num
   trailer (`Envio: e_7f3a…`), e o mesmo UUID vai no campo `envio`. A ligação
-  entre envio e conta fica numa tabela `envios` no Supabase, legível só pelos
+  entre envio e conta fica numa tabela `envios` no D1, legível só pelos
   mantenedores. Assim nem quem lê o repositório sabe de quem é cada questão. O
   UUID é aleatório, nunca um hash do e-mail: com a lista de e-mails `@usp.br`, o
   hash se desfaz por força bruta. É essa tabela que permite retirar e bloquear
@@ -283,44 +283,55 @@ Moodle fica desligada por padrão e pede confirmação por chamada
 (`2026-09-15-entrega-com-confirmacao-design.md`). Essa proteção passa a defender
 também contra o acervo, e não pode ser afrouxada sem pensar nele.
 
-## O banco (`scripts/sincronizar.py`)
+## A leitura: um Worker da Cloudflare
 
-Roda no `publicar.yml`, a cada push na `main`, depois do validador. Lê todos os
-JSON e reescreve as tabelas numa transação só. Com alguns milhares de questões,
-reescrever tudo leva segundos e não guarda estado que possa divergir do git;
-sync incremental só se a medida pedir. A chave de serviço do Supabase fica como
-segredo do GitHub, e só o CD a usa.
+Escolhido em 19/10/2026 no lugar do Supabase, por três razões medidas:
 
-Tabelas:
+- **Custo e pausa.** O plano grátis do Supabase pausa o projeto depois de 7 dias
+  sem uso e alguém tem de religar à mão; nas férias o conector cairia calado. O
+  Pro custa US$25/mês. O dono já ocupa um dos dois projetos grátis com outro uso.
+  O Workers grátis não pausa, o D1 grátis guarda 5 GB (a Poli inteira cabe em
+  ~450 MB), e o plano pago é US$5/mês.
+- **O conector mora lá.** O Supabase oferece um servidor OAuth 2.1 para MCP, em
+  beta, mas não hospeda o servidor MCP. Na Cloudflare há uma biblioteca de OAuth
+  para MCP remoto (`workers-oauth-provider`) e exemplo pronto com login Google
+  restrito por domínio. Site, API, login e conector ficam numa plataforma só.
+- **A escolha é reversível.** O git é a fonte da verdade; trocar de plataforma é
+  reescrever o `publicar.py` e as consultas, não migrar dado.
 
-- `disciplinas` e `temas`: o conteúdo dos `temas.json`.
-- `documentos`: um por arquivo, com `tipo`, `ano`, `semestre`, `completa` e
-  `fonte`.
-- `questoes`: uma por sub-item. Colunas indexadas para filtrar (`sigla`, `tipo`,
-  `ano`, `gabarito`, `temas text[]` com índice GIN), o JSON inteiro em `dados
-  jsonb`, e um `tsvector` em português sobre enunciado e contexto para busca por
-  texto.
-- `envios` (V1): envio e conta, legível só pelos mantenedores.
+O que se perde: o banco é SQLite (sem array, então temas viram tabela de ligação;
+busca por texto com FTS5, mais pobre que o `tsvector` em português), e a tela de
+login é feita no Worker em vez de vir pronta.
 
-A consulta típica é SQL comum:
+### Fases do armazenamento
 
-```sql
-select dados from questoes
-where sigla = 'MAT2454' and 'regra-da-cadeia' = any(temas) and gabarito = 'oficial';
-```
+1. **V0, sem banco.** O `publicar.py` gera um pacote JSON com todas as questões e
+   índices por sigla e por tema, publicado como asset estático do Worker. O Worker
+   filtra em memória. Com 102 questões (~600 KB), banco seria peso morto.
+2. **Quando o pacote passar de ~20 MB** (o limite de asset é 25 MiB por arquivo),
+   entra o D1. O `publicar.py` passa a reescrever as tabelas a cada merge:
+   - `disciplinas`, `blocos` e `temas`: o conteúdo dos `temas.json`;
+   - `documentos`: tipo, ano, semestre, completa, fonte, observacoes;
+   - `questoes`: uma por sub-item, colunas para filtrar (`sigla`, `tipo`, `ano`,
+     `gabarito`) e o JSON inteiro;
+   - `questao_temas`: a ligação, com a posição (0 é o tema principal);
+   - uma tabela FTS5 sobre enunciado, contexto e resolução;
+   - `envios` (V1): envio e conta, legível só pelos mantenedores.
 
-**Acesso:** Supabase Auth com o provedor Google. Só entra conta `@usp.br`, e
-isso é conferido no servidor, pelo domínio do e-mail verificado; o parâmetro
-`hd` sozinho é burlável. Uma regra de RLS dá leitura a qualquer usuário
-autenticado e escrita a ninguém: escrever é privilégio do CD.
+A API do Worker é a mesma nas duas fases, então site e conector não mudam:
+`GET /api/questoes?sigla=4323204&tema=efeito-compton&gabarito=oficial`.
+
+**Acesso:** login Google feito pelo Worker. Só entra conta `@usp.br`, conferida
+no servidor pelo domínio do e-mail verificado no token; o parâmetro `hd` sozinho
+é burlável. A sessão vale para o site e, na V1, o mesmo fluxo atende o OAuth do
+conector MCP. Escrever é privilégio do CD, que implanta com um token da
+Cloudflare guardado como segredo do GitHub.
 
 ## As saídas de leitura
 
-- **O site** lê o Supabase com o login acima: uma página por disciplina, por
-  tema e por documento, LaTeX renderizado no navegador, e uma lista de questões
-  de um tema para imprimir. É para quem não usa IA. Hospedagem estática
-  (Cloudflare Pages, GitHub Pages ou Vercel); o login é do Supabase, e por isso
-  não precisa de Cloudflare Access.
+- **O site**, servido pelo Worker: uma página por disciplina, por tema e por
+  documento, LaTeX renderizado no navegador (KaTeX), e uma lista de questões de um
+  tema para imprimir. É para quem não usa IA.
 - **O export por tema** (`scripts/exportar.py`, provisório): `{sigla}/{tema}.md`
   com todas as questões daquele tema, mais um `{sigla}/indice.md`, numa pasta do
   Drive compartilhada com `@usp.br`. Ele existe porque, no Claude e no Gemini
@@ -334,7 +345,7 @@ autenticado e escrita a ninguém: escrever é privilégio do CD.
 | # | Medida | O que decide |
 |---|---|---|
 | M1 | O Gemini e o Claude leem `.md` cru de uma pasta do Drive compartilhada com o usuário? | Se o export por tema sai como `.md` ou precisa virar Google Doc |
-| M2 | O Supabase Auth aceita restringir o login Google a `@usp.br` no servidor (hook de autenticação ou checagem na RLS)? | Como o site e, depois, o conector restringem o acesso |
+| M2 | O login Google feito no Worker recebe e confere o domínio `@usp.br` no token, para conta de aluno (Google Workspace da USP)? | Se o site e, depois, o conector restringem o acesso sem serviço extra |
 | M3 | Quanto tempo leva transcrever uma prova inteira com o assistente? | A premissa do impacto (~15 min) |
 
 ## Ordem de construção
@@ -344,7 +355,8 @@ autenticado e escrita a ninguém: escrever é privilégio do CD.
 2. Os quatro `temas.json`, a partir dos rascunhos do Apêndice A.
 3. Uma prova transcrita de ponta a ponta, para achar onde o contrato está errado
    antes de transcrever o resto.
-4. O projeto no Supabase, o schema das tabelas e o `sincronizar.py`. M2.
+4. A conta e o Worker na Cloudflare, o `publicar.py` (pacote JSON) e a API de
+   leitura. M2 com o login.
 5. O resto da semente: umas 3 a 5 provas por disciplina, espalhadas nos anos.
 6. O site.
 7. M1, e depois o `exportar.py`.
@@ -352,7 +364,7 @@ autenticado e escrita a ninguém: escrever é privilégio do CD.
 
 ## Depois da V0
 
-Se a V0 mostrar uso: o conector MCP remoto lendo o mesmo Supabase (o que também
+Se a V0 mostrar uso: o conector MCP remoto no mesmo Worker (o que também
 leva o acervo ao celular), o envio pelo bot, as funções da tabela "análogo ao
 GitHub" e a ferramenta `questoes` no usp-mcp. Cai o export para o Drive.
 
