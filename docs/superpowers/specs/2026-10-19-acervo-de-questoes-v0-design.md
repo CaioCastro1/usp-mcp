@@ -184,6 +184,7 @@ Um arquivo por documento de origem: uma prova, uma lista ou uma questão avulsa.
     "obtida_em": "2026-10-20"
   },
   "envio": null,                   // V1: UUID aleatório do envio; na V0, o git é o registro
+  "observacoes": null,             // errata ou ressalva da prova inteira, texto livre
   "questoes": [
     {
       "id": "usp-MAT2454-2024-2-P1-1a",
@@ -200,7 +201,8 @@ Um arquivo por documento de origem: uma prova, uma lista ou uma questão avulsa.
       },
       "gabarito": "oficial",       // oficial | manual | conferido | inferido
       "resolucao": "Passo a passo em Markdown + LaTeX, terminando em \\boxed{…}.",
-      "figura": null               // ou { "descricao": "…", "arquivo": "figuras/…" }
+      "figura": null,              // ou { "descricao": "…", "arquivo": "figuras/…" }
+      "observacoes": null          // errata desta questão, ex.: "o gabarito aceita as duas respostas"
     }
   ]
 }
@@ -264,7 +266,7 @@ mensagem que diz arquivo, questão e regra.
 | V5 | O `id` de cada questão é o derivado, e é único no acervo inteiro |
 | V6 | Cada tema está no `temas.json` da sigla, ou é `fora-do-programa`; de 1 a 3 temas |
 | V7 | Com `--base`, comparando com a base do PR: nenhum tema sumiu do `temas.json`, e toda mudança nele subiu a `versao`. Sem a base, um tema em uso que sumiu já reprova na V6 |
-| V8 | A `resolucao` termina em `\boxed{…}` quando `resposta.tipo` é `numero` ou `expressao` |
+| V8 | A `resolucao` destaca a resposta num `\boxed{…}` não vazio quando `resposta.tipo` é `numero` ou `expressao`; comentário depois dele é permitido |
 | V9 | Delimitadores de LaTeX balanceados (`$`, `$$`, chaves) em enunciado, contexto e resolução |
 | V10 | `fonte.ref` nunca contém `token=` nem `pluginfile.php` (Invariante 3: a URL de arquivo do web service carrega o token) |
 | V11 | Regex de dado pessoal nos campos de texto: NUSP (7 a 8 dígitos isolados), e-mail, CPF e telefone |
@@ -360,6 +362,23 @@ GitHub" e a ferramenta `questoes` no usp-mcp. Cai o export para o Drive.
   transcrição evitada. É a métrica central.
 - Quantos colegas usaram, e quantas vezes.
 - Uma pergunta no fim: "ajudou a estudar para a prova?".
+
+## O que o primeiro teste mudou (19/10/2026)
+
+O banco antigo de Física IV (P1 2022–2025 e P2 2019, 2022–2025, 102 questões, todas
+com gabarito oficial) foi convertido para o contrato e validado. Três mudanças
+saíram dele:
+
+- **`observacoes`, na prova e na questão.** Os gabaritos têm errata que importa a
+  quem estuda (o formulário da P2 2022 trazia ℏ errado, e as duas respostas
+  valeram). Sem campo, ela sumia. O texto passa pelas mesmas V9, V11 e V12.
+- **`numero` aceita romano** (`2-I`, `3-II-b`), porque é como as provas numeram.
+- **V8 deixou de exigir que o `\boxed` feche a resolução.** Seis gabaritos oficiais
+  fecham com um comentário depois da resposta.
+
+E uma mudança de método: em Física IV, os blocos do programa do Jupiter não batiam
+com as provas (Compton e Bohr caem na P2, não no último bloco). **Os blocos seguem
+o que cai em P1, P2 e P3; o programa só ajuda a nomear os temas.**
 
 ## O que fica em aberto
 
