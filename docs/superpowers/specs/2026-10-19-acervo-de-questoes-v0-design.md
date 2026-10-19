@@ -109,7 +109,7 @@ acervo/
     MAT2454/
       temas.json
       2024-2-P1.json             um arquivo por documento de origem
-      2024-2-L3.json
+      2024-2-Lista3.json
       avulsa-3f9a2c1e.json
   scripts/
     validar.py                   o CI inteiro
@@ -122,8 +122,8 @@ acervo/
     publicar.yml                 no push para a main: sincronizar e exportar
 ```
 
-Nome de arquivo: `{ano}-{semestre}-{tipo}{rotulo}.json`, e `avulsa-{hash8}.json`
-para avulsa. O validador confere que o nome bate com o conteúdo.
+Nome de arquivo: `{ano}-{semestre}-{tipo}{rotulo}[-{variante}].json`, e `avulsa-{hash8}.json`
+para avulsa (o hash da primeira questão). O validador confere que o nome bate com o conteúdo.
 
 ## Contrato 1: `acervo.temas/v1`
 
@@ -263,7 +263,7 @@ mensagem que diz arquivo, questão e regra.
 | V4 | O nome do arquivo bate com `ano`, `semestre`, `tipo` e `rotulo` |
 | V5 | O `id` de cada questão é o derivado, e é único no acervo inteiro |
 | V6 | Cada tema está no `temas.json` da sigla, ou é `fora-do-programa`; de 1 a 3 temas |
-| V7 | Nenhum tema em uso sumiu do `temas.json` |
+| V7 | Com `--base`, comparando com a base do PR: nenhum tema sumiu do `temas.json`, e toda mudança nele subiu a `versao`. Sem a base, um tema em uso que sumiu já reprova na V6 |
 | V8 | A `resolucao` termina em `\boxed{…}` quando `resposta.tipo` é `numero` ou `expressao` |
 | V9 | Delimitadores de LaTeX balanceados (`$`, `$$`, chaves) em enunciado, contexto e resolução |
 | V10 | `fonte.ref` nunca contém `token=` nem `pluginfile.php` (Invariante 3: a URL de arquivo do web service carrega o token) |
