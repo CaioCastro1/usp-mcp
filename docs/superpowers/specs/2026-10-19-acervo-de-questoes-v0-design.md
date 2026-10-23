@@ -392,6 +392,47 @@ E uma mudança de método: em Física IV, os blocos do programa do Jupiter não 
 com as provas (Compton e Bohr caem na P2, não no último bloco). **Os blocos seguem
 o que cai em P1, P2 e P3; o programa só ajuda a nomear os temas.**
 
+## Mudança de direção (23/10/2026): o site é o produto
+
+O que foi medido entre 20 e 23/10:
+
+- O conector MCP remoto ficou pronto e publicado (fujita, `/mcp`, OAuth sobre o
+  login `@usp.br`). Mas **o app do Gemini só aceita conector personalizado nos
+  EUA** (página oficial: "Be 18 or over and in the US", conta pessoal, só em
+  inglês), e não há programa público para entrar na lista de "Apps conectados".
+  No claude.ai, conector personalizado é por conta Pro/Max, e em plano de equipe
+  só o proprietário adiciona. O diretório de conectores do Claude é o único
+  caminho de vitrine, e exige submissão por conta paga.
+- O login `@usp.br` funcionou (M2), e o deploy é automático a cada merge.
+
+Decisão: **o produto é o site com os dados estruturados, um "Polishare
+melhorado"; o agente é um dos jeitos de ler.** O conector fica como canal
+secundário, sem custo, e o aluno leva o acervo ao assistente que tiver (texto
+para colar, `.md` por tema e por prova, NotebookLM, Gems e Projetos).
+
+O que o dado estruturado dá que PDF não dá, e vira view do site:
+
+1. **Temas por prova**: matriz tema × (ano, prova). "O que cai na P1?"
+2. **O que mais cai**: ranking de temas com peso ao longo dos anos.
+3. **A prova inteira**, na ordem original, para imprimir e fazer como simulado.
+4. **A questão com histórico**: o mesmo tema ao longo dos anos, lado a lado.
+5. **Cobertura**: que anos e provas existem, e o que falta.
+6. **`.md` por prova e por tema**, gerado, com ou sem resolução.
+
+O gargalo é conteúdo, não view. Transcrever custa ~15 min por prova; subir PDF
+no Polishare custa 10 s. Por isso, logo depois das views:
+
+7. **Catálogo de provas conhecidas** (`acervo.catalogo/v1`, por disciplina):
+   ano, tipo, link para onde o PDF está (Polishare, Moodle, site do instituto) e
+   status (transcrita, pendente). Dá amplitude no dia 1 e é a fila de
+   transcrição. PDF continua fora do acervo.
+8. **Contribuição pelo site, sem GitHub** (a V1 adiantada): o aluno transcreve
+   com o assistente dele usando uma instrução pronta que produz o JSON do
+   contrato, sobe o JSON no site, o bot abre o PR, o CI valida, o merge publica.
+
+Em aberto: puxar o índice do Polishare automaticamente para semear o catálogo é
+raspar um site com login e termos próprios, e precisa de decisão dos mantenedores.
+
 ## O que fica em aberto
 
 - Os termos do Polishare permitem republicar questões transcritas de lá?
