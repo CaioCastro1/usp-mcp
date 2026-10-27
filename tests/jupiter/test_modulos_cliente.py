@@ -9,6 +9,7 @@ import pytest
 
 from tests.git import esta_ignorado
 from tests.jupiter.conftest import FIXTURES, MODULOS, RAIZ
+from usp_mcp.jupiter import politica
 
 pytestmark = pytest.mark.contrato
 
@@ -29,3 +30,22 @@ def test_t101b_os_cem_envelopes_estao_la(respostas_modulos):
     grades = [k for k in respostas_modulos if k.startswith("pubGradeCurricular|")]
     fichas = [k for k in respostas_modulos if k.startswith("pubObterInfoCursoWeb|")]
     assert len(grades) == len(fichas) == 50
+
+
+@pytest.mark.politica
+@pytest.mark.parametrize("metodo,consulta", [
+    ("listar", "pubGradeCurricular"),
+    ("obter", "pubObterInfoCursoWeb"),
+])
+def test_t102_as_duas_consultas_da_fatia_passam_so_pelo_metodo_delas(metodo, consulta):
+    assert politica.decidir(metodo, consulta).permitida
+    outro = "obter" if metodo == "listar" else "listar"
+    assert not politica.decidir(outro, consulta).permitida
+
+
+@pytest.mark.politica
+def test_t103_jupcursolista_passa_e_obterturma_continua_negado():
+    assert politica.decidir_caminho("jupCursoLista").permitida
+    negado = politica.decidir_caminho("obterTurma")
+    assert not negado.permitida
+    assert "obterTurma" in negado.motivo

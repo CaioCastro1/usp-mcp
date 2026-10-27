@@ -27,22 +27,33 @@ from dataclasses import dataclass
 # marcam se um `codcur` é curso de ingresso (fatia de requisitos, 14/09).
 # `pubListarRequisitoDisciplina` SAIU em 14/09: exigia um `codcur` que a API não
 # deixa descobrir corretamente, e `requisitos(sigla)` responde sem ele (§9).
+#
+# A fatia de módulos (26/10) acrescentou duas: a grade de um currículo e a
+# ficha dele (carga exigida). Elas entraram por uma pergunta registrada no §5 e
+# por uma medição que desfez a de 14/09 — `tipo=V` responde onde `tipo=N` vinha
+# vazio (§9, 26/10).
 # Crescer isto é decisão registrada no §9, não conveniência.
 CONSULTAS_PERMITIDAS: dict[str, str] = {
     "pubObterDisciplina": "obter",
     "pubListarCursoEntrada": "listar",
     "pubListarColegiado": "listar",
+    "pubGradeCurricular": "listar",
+    "pubObterInfoCursoWeb": "obter",
 }
 
-# A SEGUNDA superfície: `listarCursosRequisitos` é GET de HTML no mesmo host,
-# fora do DWR. Um buscador genérico de URL anularia a allowlist de consulta
-# inteira — é o `executarBatch` de novo, por outra porta. Por isso o caminho
-# também é allowlist, e não há flag que a dispense.
+# A SEGUNDA superfície: GET de HTML no mesmo host, fora do DWR. Um buscador
+# genérico de URL anularia a allowlist de consulta inteira — é o `executarBatch`
+# de novo, por outra porta. Por isso o caminho também é allowlist, e não há flag
+# que a dispense.
+#
+# `jupCursoLista` (26/10) é a lista de cursos de uma unidade: código, nome e
+# período, sem pessoa. É o ÚNICO lugar onde os módulos aparecem — nenhuma
+# consulta DWR lista os currículos "anteriores".
 #
 # `obterTurma` fica de fora e é o caso que mostra por quê: mesmo host, mesmo
 # parâmetro (a sigla), e traz nome de professor e sala — 110 kB de dado que a
 # fatia não pediu.
-CAMINHOS_PERMITIDOS: frozenset[str] = frozenset({"listarCursosRequisitos"})
+CAMINHOS_PERMITIDOS: frozenset[str] = frozenset({"listarCursosRequisitos", "jupCursoLista"})
 
 # A fatia de requisitos (14/09) acrescentou duas consultas de navegação. Elas
 # não respondem pergunta nenhuma sozinhas: servem para dizer se um `codcur` é
@@ -137,6 +148,6 @@ def decidir_caminho(caminho: str) -> Decisao:
         permitida=False,
         motivo=(
             f"caminho {caminho} não é uma das páginas que esta ferramenta lê no "
-            f"JupiterWeb (a lista é fechada: {len(CAMINHOS_PERMITIDOS)} caminho)."
+            f"JupiterWeb (a lista é fechada: {len(CAMINHOS_PERMITIDOS)} caminhos)."
         ),
     )
