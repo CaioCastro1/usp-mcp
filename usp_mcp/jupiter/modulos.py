@@ -93,14 +93,28 @@ def _divisao(m: Modulo) -> str:
     return " · ".join(partes)
 
 
+def _divisao_curta(m: Modulo) -> str:
+    """Só para o ranking, onde 50 linhas pagam cada byte. Uma categoria só: o
+    rótulo por extenso, sem repetir o número que a carga já diz."""
+    partes = [(r, v) for r, v in (("obrig", m.carga_obrigatoria),
+                                  ("elet", m.carga_eletiva),
+                                  ("livre", m.carga_livre)) if v]
+    if not partes:
+        return ""
+    if len(partes) == 1:
+        return {"obrig": "obrigatória", "elet": "eletiva", "livre": "livre"}[partes[0][0]]
+    return "(" + " · ".join(f"{r} {v}" for r, v in partes) + ")"
+
+
 def _semestre(s: int | None) -> str:
     return f"{s}º semestre ideal" if s is not None else "sem semestre ideal"
 
 
-def _ressalvas(modulos) -> list[str]:
+def _ressalvas(modulos, situacoes=("sem_grade", "nao_publicado", "falhou")) -> list[str]:
     por: dict[str, list[str]] = {}
     for m in modulos:
-        por.setdefault(m.situacao, []).append(m.codigo)
+        if m.situacao in situacoes:
+            por.setdefault(m.situacao, []).append(m.codigo)
     linhas = []
     if por.get("sem_grade"):
         n = len(por["sem_grade"])
@@ -121,8 +135,7 @@ def _ressalvas(modulos) -> list[str]:
 
 def _ranking(indice: Indice) -> str:
     ms = indice.modulos
-    linhas = [f"{len(ms)} módulos e percursos da Poli, por curso. Carga = horas que o "
-              "currículo do módulo exige."]
+    linhas = [f"{len(ms)} módulos e percursos da Poli, por curso (carga exigida, em horas)."]
     com_carga = [m for m in ms if m.carga_total is not None]
     if com_carga:
         menor = min(m.carga_total for m in com_carga)
@@ -138,12 +151,11 @@ def _ranking(indice: Indice) -> str:
         linhas.append("")
         linhas.append(f"{membros[0].curso or 'Curso'} ({codcur})")
         for m in membros:
-            divisao = _divisao(m)
-            detalhe = f" ({divisao})" if divisao else ""
-            n = len(m.disciplinas)
-            linhas.append(f"  {_carga(m)}{detalhe}  {m.nome_curto} — {m.codigo}, "
-                          f"{n} disc.")
-    ressalvas = _ressalvas(ms)
+            div = _divisao_curta(m)
+            sem_grade = ", sem grade" if not m.disciplinas else ""
+            linhas.append(f"  {_carga(m)}{' ' + div if div else ''}  "
+                          f"{m.nome_curto} — {m.codigo}{sem_grade}")
+    ressalvas = _ressalvas(ms, situacoes=("falhou",))
     if ressalvas:
         linhas.append("")
         linhas.extend(ressalvas)
@@ -225,11 +237,10 @@ def _por_disciplina(pedida: str, escopo: list[Modulo]) -> str:
                 linhas.append(f"  {sigla} {nome} — {onde}")
             if len(grupos) > TETO_DISCIPLINAS:
                 linhas.append(f"  … e mais {len(grupos) - TETO_DISCIPLINAS}. Refine a busca.")
-    fora = _ressalvas([m for m in escopo if m.situacao != "ok"])
+    fora = sorted(m.codigo for m in escopo if m.situacao != "ok")
     if fora:
         linhas.append("")
-        linhas.append("A busca não alcança os módulos sem grade:")
-        linhas.extend(fora)
+        linhas.append(f"⚠ Fora da busca, sem grade publicada: {', '.join(fora)}.")
     return "\n".join(linhas)
 
 

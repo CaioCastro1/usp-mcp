@@ -75,7 +75,11 @@ def test_t120_cada_defeito_do_dado_produz_a_sua_frase(ind):
     percurso = modulos.responder(ind, busca="3033/6000")
     assert "nem carga publicadas no Jupiter" in percurso
     todos = modulos.responder(ind)
-    assert "4 com a grade vazia" in todos and "3 sem grade nem carga" in todos
+    linhas = todos.splitlines()
+    (l_vazio,) = [l for l in linhas if l.endswith("— 3052/5000, sem grade")]
+    assert "carga não publicada" not in l_vazio
+    (l_perc,) = [l for l in linhas if "— 3033/6000" in l]
+    assert "carga não publicada" in l_perc and l_perc.endswith(", sem grade")
 
 
 def test_t121_disciplina_pelo_nome_diz_em_que_modulos_aparece(ind):
@@ -98,3 +102,11 @@ def test_t123_varios_candidatos_vem_sem_grade_e_nenhum_vem_com_os_cursos(ind):
     nada = modulos.responder(ind, busca="astronautica")
     assert nada.startswith('Nenhum módulo casou com "astronautica"')
     assert "3032 Ciclo Básico - Engenharia Elétrica" in nada
+
+
+def test_t123b_ranking_e_ressalva_de_busca_curtos(ind):
+    assert "  360 h eletiva  Sistemas Eletrônicos Avançados — 3032/5080" in (
+        modulos.responder(ind).splitlines())
+    ultima = modulos.responder(ind, disciplina="PMR3508").splitlines()[-1]
+    assert ultima == ("⚠ Fora da busca, sem grade publicada: 3022/5000, "
+                      "3022/5010, 3033/6000, 3052/5000, 3052/5010, 3113/6000, 3123/6000.")
