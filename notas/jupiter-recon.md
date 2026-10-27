@@ -199,10 +199,13 @@ usados pela aplicação estão em `js-jupCarreira.js` (fixture salva) e são est
 | `pubObterDisciplina` | `obter` | `{coddis, verdis}` | **a disciplina inteira, estruturada** |
 | `pubListarDiscipResp` | `listar` | `{coddis}` | docentes responsáveis |
 
-**Não verificado:** `pubObterInfoCurso`, `pubObterInfoCursoWeb`, `pubListarDiscipResp` e
+**Não verificado:** `pubObterInfoCurso`, `pubListarDiscipResp` e
 `recuperarProjetoPedagogico` — os nomes e a assinatura vêm do JS oficial da aplicação, mas
 eu **não os chamei** (ver §8). Estão listados como *lidos no código do Jupiter*, não como
 *testados*.
+
+`pubObterInfoCursoWeb` foi chamado em 22/10/2026 (§9 de 26/10): ~900 B com carga exigida,
+duração e a regra em HTML.
 
 ### 4.2 O protocolo, para quem for implementar
 
@@ -336,6 +339,10 @@ Nota: o `codcur` do Ciclo Básico Elétrica aparece como **3033** em `pubListarC
 como **3032** no HTML de `listarCursosRequisitos?coddis=PSI3323`. São códigos diferentes na
 mesma família; **não investiguei por quê** e não vou inventar explicação. Quem implementar
 precisa resolver isso antes de assumir que um único `codcur` serve.
+
+**`tipo=V`** (26/10): para os currículos da lista de anteriores (`jupCursoLista?tipo=V`),
+`pubGradeCurricular` só responde com `tipo:"V"`; com `N` vem vazio. É isso, e não a falta
+de dado, que a discrepância 3033 × 3032 escondia.
 
 ### 5.2 Pré-requisito — **estruturado**
 
