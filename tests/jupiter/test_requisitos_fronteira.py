@@ -13,10 +13,10 @@ from tests.jupiter.test_requisitos_cliente import GravadorGet
 pytestmark = pytest.mark.politica
 
 
-def test_t67_o_servidor_expoe_duas_ferramentas():
+def test_t67_o_servidor_expoe_tres_ferramentas():
     nomes = [f["name"] for f in server.listar_ferramentas()]
 
-    assert nomes == ["disciplina", "requisitos"]
+    assert nomes == ["disciplina", "requisitos", "modulos"]
 
 
 def test_t68_requisitos_pede_so_a_sigla():
