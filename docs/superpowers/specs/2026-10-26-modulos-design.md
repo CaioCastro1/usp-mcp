@@ -34,8 +34,11 @@ As seis disciplinas que a página do PSI lista como pré-aprovadas para o módul
 `jupCursoLista?codcg=3&tipo=V` ("Cursos e Habilitações Anteriores", 125 kB)
 lista 102 grades da Poli com o par `codcur/codhab` de cada uma, **todos os 47
 módulos** incluídos. `jupCursoLista?codcg=3&tipo=N` (46 kB) lista os cursos de
-ingresso e, numa seção "Módulo" à parte, as 3 Trilhas Formativas de IA
-(`codhab=6000`). `pubListarCursoEntrada`, o único caminho DWR de descoberta, só
+ingresso e, numa seção "Módulo" à parte, os 3 Percursos Formativos de IA
+(`codhab=6000`; até 22/10 chamados "Trilha Formativa" — o nome mudou entre duas
+medições, e o link deles passou de `tipo=N` para `tipo=V`). Cada linha traz o
+link duas vezes: um comentado em `<!-- -->`, com o `tipo` antigo, e o ativo. Só
+o ativo vale. `pubListarCursoEntrada`, o único caminho DWR de descoberta, só
 mostra ingresso. Nenhuma consulta DWR que liste os anteriores foi achada.
 
 ### 3. Só a Poli tem módulos
@@ -70,8 +73,7 @@ o módulo inteiro.
 | defeito | onde |
 |---|---|
 | grade vazia, carga presente | 3052/5000 Lavra de Minas, 3052/5010 Tratamento de Minérios, 3022/5010 Real Estate, 3022/5000 Tec. e Gestão da Produção na Construção |
-| carga ausente (todos os campos `None`) | as 3 Trilhas de IA |
-| grade idêntica à do ciclo básico | 3033/6000 — o currículo novo ignora `codhab` (3033/0, /3150, /3180, /6000 devolvem os mesmos 89 registros, por DWR e por HTML) |
+| grade **e** carga não publicadas | os 3 Percursos de IA: com o `tipo=V` do link, grade vazia e ficha toda `None` (27/10). Com `tipo=N` a grade vem cheia, mas é a do curso-base: o currículo novo ignora `codhab` (3033/0, /3150, /3180, /6000 devolvem os mesmos 89 registros). A ferramenta segue o link e **não** tenta o outro `tipo` |
 | o mesmo nome em duas gerações | "Tecnologia e Gestão em Eng. de Computação" em 3032/5060 e 3122/5000 |
 
 ### 7. O currículo novo cresce com a turma
@@ -163,7 +165,9 @@ Na primeira chamada, o servidor monta o índice dos módulos e guarda em memóri
    o nome do curso-base de cada `codcur` sai da linha não-módulo de mesmo
    `codcur` na mesma lista (no 3032, "Ciclo Básico - Engenharia Elétrica").
 2. Por par, `pubObterInfoCursoWeb` e `pubGradeCurricular`, com o `tipo` da linha
-   de onde o par veio (`V` para módulo, `N` para trilha).
+   do link **ativo** da linha (hoje `V` para todos os 50).
+
+Latência medida em 27/10: mediana 0,21 s por chamada DWR, então ~22 s para as 102.
 
 São 2 + 100 requisições, uma de cada vez (o `threading.Lock` do cliente já
 existe pelo Invariante 5). **Critério de aceite: a primeira chamada termina em
@@ -206,8 +210,8 @@ aceito: o modelo corrige digitação melhor do que um fuzzy matcher, e de graça
 - **Na descrição (paga uma vez por sessão):** só a Poli tem módulo; não diz
   quais o aluno pode escolher; carga é a exigida pelo currículo.
 - **Na resposta (só quando acontece):** "grade vazia no Jupiter" em vez de "0
-  disciplinas" (§6); "carga não informada" para as trilhas; "grade idêntica à
-  do ciclo básico — o Jupiter não separa esta trilha" para 3033/6000; e, quando
+  disciplinas" (§6); "grade e carga não publicadas no Jupiter" para os
+  percursos; e, quando
   duas gerações casam com a mesma busca, as duas, com o código, sem escolher.
 - Em nenhum lugar a palavra "extinto" ou "antigo" para os módulos da lista
   `tipo=V`: o rótulo do Jupiter é "Anteriores", e são os currículos em que os
@@ -239,19 +243,19 @@ unidade tem módulo, e parâmetro que só aceita um valor é superfície à toa.
 
 Fixtures novas (dado público): as duas listas da Poli; `pubGradeCurricular` e
 `pubObterInfoCursoWeb` de 3032/5080 (31 eletivas), 3112/5000 (onde está
-PMR3508), 3052/5000 (grade vazia), 3033/6000 (trilha sem carga, grade do ciclo
-básico) e 3032/5100 (pré-mestrado). Um índice reduzido montado delas sustenta
+PMR3508), 3052/5000 (grade vazia), 3033/6000 (percurso não publicado) e
+3032/5100 (pré-mestrado). Um índice reduzido montado delas sustenta
 os testes de busca e de custo.
 
 - **Política:** as duas consultas e o caminho novos passam; `obterTurma`
   continua negado; o T23 atualizado.
-- **Lista:** das fixtures sai 47 módulos `V` + 3 trilhas `N` = 50; o curso-base
-  de 3032 é "Ciclo Básico - Engenharia Elétrica". (Uma varredura de 26/10 achou
-  47 nomes com "Trilha|Módulo" numa unidade e não 50 — o teste com a fixture
-  decide qual parser está certo.)
+- **Lista:** das fixtures sai 47 módulos + 3 percursos = 50, todos com `tipo`
+  `V` lido do link ativo (o comentado diz `N`, e o teste prova que ele é
+  ignorado); o curso-base de 3032 é "Ciclo Básico - Engenharia Elétrica". O
+  módulo é reconhecido pela seção "Módulo" da tabela **ou** pelo prefixo
+  "Módulo:" do nome — nunca pela palavra "Trilha", que já mudou uma vez.
 - **Parâmetro enviado, não saída** (regra 11): o `tipo` que vai no corpo DWR é
-  `V` para módulo e `N` para trilha. É o defeito de 14/09, e o dublê não o
-  pegaria.
+  o do link ativo da lista. É o defeito de 14/09, e o dublê não o pegaria.
 - **Busca:** a tabela do §9 da medição vira teste, **incluindo** "pré-mestrado
   elétrica" → os pré-mestrados do 3032, que é o caso que falhou.
 - **Ressalvas:** cada linha da tabela do §6 produz a sua frase; resposta sem
