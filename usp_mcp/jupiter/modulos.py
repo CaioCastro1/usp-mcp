@@ -155,8 +155,8 @@ def _ranking(indice: Indice) -> str:
         linhas.append(f"{membros[0].curso or 'Curso'} ({codcur})")
         for m in membros:
             div = _divisao_curta(m)
-            sem_grade = (", não lido agora" if m.falhou
-                         else ", sem grade" if not m.disciplinas else "")
+            # `_carga` já diz "não lido agora" do módulo que falhou: uma vez só.
+            sem_grade = ", sem grade" if not m.disciplinas and not m.falhou else ""
             linhas.append(f"  {_carga(m)}{' ' + div if div else ''}  "
                           f"{m.nome_curto} — {m.codigo}{sem_grade}")
     ressalvas = _ressalvas(ms, situacoes=("falhou",))

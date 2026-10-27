@@ -119,3 +119,32 @@ def test_t115_o_cache_vale_sete_dias_e_guarda_indice_com_falha_so_dez_minutos():
     agora[0] = indice.TTL_INDICE_PARCIAL + 1
     cache2.obter(lambda: chamadas.append(1) or falho)
     assert len(chamadas) == 2, "índice com módulo falho não pode ficar 7 dias no cache"
+
+
+def test_t114c_tres_falhas_de_transporte_seguidas_abortam_a_leitura(
+        respostas_modulos, lista_n, lista_v):
+    """Invariante 5: USP fora do ar não pode custar 50 chamadas com timeout."""
+    chamadas = []
+
+    def fora(url, corpo, cabecalhos):
+        chamadas.append(1)
+        raise erros.JupiterIndisponivel("o JupiterWeb não respondeu (teste)")
+
+    c = cliente.ClienteJupiter(fora, transporte_get=GetPorTipo(lista_n, lista_v))
+    with pytest.raises(erros.JupiterIndisponivel) as exc:
+        indice.montar_indice(c)
+    assert "3 falhas seguidas" in str(exc.value)
+    assert len(chamadas) == 3, "a ficha é a primeira chamada de cada módulo"
+
+
+def test_t114d_registro_malformado_vira_modulo_nao_lido(respostas_modulos, lista_n, lista_v):
+    respostas = dict(respostas_modulos)
+    chave = "pubGradeCurricular|3032|5080|V"
+    # Uma ocorrência só, e só nesta chave: nenhum outro envelope é tocado.
+    respostas[chave] = respostas[chave].replace('{coddis:"', '{coddisX:"', 1)
+    assert respostas[chave] != respostas_modulos[chave]
+    c = cliente.ClienteJupiter(RoteadorDWR(respostas),
+                               transporte_get=GetPorTipo(lista_n, lista_v))
+    ind = indice.montar_indice(c)
+    assert [m.codigo for m in ind.modulos if m.situacao == "falhou"] == ["3032/5080"]
+    assert len(ind.modulos) == 50

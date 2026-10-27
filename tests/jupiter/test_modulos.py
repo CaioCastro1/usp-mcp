@@ -124,8 +124,8 @@ def test_t123c_modulo_que_falhou_nao_parece_dado_ausente(ind):
 
     ranking = modulos.responder(com_falha)
     linha = next(l for l in ranking.splitlines() if "3032/5080" in l and l.startswith("  "))
-    assert linha.endswith(", não lido agora")
-    assert "sem grade" not in linha
+    assert linha == "  não lido agora  " + next(
+        m for m in com_falha.modulos if m.codigo == "3032/5080").nome_curto + " — 3032/5080"
     assert "não puderam ser lidos agora" in ranking
     assert "ficaram de fora" not in ranking
 
@@ -137,4 +137,5 @@ def test_t123c_modulo_que_falhou_nao_parece_dado_ausente(ind):
     assert "não aparece nos 49 módulos lidos" in sigla
     assert "nenhum módulo da Poli" not in sigla
     assert "⚠ Não lidos agora (falha do JupiterWeb), a busca não os viu: 3032/5080." in sigla
-    assert "Fora da busca" not in sigla.split("Não lidos agora")[0].splitlines()[-1]
+    fora = [l for l in sigla.splitlines() if l.startswith("⚠ Fora da busca")]
+    assert all("3032/5080" not in l for l in fora)
