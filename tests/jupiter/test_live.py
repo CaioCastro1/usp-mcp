@@ -1,11 +1,12 @@
-"""T38-T40: canário contra uspdigital.usp.br.
+"""T38-T40, T74-T75 e T128: canário contra uspdigital.usp.br.
 
-DUAS requisições reais por execução, no máximo, escolhidas à mão. Nenhum
-laço, nenhuma enumeração de sigla: o §7 do recon pede a gentileza, e o §8
-registra que 26 requisições sem 429 NÃO provam que não haja rate limit.
+Até 14/09, no máximo três requisições reais por execução, escolhidas à mão.
+O T128 (26/10) faz ~102 — as duas listas de curso da Poli e ficha + grade de
+cada módulo —, porque o que ele verifica é o índice inteiro e o tempo de
+montá-lo, que é critério de aceite da ferramenta `modulos`. Uma por vez, sem
+laço sobre sigla. Decisão registrada no §9 de 26/10.
 
-Compara CHAVES, nunca valores — valor muda por semestre sem que nada
-tenha quebrado.
+Compara FORMA e pertencimento, nunca valor exato que muda por semestre.
 """
 import os
 
@@ -113,3 +114,27 @@ def test_t75_o_rotulo_cru_continua_sendo_um_dos_tres_conhecidos():
     exigencia = blocos[0].exigencias[0]
     assert exigencia.rotulo in recorte.TIPOS
     assert exigencia.tipo == "correquisito"
+
+
+@ao_vivo
+def test_t128_o_indice_real_monta_em_menos_de_60_s_e_acha_pmr3508():
+    """Critério de aceite do spec de 26/10: se a montagem passar de 60 s, o
+    índice tem que ir para o disco e o desenho volta para revisão — não se
+    resolve com paralelismo (Invariante 5)."""
+    import time
+
+    from usp_mcp.jupiter import indice
+
+    inicio = time.monotonic()
+    ind = indice.montar_indice(cliente.ClienteJupiter(cliente.transporte_http))
+    decorrido = time.monotonic() - inicio
+
+    assert decorrido < 60, f"o índice levou {decorrido:.0f} s para montar"
+    assert len(ind.modulos) >= 45, (
+        f"só {len(ind.modulos)} módulos — eram 50 em 26/10. Ou a lista mudou de "
+        "layout, ou módulos saíram: os dois pedem medição, não conserto às cegas."
+    )
+    assert any(
+        m.codigo == "3112/5000" and any(d.sigla == "PMR3508" for d in m.disciplinas)
+        for m in ind.modulos
+    ), "PMR3508 saiu de Mecatrônica Avançada (3112/5000)"
