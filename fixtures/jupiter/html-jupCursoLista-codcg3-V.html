@@ -1,0 +1,2016 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+
+
+
+<html>
+<head>
+<title>Jupiterweb</title>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<meta HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+<meta HTTP-EQUIV="Expires" CONTENT="-1">
+<link href="https://uspdigital.usp.br/comumwebdev/imagens/favicon.ico" rel="shortcut icon"
+	type="image/x-icon" />
+<link href="https://uspdigital.usp.br/comumwebdev/imagens/favicon.ico" rel="icon"
+	type="image/x-icon" />
+<link href="https://uspdigital.usp.br/comumwebdev/libs/usp/main/1.0/menuweb.css"
+	type=text/css rel=stylesheet>
+</head>
+<style>
+#layout_principal {
+	width: 100%;
+}
+
+#layout_cabecalho {
+
+}
+
+#layout_menu {
+	width: 170px;
+	float: left;
+	padding-top: 10px;
+}
+
+#layout_conteudo {
+	padding-left: 181px;
+	padding-top: 10px;
+}
+</style>
+<!--[if IE]>
+	<style>
+		#layout_conteudo {
+			padding-left: 10px;
+			padding-right: 2px;
+			padding-top: 10px;
+			padding-bottom: 20px;
+			overflow:auto;
+		}
+	</style>
+	<![endif]-->
+<body>
+
+	<div id="layout_principal">
+		<div id="layout_cabecalho">
+			<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<style>
+	a.cabecalho_sair:active  {font-family:verdana; font-weight:bold; color:#FFFFFF; text-decoration:none;}
+	a.cabecalho_sair:link    {font-family:verdana; font-weight:bold; color:#FFFFFF; text-decoration:none;}
+	a.cabecalho_sair:visited {font-family:verdana; font-weight:bold; color:#FFFFFF; text-decoration:none;}
+	a.cabecalho_sair:hover   {font-family:verdana; font-weight:bold; color:#FFFFFF; text-decoration:underline;}
+
+	td.font_cabecalho1 {
+		font:bold 26px Tahoma;
+		color: #FFFFFF;
+	}
+	td.font_cabecalho2 {
+		font:bold 10px Arial;
+		color: #FFFFFF;
+	}
+	td.font_cabecalho3 {
+		font:normal 9px Verdana;
+		color: #FFFFFF;
+	}
+</style>
+
+<table width="100%" height="60" border="0" cellpadding="0" cellspacing="0">
+	<tr>
+		<td width="180" rowspan="3" align="center">
+			<a href="http://www.usp.br" target="_blank"><img src="https://uspdigital.usp.br/comumwebdev/imagens/cabecalho/usp-logo.png" width="122" height="49" alt="" border="0" style="position: relative; top: -3px;" /></a>
+		</td>
+		<td>
+			<a href="http://www.usp.br" target="_blank"><img src="https://uspdigital.usp.br/comumwebdev/imagens/cabecalho/usp-logo-texto.png" alt="" width="260" height="44" border="0" style="position: relative; top: 5px;" /></a>
+		</td>
+	</tr>
+</table>
+<div style="width: 100%; height: 14px; background-image: url('https://uspdigital.usp.br/comumwebdev/imagens/cabecalho/bg-headtop.gif'); margin-bottom: 5px; text-align: right; color: white; padding-top: 12px; padding-right: 3px; font-family: Verdana; font-size: 10px;">
+	
+</div>
+
+		</div>
+
+		<div id="layout_menu">
+			<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+
+
+
+<!-- FreeStyle Menu v1.0RC by Angus Turnbull http://www.twinhelix.com -->
+<script type="text/javascript"
+	src="https://uspdigital.usp.br/comumwebdev/libs/javascript/fsmenu/1.0RC/fsmenu.js"></script>
+
+<!-- Demo CSS layouts for the list menu. Pick your favourite one and customise! -->
+<!-- Remove all but one and change "alternate stylesheet" to "stylesheet" to enable -->
+<link rel="stylesheet" type="text/css" id="listmenu-v"
+	href="https://uspdigital.usp.br/comumwebdev/libs/javascript/fsmenu/1.0RC/listmenu_v.css"
+	title="Vertical 'Earth'" />
+
+<!-- Fallback CSS menu file allows list menu operation when JS is disabled. -->
+<!-- This is automatically disabled via its ID when the script kicks in. -->
+<link rel="stylesheet" type="text/css" id="fsmenu-fallback"
+	href="https://uspdigital.usp.br/comumwebdev/libs/javascript/fsmenu/1.0RC/listmenu_fallback.css" />
+
+
+<script type="text/javascript">
+	//<![CDATA[
+
+	var arrow = null;
+	if (document.createElement && document.documentElement) {
+		//arrow = document.createElement('span');
+		//arrow.appendChild(document.createTextNode('>'));
+		// Feel free to replace the above two lines with these for a small arrow image...
+		arrow = document.createElement('img');
+		arrow.src = 'https://uspdigital.usp.br/comumwebdev/imagens/icones/11/arrow_sub1.gif';
+		arrow.style.borderWidth = '0';
+		arrow.className = 'subind';
+	}
+
+	if ("[{codmnu=4525, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=Calendário Escolar, nomobtweb=index.jsp, pmeobtweb=null, dscmnu=null, codmnupai=null, staabt=N, urlsie=null, numnivhie=1, linmnu=index.jsp?codmnu=4525}, {codmnu=7920, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=2025, nomobtweb=jupArquivosPublicos.jsp, pmeobtweb=tiparq=8&anoprg=2025, dscmnu=null, codmnupai=4525, staabt=N, urlsie=null, numnivhie=2, linmnu=jupArquivosPublicos.jsp?tiparq=8&anoprg=2025&codmnu=7920}, {codmnu=6863, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=2026, nomobtweb=jupArquivosPublicos.jsp, pmeobtweb=tiparq=9&anoprg=2026, dscmnu=null, codmnupai=4525, staabt=N, urlsie=null, numnivhie=2, linmnu=jupArquivosPublicos.jsp?tiparq=9&anoprg=2026&codmnu=6863}, {codmnu=8275, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Cursos de ingresso, nomobtweb=jupCarreira.jsp, pmeobtweb=null, dscmnu=null, codmnupai=null, staabt=N, urlsie=null, numnivhie=1, linmnu=jupCarreira.jsp?codmnu=8275}, {codmnu=4526, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=Disciplina, nomobtweb=index.jsp, pmeobtweb=null, dscmnu=null, codmnupai=null, staabt=N, urlsie=null, numnivhie=1, linmnu=index.jsp?codmnu=4526}, {codmnu=6755, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Busca por Disciplinas, nomobtweb=jupDisciplinaBusca, pmeobtweb=tipo=D, dscmnu=null, codmnupai=4526, staabt=N, urlsie=null, numnivhie=2, linmnu=jupDisciplinaBusca?tipo=D&codmnu=6755}, {codmnu=6756, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Busca por Turmas, nomobtweb=jupDisciplinaBusca, pmeobtweb=tipo=T, dscmnu=null, codmnupai=4526, staabt=N, urlsie=null, numnivhie=2, linmnu=jupDisciplinaBusca?tipo=T&codmnu=6756}, {codmnu=6757, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=Editais, nomobtweb=index.jsp, pmeobtweb=null, dscmnu=null, codmnupai=null, staabt=N, urlsie=null, numnivhie=1, linmnu=index.jsp?codmnu=6757}, {codmnu=6758, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=Programa Unificado de Bolsas(PUB), nomobtweb=index.jsp, pmeobtweb=null, dscmnu=null, codmnupai=6757, staabt=N, urlsie=null, numnivhie=2, linmnu=index.jsp?codmnu=6758}, {codmnu=10872, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Edital 2024-2025, nomobtweb=https://uspdigital.usp.br/juno/bnfArquivosPublicos.jsp?tiparq=1&anoprg=2024&codm, pmeobtweb=null, dscmnu=null, codmnupai=6758, staabt=N, urlsie=null, numnivhie=3, linmnu=https://uspdigital.usp.br/juno/bnfArquivosPublicos.jsp?tiparq=1&anoprg=2024&codm?codmnu=10872}, {codmnu=11502, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Edital 2025-2026, nomobtweb=https://uspdigital.usp.br/juno/bnfArquivosPublicos.jsp?tiparq=1&anoprg=2025&codm, pmeobtweb=null, dscmnu=null, codmnupai=6758, staabt=N, urlsie=null, numnivhie=3, linmnu=https://uspdigital.usp.br/juno/bnfArquivosPublicos.jsp?tiparq=1&anoprg=2025&codm?codmnu=11502}, {codmnu=6762, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=PEEG, nomobtweb=http://www.prg.usp.br/?page_id=399, pmeobtweb=null, dscmnu=null, codmnupai=6757, staabt=N, urlsie=null, numnivhie=2, linmnu=http://www.prg.usp.br/?page_id=399?codmnu=6762}, {codmnu=10838, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=PAP, nomobtweb=https://prg.usp.br/programas-e-bolsas/, pmeobtweb=null, dscmnu=null, codmnupai=6757, staabt=N, urlsie=null, numnivhie=2, linmnu=https://prg.usp.br/programas-e-bolsas/?codmnu=10838}, {codmnu=7951, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=FAQ, nomobtweb=index.jsp, pmeobtweb=null, dscmnu=null, codmnupai=null, staabt=N, urlsie=null, numnivhie=1, linmnu=index.jsp?codmnu=7951}, {codmnu=7952, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=Matrícula Interativa, nomobtweb=FAQ.jsp, pmeobtweb=null, dscmnu=null, codmnupai=7951, staabt=N, urlsie=null, numnivhie=2, linmnu=FAQ.jsp?codmnu=7952}, {codmnu=9326, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=FAQ, nomobtweb=FAQ.jsp, pmeobtweb=null, dscmnu=null, codmnupai=7952, staabt=N, urlsie=null, numnivhie=3, linmnu=FAQ.jsp?codmnu=9326}, {codmnu=9327, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Informações gerais, nomobtweb=grdMatriculainterativaInformacoes.jsp, pmeobtweb=null, dscmnu=null, codmnupai=7952, staabt=N, urlsie=null, numnivhie=3, linmnu=grdMatriculainterativaInformacoes.jsp?codmnu=9327}, {codmnu=8946, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=TUTORIAL - NOVA MATRÍCULA, nomobtweb=graduacaoAjudaNovaMatricula, pmeobtweb=null, dscmnu=Liberar próximo da matricula, codmnupai=7952, staabt=N, urlsie=null, numnivhie=3, linmnu=graduacaoAjudaNovaMatricula?codmnu=8946}, {codmnu=6749, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Jupiterweb em Vídeos, nomobtweb=http://www.prg.usp.br/, pmeobtweb=p=20746, dscmnu=null, codmnupai=7951, staabt=N, urlsie=null, numnivhie=2, linmnu=http://www.prg.usp.br/?p=20746&codmnu=6749}, {codmnu=8063, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Informações gerais sobre a Graduação, nomobtweb=http://www.prg.usp.br/, pmeobtweb=p=20741, dscmnu=null, codmnupai=7951, staabt=N, urlsie=null, numnivhie=2, linmnu=http://www.prg.usp.br/?p=20741&codmnu=8063}]" != null && "[{codmnu=4525, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=Calendário Escolar, nomobtweb=index.jsp, pmeobtweb=null, dscmnu=null, codmnupai=null, staabt=N, urlsie=null, numnivhie=1, linmnu=index.jsp?codmnu=4525}, {codmnu=7920, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=2025, nomobtweb=jupArquivosPublicos.jsp, pmeobtweb=tiparq=8&anoprg=2025, dscmnu=null, codmnupai=4525, staabt=N, urlsie=null, numnivhie=2, linmnu=jupArquivosPublicos.jsp?tiparq=8&anoprg=2025&codmnu=7920}, {codmnu=6863, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=2026, nomobtweb=jupArquivosPublicos.jsp, pmeobtweb=tiparq=9&anoprg=2026, dscmnu=null, codmnupai=4525, staabt=N, urlsie=null, numnivhie=2, linmnu=jupArquivosPublicos.jsp?tiparq=9&anoprg=2026&codmnu=6863}, {codmnu=8275, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Cursos de ingresso, nomobtweb=jupCarreira.jsp, pmeobtweb=null, dscmnu=null, codmnupai=null, staabt=N, urlsie=null, numnivhie=1, linmnu=jupCarreira.jsp?codmnu=8275}, {codmnu=4526, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=Disciplina, nomobtweb=index.jsp, pmeobtweb=null, dscmnu=null, codmnupai=null, staabt=N, urlsie=null, numnivhie=1, linmnu=index.jsp?codmnu=4526}, {codmnu=6755, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Busca por Disciplinas, nomobtweb=jupDisciplinaBusca, pmeobtweb=tipo=D, dscmnu=null, codmnupai=4526, staabt=N, urlsie=null, numnivhie=2, linmnu=jupDisciplinaBusca?tipo=D&codmnu=6755}, {codmnu=6756, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Busca por Turmas, nomobtweb=jupDisciplinaBusca, pmeobtweb=tipo=T, dscmnu=null, codmnupai=4526, staabt=N, urlsie=null, numnivhie=2, linmnu=jupDisciplinaBusca?tipo=T&codmnu=6756}, {codmnu=6757, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=Editais, nomobtweb=index.jsp, pmeobtweb=null, dscmnu=null, codmnupai=null, staabt=N, urlsie=null, numnivhie=1, linmnu=index.jsp?codmnu=6757}, {codmnu=6758, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=Programa Unificado de Bolsas(PUB), nomobtweb=index.jsp, pmeobtweb=null, dscmnu=null, codmnupai=6757, staabt=N, urlsie=null, numnivhie=2, linmnu=index.jsp?codmnu=6758}, {codmnu=10872, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Edital 2024-2025, nomobtweb=https://uspdigital.usp.br/juno/bnfArquivosPublicos.jsp?tiparq=1&anoprg=2024&codm, pmeobtweb=null, dscmnu=null, codmnupai=6758, staabt=N, urlsie=null, numnivhie=3, linmnu=https://uspdigital.usp.br/juno/bnfArquivosPublicos.jsp?tiparq=1&anoprg=2024&codm?codmnu=10872}, {codmnu=11502, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Edital 2025-2026, nomobtweb=https://uspdigital.usp.br/juno/bnfArquivosPublicos.jsp?tiparq=1&anoprg=2025&codm, pmeobtweb=null, dscmnu=null, codmnupai=6758, staabt=N, urlsie=null, numnivhie=3, linmnu=https://uspdigital.usp.br/juno/bnfArquivosPublicos.jsp?tiparq=1&anoprg=2025&codm?codmnu=11502}, {codmnu=6762, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=PEEG, nomobtweb=http://www.prg.usp.br/?page_id=399, pmeobtweb=null, dscmnu=null, codmnupai=6757, staabt=N, urlsie=null, numnivhie=2, linmnu=http://www.prg.usp.br/?page_id=399?codmnu=6762}, {codmnu=10838, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=PAP, nomobtweb=https://prg.usp.br/programas-e-bolsas/, pmeobtweb=null, dscmnu=null, codmnupai=6757, staabt=N, urlsie=null, numnivhie=2, linmnu=https://prg.usp.br/programas-e-bolsas/?codmnu=10838}, {codmnu=7951, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=FAQ, nomobtweb=index.jsp, pmeobtweb=null, dscmnu=null, codmnupai=null, staabt=N, urlsie=null, numnivhie=1, linmnu=index.jsp?codmnu=7951}, {codmnu=7952, codgrpweb=191, nomgrpweb=Público, stapai=S, stavrfnivseg=S, elmmnu=Matrícula Interativa, nomobtweb=FAQ.jsp, pmeobtweb=null, dscmnu=null, codmnupai=7951, staabt=N, urlsie=null, numnivhie=2, linmnu=FAQ.jsp?codmnu=7952}, {codmnu=9326, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=FAQ, nomobtweb=FAQ.jsp, pmeobtweb=null, dscmnu=null, codmnupai=7952, staabt=N, urlsie=null, numnivhie=3, linmnu=FAQ.jsp?codmnu=9326}, {codmnu=9327, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Informações gerais, nomobtweb=grdMatriculainterativaInformacoes.jsp, pmeobtweb=null, dscmnu=null, codmnupai=7952, staabt=N, urlsie=null, numnivhie=3, linmnu=grdMatriculainterativaInformacoes.jsp?codmnu=9327}, {codmnu=8946, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=TUTORIAL - NOVA MATRÍCULA, nomobtweb=graduacaoAjudaNovaMatricula, pmeobtweb=null, dscmnu=Liberar próximo da matricula, codmnupai=7952, staabt=N, urlsie=null, numnivhie=3, linmnu=graduacaoAjudaNovaMatricula?codmnu=8946}, {codmnu=6749, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Jupiterweb em Vídeos, nomobtweb=http://www.prg.usp.br/, pmeobtweb=p=20746, dscmnu=null, codmnupai=7951, staabt=N, urlsie=null, numnivhie=2, linmnu=http://www.prg.usp.br/?p=20746&codmnu=6749}, {codmnu=8063, codgrpweb=191, nomgrpweb=Público, stapai=N, stavrfnivseg=S, elmmnu=Informações gerais sobre a Graduação, nomobtweb=http://www.prg.usp.br/, pmeobtweb=p=20741, dscmnu=null, codmnupai=7951, staabt=N, urlsie=null, numnivhie=2, linmnu=http://www.prg.usp.br/?p=20741&codmnu=8063}]" != '') {
+		// Here's a menu object to control the above list of menu data:
+		var listMenu = new FSMenu('listMenu', true, 'display', 'block', 'none');
+		listMenu.hideDelay = 800;
+		//listMenu.showDelay = 0;
+		//listMenu.switchDelay = 125;
+		//listMenu.cssLitClass = 'highlighted';
+		//listMenu.showOnClick = 0;
+		listMenu.hideOnClick = true;
+		listMenu.animInSpeed = 0.5;
+		listMenu.animOutSpeed = 0.5;
+		listMenu.animations[listMenu.animations.length] = FSMenu.animFade;
+		listMenu.animations[listMenu.animations.length] = FSMenu.animSwipeDown;
+		addReadyEvent(new Function(
+				'listMenu.activateMenu("listMenuRoot", arrow)'));
+	}
+
+	if ("false" != "false") {
+		var listMenu2 = new FSMenu('listMenu2', true, 'display', 'block',
+				'none');
+		listMenu2.hideDelay = 800;
+		listMenu2.hideOnClick = true;
+		listMenu2.animInSpeed = 0.5;
+		listMenu2.animOutSpeed = 0.5;
+		listMenu2.animations[listMenu2.animations.length] = FSMenu.animFade;
+		listMenu2.animations[listMenu2.animations.length] = FSMenu.animSwipeDown;
+		addReadyEvent(new Function(
+				'listMenu2.activateMenu("listMenuRoot2", arrow)'));
+	} else {
+		var listMenu3 = new FSMenu('listMenu3', true, 'display', 'block',
+				'none');
+		listMenu3.hideDelay = 800;
+		listMenu3.hideOnClick = true;
+		listMenu3.animInSpeed = 0.5;
+		listMenu3.animOutSpeed = 0.5;
+		listMenu3.animations[listMenu3.animations.length] = FSMenu.animFade;
+		listMenu3.animations[listMenu3.animations.length] = FSMenu.animSwipeDown;
+		addReadyEvent(new Function(
+				'listMenu3.activateMenu("listMenuRoot3", arrow)'));
+	}
+	//]]>
+</script>
+
+<!-- PUBLICO -->
+
+	
+	<ul class="menulist" id="listMenuRoot">
+		
+			
+				<li class="menuHeader">Público</li>
+			
+			
+
+
+	<li><a href='#' title=''><span>Calendário Escolar</span></a>
+		<ul>
+
+
+
+
+			
+			
+
+	<li><a href='jupArquivosPublicos.jsp?tiparq=8&amp;anoprg=2025&amp;codmnu=7920'
+		title=''>2025</a></li>
+
+
+
+
+
+			
+			
+
+	<li><a href='jupArquivosPublicos.jsp?tiparq=9&amp;anoprg=2026&amp;codmnu=6863'
+		title=''>2026</a></li>
+
+
+
+
+
+			
+			
+				
+	</ul>
+	</li>
+	
+
+
+	<li><a href='jupCarreira.jsp?codmnu=8275'
+		title=''>Cursos de ingresso</a></li>
+
+
+
+
+
+			
+			
+
+
+	<li><a href='#' title=''><span>Disciplina</span></a>
+		<ul>
+
+
+
+
+			
+			
+
+	<li><a href='jupDisciplinaBusca?tipo=D&amp;codmnu=6755'
+		title=''>Busca por Disciplinas</a></li>
+
+
+
+
+
+			
+			
+
+	<li><a href='jupDisciplinaBusca?tipo=T&amp;codmnu=6756'
+		title=''>Busca por Turmas</a></li>
+
+
+
+
+
+			
+			
+				
+	</ul>
+	</li>
+	
+
+
+
+	<li><a href='#' title=''><span>Editais</span></a>
+		<ul>
+
+
+
+
+			
+			
+
+
+	<li><a href='#' title=''><span>Programa Unificado de Bolsas(PUB)</span></a>
+		<ul>
+
+
+
+
+			
+			
+
+	<li><a href='https://uspdigital.usp.br/juno/bnfArquivosPublicos.jsp?tiparq=1&amp;anoprg=2024&amp;codm?codmnu=10872'
+		title=''>Edital 2024-2025</a></li>
+
+
+
+
+
+			
+			
+
+	<li><a href='https://uspdigital.usp.br/juno/bnfArquivosPublicos.jsp?tiparq=1&amp;anoprg=2025&amp;codm?codmnu=11502'
+		title=''>Edital 2025-2026</a></li>
+
+
+
+
+
+			
+			
+				
+	</ul>
+	</li>
+	
+
+
+	<li><a href='http://www.prg.usp.br/?page_id=399?codmnu=6762'
+		title=''>PEEG</a></li>
+
+
+
+
+
+			
+			
+
+	<li><a href='https://prg.usp.br/programas-e-bolsas/?codmnu=10838'
+		title=''>PAP</a></li>
+
+
+
+
+
+			
+			
+				
+	</ul>
+	</li>
+	
+
+
+
+	<li><a href='#' title=''><span>FAQ</span></a>
+		<ul>
+
+
+
+
+			
+			
+
+
+	<li><a href='#' title=''><span>Matrícula Interativa</span></a>
+		<ul>
+
+
+
+
+			
+			
+
+	<li><a href='FAQ.jsp?codmnu=9326'
+		title=''>FAQ</a></li>
+
+
+
+
+
+			
+			
+
+	<li><a href='grdMatriculainterativaInformacoes.jsp?codmnu=9327'
+		title=''>Informações gerais</a></li>
+
+
+
+
+
+			
+			
+
+	<li><a href='graduacaoAjudaNovaMatricula?codmnu=8946'
+		title='Liberar próximo da matricula'>TUTORIAL - NOVA MATRÍCULA</a></li>
+
+
+
+
+
+			
+			
+				
+	</ul>
+	</li>
+	
+
+
+	<li><a href='http://www.prg.usp.br/?p=20746&amp;codmnu=6749'
+		title=''>Jupiterweb em Vídeos</a></li>
+
+
+
+
+
+			
+			
+
+	<li><a href='http://www.prg.usp.br/?p=20741&amp;codmnu=8063'
+		title=''>Informações gerais sobre a Graduação</a></li>
+
+
+
+	
+		</ul>
+		</li>
+	
+		</ul>
+		</li>
+	
+
+
+
+</ul>
+<div style="font-size: 7px">&nbsp;</div>
+
+
+<!-- NAO AUTENTICADO -->
+
+	<ul class="menulist" id="listMenuRoot3">
+		<li class="menuHeader">Acesso Restrito</li>
+		<li><a href='webLogin.jsp'>Entrar</a></li>
+		<li><a href='esqueciSenha'>Esqueci a Senha</a></li>
+		<li><a href='primeiroAcesso'>Primeiro Acesso</a></li>
+	</ul>
+	<div style="font-size: 7px">&nbsp;</div>
+
+
+<!-- AUTENTICADO -->
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+		</div>
+
+		<div id="layout_conteudo">
+			
+
+			
+
+			
+			
+				
+			
+
+			
+				 
+
+
+
+
+<html>
+
+
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+
+
+
+
+<link type="text/css" rel="stylesheet" href="https://uspdigital.usp.br/comumwebdev/libs/usp/util/1.0/util.css"/>
+<link type="text/css" rel="stylesheet" href="https://uspdigital.usp.br/comumwebdev/libs/jqueryui/1.8.24/temas/ui-lightness/jquery-ui.css"/>
+<link type="text/css" rel="stylesheet" href="https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/validationEngine/2.6.2/jquery.validationEngine.css"/>
+<link type="text/css" rel="stylesheet" href="https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/jqGrid/4.4.3/ui.jqgrid.css"/>
+<link type="text/css" rel="stylesheet" href="https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/fancybox/1.3.4/jquery.fancybox.css"/>
+<link type="text/css" rel="stylesheet" href="https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/maxlength/2.0.1/jquery.maxlength.css"/>
+<link type="text/css" rel="stylesheet" href="/jupiterweb/css/jupiterweb.css" >
+<link type="text/css" rel="stylesheet" href="/jupiterweb/css/comum.css" >
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- HTML 5 Tags para IE8 -->
+<!--[if lt IE 9]>
+	   <script>
+	      document.createElement('header');
+	      document.createElement('nav');
+	      document.createElement('section');
+	      document.createElement('article');
+	      document.createElement('aside');
+	      document.createElement('footer');
+	   </script>
+	<![endif]-->
+	
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/1.7.2/jquery.min.js'></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jqueryui/1.8.24/jquery-ui.min.js'></script>
+<script type="text/javascript"
+	src="https://uspdigital.usp.br/comumwebdev/libs/jqueryui/1.8.24/jquery.ui.datepicker-pt-BR.min.js"></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/blockUI/2.36/jquery.blockUI.js'></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/fancybox/1.3.4/jquery.fancybox.js'></script>
+<script type="text/javascript"
+	src="https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/fancybox/1.3.4/jquery.mousewheel.min.js"></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/validationEngine/2.6.2/jquery.validationEngine.js'></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/validationEngine/2.6.2/jquery.validationEngine-pt.js'></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/jqGrid/4.4.3/jquery.jqGrid.min.js'></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/jqGrid/4.4.3/grid.locale-pt-br.js'></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/simplemodal/1.4.4/jquery.simplemodal.js'></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/exists/0.1/jquery.exists.js'></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/maskedInput/1.2.2/jquery.maskedinput.js'></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/maxlength/2.0.1/jquery.plugin.min.js'></script>
+<script type='text/javascript'
+	src='https://uspdigital.usp.br/comumwebdev/libs/jquery/plugins/maxlength/2.0.1/jquery.maxlength.min.js'></script>
+<script type="text/javascript"
+	src="https://uspdigital.usp.br/comumwebdev/libs/javascript/ckeditor/4.4.7/ckeditor.js"></script>
+<script type="text/javascript"
+	src="https://uspdigital.usp.br/comumwebdev/libs/javascript/ckeditor/4.4.7/adapters/jquery.js"></script>
+<script type="text/javascript"
+	src="https://uspdigital.usp.br/comumwebdev/libs/usp/util/1.0/util.js"></script>
+<script type="text/javascript"
+	src="https://uspdigital.usp.br/comumwebdev/libs/messages/1.3.0-0/messages.min.js"></script>
+<script type='text/javascript' src="/jupiterweb/dwr/engine.js"></script>
+<script type='text/javascript' src="/jupiterweb/dwr/util.js"></script>
+<script type='text/javascript' src="/jupiterweb/javascript/usp-exception-dwr.js"></script>
+<script type='text/javascript' src="/jupiterweb/javascript/comum.js"></script>
+<script type='text/javascript' src="/jupiterweb/javascript/jupiterweb.js"></script>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K1Y204Q919"></script>
+<script src="usp-ga4.js"></script>
+
+<STYLE>
+#simplemodal-container a.modalCloseImg {
+	background:
+		url(images/jquery/jquery.simple.modal/x.png)
+		no-repeat; /* adjust url as required */
+}
+</STYLE>
+
+
+
+<style>
+a.link_cabecalho:active {
+	font-family: verdana;
+	font-size: 10px;
+	color: olive;
+	text-decoration: none
+}
+
+a.link_cabecalho:link {
+	font-family: verdana;
+	font-size: 10px;
+	color: olive;
+	text-decoration: none
+}
+
+a.link_cabecalho:visited {
+	font-family: verdana;
+	font-size: 10px;
+	color: olive;
+	text-decoration: none
+}
+
+a.link_cabecalho:hover {
+	font-family: verdana;
+	font-size: 10px;
+	color: gray;
+	text-decoration: underline
+}
+
+#my_web_cabecalho {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	text-align: left;
+	width: 90%;
+	border-bottom: solid;
+	border-bottom-width: thin;
+	border-bottom-color: #666666;
+	padding-bottom: 4px;
+	margin-bottom: 4px;
+}
+
+#my_web_cabecalho_descricao {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	padding-bottom: 10px;
+}
+</style>
+</head>
+
+
+	
+
+
+<div id="my_web_cabecalho">
+	Cursos e Habilita??es
+</div>
+
+	<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+
+
+
+
+
+
+	<br>
+
+<BR>
+
+<table border=0 align="center">
+  <tr> 
+    <td align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#000000"><span class="txt_arial_10pt_black"> 
+      <b>
+      
+      Escola Politécnica</b> </span></font></td>
+  </tr>
+</table>
+<BR>
+
+<table border = 0 align="center" width="500">
+  <tr bgcolor="#658CCF"> 
+    <td><font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#FFFFFF"><span class="txt_verdana_10pt_white"> 
+      Código</span></font></td>
+    <td><font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#FFFFFF"><span class="txt_verdana_10pt_white"> 
+      Nome</span></font></td>
+    <td><font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#FFFFFF"><span class="txt_verdana_10pt_white"> 
+      Habilitação</span></font></td>
+    <td><font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#FFFFFF"><span class="txt_verdana_10pt_white"> 
+      Período</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Ciclo Básico - Engenharia Elétrica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3200&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3200&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3200</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Ciclo Básico - Materiais/Metalúrgica/Nuclear</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3250&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3250&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3250</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Ciclo Básico - Minas/Petróleo</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3091&codhab=100&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3091&codhab=100&tipo=V" class="link_gray" target="_self"> 
+      3091</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Curso Cooperativo - Engenharia Química</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3011&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3011&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3011</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia - Ciclo Básico</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3021&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3021&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3021</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Grande Área - Engenharia Civil</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3031&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3031&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3031</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Grande Área - Engenharia Elétrica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3031&codhab=10&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3031&codhab=10&tipo=V" class="link_gray" target="_self"> 
+      3031</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Grande Área - Engenharia Elétrica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3043&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3043&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3043</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Grande Área - Engenharia Mecânica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3091&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3091&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3091</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Grande Área - Engenharia Química</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3151&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3151&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3151</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Ambiental</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3021&codhab=100&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3021&codhab=100&tipo=V" class="link_gray" target="_self"> 
+      3021</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Civil</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Civil</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3021&codhab=300&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3021&codhab=300&tipo=V" class="link_gray" target="_self"> 
+      3021</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Civil - Dupla Formação EPUSP - FAU</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3121&codhab=10&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3121&codhab=10&tipo=V" class="link_gray" target="_self"> 
+      3121</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Computação</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3122&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3122&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3122</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Computação</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3170&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3170&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3170</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Computação - Ênfase Sistemas Corporativos</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3101&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3101&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3101</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Materiais</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3102&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3102&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3102</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Materiais</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3051&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3051&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3051</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Minas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3052&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3052&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3052</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Minas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3055&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3055&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3055</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Petróleo</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3056&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3056&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3056</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Petróleo</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3082&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3082&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3082</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Produção</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3083&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3083&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3083</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia de Produção</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3031&codhab=150&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3031&codhab=150&tipo=V" class="link_gray" target="_self"> 
+      3031</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Automação e Controle</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=3150&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=3150&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Automação e Controle</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3031&codhab=170&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3031&codhab=170&tipo=V" class="link_gray" target="_self"> 
+      3031</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Computação</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3031&codhab=1170&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3031&codhab=1170&tipo=V" class="link_gray" target="_self"> 
+      3031</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Computação</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=3170&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=3170&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Computação</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=3180&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=3180&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Eletrônica e Sistemas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3031&codhab=190&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3031&codhab=190&tipo=V" class="link_gray" target="_self"> 
+      3031</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Energia e Automação Elétricas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=3190&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=3190&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Energia e Automação Elétricas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3031&codhab=180&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3031&codhab=180&tipo=V" class="link_gray" target="_self"> 
+      3031</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Sistemas Eletrônicos</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3031&codhab=160&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3031&codhab=160&tipo=V" class="link_gray" target="_self"> 
+      3031</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Telecomunicações</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=3160&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=3160&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Elétrica - Ênfase em Telecomunicações</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3043&codhab=100&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3043&codhab=100&tipo=V" class="link_gray" target="_self"> 
+      3043</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Mecânica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3044&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3044&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3044</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Mecânica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3111&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3111&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3111</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Mecatrônica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3112&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3112&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3112</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Mecatrônica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3061&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3061&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3061</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Metalúrgica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3062&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3062&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3062</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Metalúrgica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3071&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3071&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3071</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Naval</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3072&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3072&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3072</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Naval</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3091&codhab=110&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3091&codhab=110&tipo=V" class="link_gray" target="_self"> 
+      3091</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Química</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3092&codhab=3000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3092&codhab=3000&tipo=V" class="link_gray" target="_self"> 
+      3092</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Habilitação: Engenharia Química</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5050&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5050&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Água e Meio Ambiente</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5030&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5030&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Aprofundamento em Telecomunicações</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5010&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5010&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Automação e Controle Avançados</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5110&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5110&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Ciência e Tecnologia da Engenharia Civil e Ambiental (Pré-Mestrado)</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5060&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5060&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Construção Civil</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Controle Aplicado e Industrial</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5100&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5100&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Eletrônica e Sistemas (Pré-Mestrado)</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3044&codhab=5020&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3044&codhab=5020&tipo=V" class="link_gray" target="_self"> 
+      3044</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Energia e Meio Ambiente</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3044&codhab=5030&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3044&codhab=5030&tipo=V" class="link_gray" target="_self"> 
+      3044</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Energias Renováveis</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5110&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5110&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Especialização em Energia e Automação Elétricas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3044&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3044&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3044</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Especialização em Engenharia Aeronáutica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3044&codhab=5010&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3044&codhab=5010&tipo=V" class="link_gray" target="_self"> 
+      3044</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Especialização em Engenharia Automotiva</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5020&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5020&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Especialização em Engenharia Estrutural e Geotécnica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3056&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3056&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3056</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Exploração e Produção de Petróleo</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5090&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5090&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Fundamentos de Sistemas Eletrônicos</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3083&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3083&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3083</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Gestão Estratégica da Produção e Inovação</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3151&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3151&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3151</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Indústrias Sustentáveis</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5100&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5100&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Inovação na Construção Civil (Pré-Mestrado)</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3052&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3052&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3052</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Lavra de Minas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3112&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3112&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3112</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Mecatrônica Avançada</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3052&codhab=5020&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3052&codhab=5020&tipo=V" class="link_gray" target="_self"> 
+      3052</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Mineração</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5040&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5040&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Obras Hidráulicas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5070&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5070&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Pesquisa em Engenharia de Computação (Pré-Mestrado)</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3083&codhab=5010&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3083&codhab=5010&tipo=V" class="link_gray" target="_self"> 
+      3083</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Pesquisa em Engenharia de Produção (Pré-Mestrado)</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3044&codhab=5040&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3044&codhab=5040&tipo=V" class="link_gray" target="_self"> 
+      3044</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Pesquisa em Engenharia Mecânica e Mecatrônica (Pré-Mestrado)</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3052&codhab=5030&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3052&codhab=5030&tipo=V" class="link_gray" target="_self"> 
+      3052</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Pesquisa em Recursos Minerais (pré-mestrado)</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3072&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3072&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3072</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Planejamento e Desenvolvimento de Sistemas Navais  e Oceânicos</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5080&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5080&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Planejamento, Gestão e Infraestrutura de Cidades</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5140&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5140&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Princípios de Engenharia de Computação</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3062&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3062&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3062</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Processamento de Materiais Cerâmicos e Poliméricos</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3102&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3102&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3102</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Processamento de Materiais Metálicos</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5040&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5040&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Processamento Digital de Sinais</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5010&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5010&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Real Estate e Ambiente Construído</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5030&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5030&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Recursos Hídricos</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3151&codhab=5010&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3151&codhab=5010&tipo=V" class="link_gray" target="_self"> 
+      3151</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Saneamento Ambiental</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5080&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5080&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Sistemas Eletrônicos Avançados</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3072&codhab=5010&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3072&codhab=5010&tipo=V" class="link_gray" target="_self"> 
+      3072</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Sistemas Navais e Oceânicos (Pré-Mestrado)</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Tecnologia e Gestão da Produção na Construção</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3122&codhab=5000&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3122&codhab=5000&tipo=V" class="link_gray" target="_self"> 
+      3122</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Tecnologia e Gestão em Engenharia de Computação</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5060&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5060&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Tecnologia e Gestão em Engenharia de Computação</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3062&codhab=5010&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3062&codhab=5010&tipo=V" class="link_gray" target="_self"> 
+      3062</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Tecnologia Nuclear</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5050&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5050&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Telecomunicações</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5130&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5130&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Telecomunicações e Área Correlatas (Pré-Mestrado)</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5020&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5020&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Tópicos de Engenharia Biomédica</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3032&codhab=5120&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3032&codhab=5120&tipo=V" class="link_gray" target="_self"> 
+      3032</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Tópicos em Energia e Automação Elétricas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3022&codhab=5070&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3022&codhab=5070&tipo=V" class="link_gray" target="_self"> 
+      3022</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Transportes</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3052&codhab=5010&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3052&codhab=5010&tipo=V" class="link_gray" target="_self"> 
+      3052</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Módulo: Tratamento de Minérios</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3091&codhab=200&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3091&codhab=200&tipo=V" class="link_gray" target="_self"> 
+      3091</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Núcleo Comum - Materiais</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3150&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3150&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3150</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Ambiental</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Ambiental</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3100&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3100&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3100</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia de Materiais</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia de Materiais</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3050&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3050&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3050</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia de Minas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia de Minas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3070&codhab=300&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3070&codhab=300&tipo=V" class="link_gray" target="_self"> 
+      3070</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Naval</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Naval A - Máquinas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3070&codhab=400&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3070&codhab=400&tipo=V" class="link_gray" target="_self"> 
+      3070</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Naval</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Naval B - Estruturas</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3070&codhab=500&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3070&codhab=500&tipo=V" class="link_gray" target="_self"> 
+      3070</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Naval</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Naval C - Transportes</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3070&codhab=600&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3070&codhab=600&tipo=V" class="link_gray" target="_self"> 
+      3070</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Naval</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Naval D - Tecnologia</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+  <tr> 
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      <!--<A HREF="portal.jsp?codmnu=&lnkmnu=jw_ldiscip_curso.jsp?codcg=3&codcur=3090&codhab=0&tipo=V" class="link_gray">-->
+      <A HREF="listarGradeCurricular?codcg=3&codcur=3090&codhab=0&tipo=V" class="link_gray" target="_self"> 
+      3090</a></span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Química</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      Engenharia Química</span></font></td>
+    <td valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="1" color="#666666"><span class="txt_arial_8pt_gray"> 
+      integral</span></font></td>
+  </tr>
+  
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+<link type="text/css" rel="stylesheet" href="https://uspdigital.usp.br/comumwebdev/libs/usp/main/1.0/home.css"/>
+<table width="100%" border="0" cellspacing=" 0" cellpadding=" 0" align="center">
+  
+  <tr>
+    <td align="center"><font face="Arial, Helvetica, sans-serif" size="1"><hr size="1">
+      <a href='creditos.jsp' class="link_olive" target="_self">Cr&eacute;ditos</a>
+      | <a href="jupColegiadoEmailLista" class="link_olive">Fale conosco</a><br>
+      &copy; 1999 - 2026 - Superintend&ecirc;ncia de Tecnologia da Informa&ccedil;&atilde;o/USP</font>
+    </td>
+  </tr>
+</table>
+
+</html>
+
+
+
+			
+
+			
+		</div>
+	</div>
+
+</body>
+</html>

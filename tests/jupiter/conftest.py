@@ -137,3 +137,75 @@ def colegiados():
 @pytest.fixture
 def requisito_disciplina():
     return (FIXTURES / REQUISITOS["requisito_disciplina"]).read_text(encoding="utf-8")
+
+
+# --- A fatia de módulos (26/10). Dado público: as duas listas de curso da Poli
+# e os envelopes DWR crus de grade e ficha dos 50 pares de módulo/percurso. Um
+# arquivo só para os 100 envelopes porque eles só fazem sentido juntos: o
+# índice é a soma deles, e o teste de custo precisa do índice inteiro.
+import json
+import re
+from urllib.parse import unquote
+
+MODULOS = {
+    "lista_N": "html-jupCursoLista-codcg3-N.html",
+    "lista_V": "html-jupCursoLista-codcg3-V.html",
+    "respostas": "dwr-modulos-poli.json",
+}
+
+
+@pytest.fixture
+def lista_n():
+    return (FIXTURES / MODULOS["lista_N"]).read_bytes()
+
+
+@pytest.fixture
+def lista_v():
+    return (FIXTURES / MODULOS["lista_V"]).read_bytes()
+
+
+@pytest.fixture
+def respostas_modulos():
+    dados = json.loads((FIXTURES / MODULOS["respostas"]).read_text(encoding="utf-8"))
+    return dados["respostas"]
+
+
+class RoteadorDWR:
+    """Transporte DWR falso que responde pela CONSULTA e pelos PARÂMETROS que
+    saíram no corpo — não pela ordem das chamadas.
+
+    É o que permite asserir o parâmetro ENVIADO (regra 11 do CLAUDE.md): a
+    chave `consulta|codcur|codhab|tipo` só existe na fixture se o `tipo` que
+    saiu for o certo, e uma chave sem resposta derruba o teste em vez de
+    devolver qualquer coisa.
+    """
+
+    def __init__(self, respostas):
+        self.respostas = dict(respostas)
+        self.enviados = []
+
+    def __call__(self, url, corpo, cabecalhos):
+        campos = dict(l.split("=", 1) for l in corpo.splitlines() if "=" in l)
+        consulta = campos["c0-param0"].split(":", 1)[1]
+        refs = sorted((k for k in campos if re.fullmatch(r"c0-e\d+", k)), key=lambda k: int(k[4:]))
+        valores = [unquote(campos[k].split(":", 1)[1]) for k in refs]
+        chave = "|".join([consulta, *valores])
+        self.enviados.append(chave)
+        if chave not in self.respostas:
+            raise AssertionError(f"chamada sem fixture: {chave}")
+        return 200, self.respostas[chave]
+
+
+class GetPorTipo:
+    """Transporte GET falso das duas listas de curso, escolhidas pelo `tipo=`
+    da URL pedida."""
+
+    def __init__(self, lista_n, lista_v, status=200):
+        self._por_tipo = {"N": lista_n, "V": lista_v}
+        self.status = status
+        self.urls = []
+
+    def __call__(self, url, cabecalhos):
+        self.urls.append(url)
+        tipo = re.search(r"[?&]tipo=([A-Z])", url).group(1)
+        return self.status, self._por_tipo[tipo]
