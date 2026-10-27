@@ -153,7 +153,7 @@ def listar_ferramentas() -> list[dict]:
                 "PMR3508'. Só a Poli tem módulo na USP. NÃO diz quais módulos você "
                 "pode escolher: isso depende da sua ênfase e de regras da comissão "
                 "de curso que o Jupiter não publica. A primeira pergunta da sessão "
-                "demora ~30 s; as seguintes são imediatas."
+                "demora uns 20 s; as seguintes são imediatas."
             ),
             "inputSchema": {
                 "type": "object",

@@ -26,3 +26,38 @@ def test_t125_chamar_ferramenta_responde_pelo_indice(respostas_modulos, lista_n,
                                transporte_get=GetPorTipo(lista_n, lista_v))
     texto = server.chamar_ferramenta("modulos", {"disciplina": "PMR3508"}, cliente=c)
     assert texto.startswith("PMR3508 ")
+
+
+@pytest.fixture
+def producao(monkeypatch, respostas_modulos, lista_n, lista_v):
+    """O caminho de produção (`cliente=None`): fábrica de cliente que conta
+    construções, e um cache novo no lugar do global do processo."""
+    construcoes = []
+
+    def fabrica(transporte, **_):
+        construcoes.append(1)
+        return cliente.ClienteJupiter(RoteadorDWR(respostas_modulos),
+                                      transporte_get=GetPorTipo(lista_n, lista_v))
+
+    monkeypatch.setattr(server, "ClienteJupiter", fabrica)
+    monkeypatch.setattr(server, "_CACHE_MODULOS", server.CacheDoIndice())
+    return construcoes
+
+
+def test_t125b_sem_cliente_injetado_o_indice_e_montado_uma_vez(producao):
+    server.chamar_ferramenta("modulos", {})
+    server.chamar_ferramenta("modulos", {"disciplina": "PMR3508"})
+    assert len(producao) == 1
+
+
+def test_t125c_usp_fora_do_ar_chega_como_erro_legivel(monkeypatch, producao, lista_n, lista_v):
+    from usp_mcp.jupiter import erros
+
+    class Fora:
+        def __call__(self, url, corpo, cabecalhos):
+            raise erros.JupiterIndisponivel("o JupiterWeb não respondeu (teste)")
+
+    monkeypatch.setattr(server, "ClienteJupiter", lambda transporte, **_: cliente.ClienteJupiter(
+        Fora(), transporte_get=GetPorTipo(lista_n, lista_v)))
+    with pytest.raises(erros.ErroJupiter):
+        server.chamar_ferramenta("modulos", {})

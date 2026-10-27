@@ -110,3 +110,31 @@ def test_t123b_ranking_e_ressalva_de_busca_curtos(ind):
     ultima = modulos.responder(ind, disciplina="PMR3508").splitlines()[-1]
     assert ultima == ("⚠ Fora da busca, sem grade publicada: 3022/5000, "
                       "3022/5010, 3033/6000, 3052/5000, 3052/5010, 3113/6000, 3123/6000.")
+
+
+def test_t123c_modulo_que_falhou_nao_parece_dado_ausente(ind):
+    """Invariante 6: um módulo que o JupiterWeb não respondeu é "não lido
+    agora", nunca "carga não publicada", "sem grade" nem ausência em definitivo."""
+    import dataclasses
+    falho = lambda m: dataclasses.replace(
+        m, falhou=True, disciplinas=(), carga_total=None, carga_obrigatoria=None,
+        carga_eletiva=None, carga_livre=None)
+    com_falha = indice.Indice(tuple(falho(m) if m.codigo == "3032/5080" else m
+                                    for m in ind.modulos))
+
+    ranking = modulos.responder(com_falha)
+    linha = next(l for l in ranking.splitlines() if "3032/5080" in l and l.startswith("  "))
+    assert linha.endswith(", não lido agora")
+    assert "sem grade" not in linha
+    assert "não puderam ser lidos agora" in ranking
+    assert "ficaram de fora" not in ranking
+
+    um = modulos.responder(com_falha, busca="3032/5080")
+    assert "não lido agora" in um
+    assert "carga não publicada" not in um
+
+    sigla = modulos.responder(com_falha, disciplina="PSI3541")
+    assert "não aparece nos 49 módulos lidos" in sigla
+    assert "nenhum módulo da Poli" not in sigla
+    assert "⚠ Não lidos agora (falha do JupiterWeb), a busca não os viu: 3032/5080." in sigla
+    assert "Fora da busca" not in sigla.split("Não lidos agora")[0].splitlines()[-1]

@@ -83,6 +83,8 @@ def filtrar(modulos, busca: str) -> list[Modulo]:
 # --- pedaços de texto --------------------------------------------------------
 
 def _carga(m: Modulo) -> str:
+    if m.falhou:
+        return "não lido agora"
     return f"{m.carga_total} h" if m.carga_total is not None else "carga não publicada"
 
 
@@ -127,7 +129,8 @@ def _ressalvas(modulos, situacoes=("sem_grade", "nao_publicado", "falhou")) -> l
     if por.get("falhou"):
         n = len(por["falhou"])
         linhas.append(f"⚠ {n} não puderam ser lidos agora (o JupiterWeb falhou nesta "
-                      f"consulta) e ficaram de fora: {', '.join(por['falhou'])}.")
+                      f"consulta); pergunte de novo em alguns minutos: "
+                      f"{', '.join(por['falhou'])}.")
     return linhas
 
 
@@ -152,7 +155,8 @@ def _ranking(indice: Indice) -> str:
         linhas.append(f"{membros[0].curso or 'Curso'} ({codcur})")
         for m in membros:
             div = _divisao_curta(m)
-            sem_grade = ", sem grade" if not m.disciplinas else ""
+            sem_grade = (", não lido agora" if m.falhou
+                         else ", sem grade" if not m.disciplinas else "")
             linhas.append(f"  {_carga(m)}{' ' + div if div else ''}  "
                           f"{m.nome_curto} — {m.codigo}{sem_grade}")
     ressalvas = _ressalvas(ms, situacoes=("falhou",))
@@ -166,7 +170,8 @@ def _um(m: Modulo) -> str:
     linhas = [f"{m.nome_curto} — {m.codigo} · curso: {m.curso or m.codcur}"]
     divisao = _divisao(m)
     carga = f"Carga exigida: {_carga(m)}" + (f" ({divisao})" if divisao else "")
-    linhas.append(f"{carga}. {len(m.disciplinas)} disciplinas.")
+    linhas.append(carga + "." if m.falhou
+                  else f"{carga}. {len(m.disciplinas)} disciplinas.")
     por_semestre: dict[int | None, list] = {}
     for d in m.disciplinas:
         por_semestre.setdefault(d.semestre, []).append(d)
@@ -203,6 +208,7 @@ def _nenhum(busca: str, indice: Indice) -> str:
 
 def _por_disciplina(pedida: str, escopo: list[Modulo]) -> str:
     alcancados = [m for m in escopo if m.disciplinas]
+    nao_lidos = sorted(m.codigo for m in escopo if m.falhou)
     if e_sigla(pedida):
         sigla = "".join(pedida.split()).upper()
         achados = [(m, d) for m in alcancados for d in m.disciplinas if d.sigla == sigla]
@@ -215,7 +221,9 @@ def _por_disciplina(pedida: str, escopo: list[Modulo]) -> str:
         else:
             parecidas = sorted({(d.sigla, d.nome) for m in alcancados for d in m.disciplinas
                                 if d.sigla[-4:] == sigla[-4:] and d.sigla[:2] == sigla[:2]})
-            linhas = [f"{sigla} não aparece em nenhum módulo da Poli."]
+            onde = (f"nos {len(escopo) - len(nao_lidos)} módulos lidos" if nao_lidos
+                    else "em nenhum módulo da Poli")
+            linhas = [f"{sigla} não aparece {onde}."]
             if parecidas:
                 linhas[0] += " Siglas parecidas que aparecem:"
                 linhas.extend(f"  {s} {nome}" for s, nome in parecidas)
@@ -237,10 +245,14 @@ def _por_disciplina(pedida: str, escopo: list[Modulo]) -> str:
                 linhas.append(f"  {sigla} {nome} — {onde}")
             if len(grupos) > TETO_DISCIPLINAS:
                 linhas.append(f"  … e mais {len(grupos) - TETO_DISCIPLINAS}. Refine a busca.")
-    fora = sorted(m.codigo for m in escopo if m.situacao != "ok")
-    if fora:
+    fora = sorted(m.codigo for m in escopo if m.situacao in ("sem_grade", "nao_publicado"))
+    if fora or nao_lidos:
         linhas.append("")
+    if fora:
         linhas.append(f"⚠ Fora da busca, sem grade publicada: {', '.join(fora)}.")
+    if nao_lidos:
+        linhas.append("⚠ Não lidos agora (falha do JupiterWeb), a busca não os viu: "
+                      f"{', '.join(nao_lidos)}.")
     return "\n".join(linhas)
 
 

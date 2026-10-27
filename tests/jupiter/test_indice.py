@@ -89,7 +89,7 @@ def test_t114b_lista_sem_modulo_vira_erro_legivel(respostas_modulos):
     assert "nenhum módulo" in str(exc.value)
 
 
-def test_t115_o_cache_vale_sete_dias_e_nao_guarda_indice_com_falha():
+def test_t115_o_cache_vale_sete_dias_e_guarda_indice_com_falha_so_dez_minutos():
     agora = [0.0]
     cache = indice.CacheDoIndice(relogio=lambda: agora[0])
     bom = indice.Indice(modulos=())
@@ -109,8 +109,13 @@ def test_t115_o_cache_vale_sete_dias_e_nao_guarda_indice_com_falha():
 
     falho = indice.Indice(modulos=(indice.Modulo(
         "3032", "5080", "V", "Módulo: X", "", None, None, None, None, (), falhou=True),))
-    cache2 = indice.CacheDoIndice(relogio=lambda: 0.0)
+    cache2 = indice.CacheDoIndice(relogio=lambda: agora[0])
+    agora[0] = 0.0
     chamadas = []
     cache2.obter(lambda: chamadas.append(1) or falho)
+    agora[0] = indice.TTL_INDICE_PARCIAL - 1
+    cache2.obter(lambda: chamadas.append(1) or falho)
+    assert len(chamadas) == 1, "índice parcial vale 10 min: sem isso, USP fora do ar é martelada"
+    agora[0] = indice.TTL_INDICE_PARCIAL + 1
     cache2.obter(lambda: chamadas.append(1) or falho)
     assert len(chamadas) == 2, "índice com módulo falho não pode ficar 7 dias no cache"

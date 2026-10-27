@@ -29,12 +29,20 @@ from typing import Callable
 from .erros import JupiterErro, JupiterIndisponivel, RespostaInvalida
 
 __all__ = ["Linha", "Disciplina", "Modulo", "Indice", "ler_lista", "cursos_base",
-           "montar_indice", "CacheDoIndice", "TTL_INDICE"]
+           "montar_indice", "CacheDoIndice", "TTL_INDICE", "TTL_INDICE_PARCIAL"]
 
 # Uma semana. Módulo muda por revisão de currículo, não por semana; mas a grade
 # do currículo novo cresceu de 67 para 89 registros entre 14/09 e 22/10, e um
 # índice sem validade num servidor que fica de pé por semanas mentiria calado.
 TTL_INDICE = 7 * 24 * 3600
+
+# Índice com módulo não lido: curto, para a falha passageira se corrigir logo e
+# a persistente não custar 50 chamadas por pergunta (Invariante 5).
+TTL_INDICE_PARCIAL = 10 * 60
+
+# Falhas de transporte seguidas que abortam a montagem: USP fora do ar não
+# deve custar 50 leituras com timeout.
+_FALHAS_SEGUIDAS = 3
 
 _COMENTARIO = re.compile(r"<!--.*?-->", re.S)
 _LINHA = re.compile(r"<tr\b.*?</tr>", re.S | re.I)
@@ -176,27 +184,38 @@ def _disciplina(registro: dict) -> Disciplina:
 
 
 def _ler_modulo(cliente, linha: Linha, curso: str) -> Modulo:
-    # Só falha de TRANSPORTE ou de RESPOSTA é isolada. `ConsultaNegada` sobe:
-    # política negando uma consulta da própria fatia é defeito de código, e
-    # escondê-la num "não pôde ser lido" seria o silêncio do Invariante 6.
+    """Módulo lido, ou `falhou=True`. Só falha de TRANSPORTE (`JupiterIndisponivel`,
+    que sobe: quem monta decide se corta), de RESPOSTA ou registro malformado é
+    isolada. `ConsultaNegada` sobe: política negando uma consulta da própria
+    fatia é defeito de código, e escondê-la num "não pôde ser lido" seria o
+    silêncio do Invariante 6."""
     try:
         ficha = cliente.info_curriculo(linha.codcur, linha.codhab, linha.tipo)
         grade = cliente.grade_curricular(linha.codcur, linha.codhab, linha.tipo)
-    except (JupiterIndisponivel, RespostaInvalida, JupiterErro):
-        return Modulo(linha.codcur, linha.codhab, linha.tipo, linha.nome, curso,
-                      None, None, None, None, (), falhou=True)
-    return Modulo(
-        codcur=linha.codcur,
-        codhab=linha.codhab,
-        tipo=linha.tipo,
-        nome=linha.nome,
-        curso=curso,
-        carga_total=_inteiro(ficha.get("cgahortot")),
-        carga_obrigatoria=_soma(ficha, "cgahorobgaul", "cgahorobgtrb"),
-        carga_eletiva=_soma(ficha, "cgaoptcplaul", "cgaoptcpltrb"),
-        carga_livre=_soma(ficha, "cgaoptlreaul", "cgaoptlretrb"),
-        disciplinas=tuple(_disciplina(r) for r in grade or ()),
-    )
+    except (RespostaInvalida, JupiterErro):
+        return _falho(linha, curso)
+    try:
+        return Modulo(
+            codcur=linha.codcur,
+            codhab=linha.codhab,
+            tipo=linha.tipo,
+            nome=linha.nome,
+            curso=curso,
+            carga_total=_inteiro(ficha.get("cgahortot")),
+            carga_obrigatoria=_soma(ficha, "cgahorobgaul", "cgahorobgtrb"),
+            carga_eletiva=_soma(ficha, "cgaoptcplaul", "cgaoptcpltrb"),
+            carga_livre=_soma(ficha, "cgaoptlreaul", "cgaoptlretrb"),
+            disciplinas=tuple(_disciplina(r) for r in grade or ()),
+        )
+    except (KeyError, ValueError, TypeError):
+        # Registro sem `coddis`, carga que não é número: um módulo malformado
+        # não derruba os outros 49.
+        return _falho(linha, curso)
+
+
+def _falho(linha: Linha, curso: str) -> Modulo:
+    return Modulo(linha.codcur, linha.codhab, linha.tipo, linha.nome, curso,
+                  None, None, None, None, (), falhou=True)
 
 
 def montar_indice(cliente) -> Indice:
@@ -207,12 +226,24 @@ def montar_indice(cliente) -> Indice:
     base = cursos_base(linhas)
     vistos: set[tuple[str, str]] = set()
     modulos: list[Modulo] = []
+    seguidas = 0
     for linha in linhas:
         par = (linha.codcur, linha.codhab)
         if not linha.modulo or par in vistos:
             continue
         vistos.add(par)
-        modulos.append(_ler_modulo(cliente, linha, base.get(linha.codcur, "")))
+        try:
+            modulos.append(_ler_modulo(cliente, linha, base.get(linha.codcur, "")))
+            seguidas = 0
+        except JupiterIndisponivel:
+            seguidas += 1
+            if seguidas >= _FALHAS_SEGUIDAS:
+                raise JupiterIndisponivel(
+                    f"o JupiterWeb parou de responder no meio da leitura dos módulos "
+                    f"({_FALHAS_SEGUIDAS} falhas seguidas); nada foi respondido sobre "
+                    "os módulos — tente de novo em alguns minutos."
+                ) from None
+            modulos.append(_falho(linha, base.get(linha.codcur, "")))
     if not modulos:
         raise RespostaInvalida(
             "as listas de cursos da Poli vieram sem nenhum módulo. Elas tinham a "
@@ -229,16 +260,18 @@ class CacheDoIndice:
     def __init__(self, *, relogio=time.monotonic, ttl: int = TTL_INDICE):
         self._relogio = relogio
         self._ttl = ttl
-        self._guardado: tuple[float, Indice] | None = None
+        self._guardado: tuple[float, Indice, int] | None = None
         self._porta = threading.Lock()
 
     def obter(self, construir: Callable[[], Indice]) -> Indice:
         with self._porta:
-            if self._guardado and self._relogio() - self._guardado[0] < self._ttl:
+            if self._guardado and self._relogio() - self._guardado[0] < self._guardado[2]:
                 return self._guardado[1]
             indice = construir()
-            # Índice com módulo falho NÃO fica: a próxima pergunta tenta de novo,
-            # em vez de responder sem aquele módulo por uma semana.
-            if not any(m.falhou for m in indice.modulos):
-                self._guardado = (self._relogio(), indice)
+            # Índice com módulo não lido fica só `TTL_INDICE_PARCIAL`: a falha
+            # passageira se corrige logo, e a persistente não faz cada pergunta
+            # refazer a leitura inteira.
+            parcial = any(m.falhou for m in indice.modulos)
+            self._guardado = (self._relogio(), indice,
+                              TTL_INDICE_PARCIAL if parcial else self._ttl)
             return indice

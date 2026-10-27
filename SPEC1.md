@@ -4849,4 +4849,11 @@ metade seria o erro que 14/09 evitou. Elegibilidade de módulo ("quais eu posso
 escolher"): depende da ênfase e de regras que o JupiterWeb não publica; a descrição
 da ferramenta diz isso, e a resposta não finge saber.
 
+**Revisão final (27/10).** Módulo que o JupiterWeb não respondeu passa a ser dito como
+"não lido agora" (ranking, ficha e busca por disciplina), nunca como "sem grade" nem
+como ausência em definitivo. Três falhas de transporte seguidas abortam a leitura do
+índice com erro legível, em vez de 50 tentativas com timeout. Índice com módulo não
+lido fica no cache 10 min (`TTL_INDICE_PARCIAL`); o completo continua 7 dias. Registro
+malformado vira módulo não lido, sem derrubar os outros.
+
 ---
