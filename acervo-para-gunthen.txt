@@ -1,0 +1,36 @@
+*Acervo de questões da USP, feito para agente*
+
+*O problema:* hoje cada aluno pede à IA para transcrever e resolver as mesmas provas antigas, e o trabalho fica preso na conversa de quem fez. O Polishare compartilha PDFs entre pessoas, mas PDF obriga a IA a refazer tudo do zero a cada aluno.
+
+*A ideia:* um acervo compartilhado de questões estruturadas, com enunciado, resposta, resolução, tópico e origem. Quem transcreve devolve a questão para o acervo, e quem vem depois só consulta. É crowdsourcing: cada aluno transcreve com os créditos de IA que já gastaria estudando.
+
+*Como funciona*
+• O aluno baixa uma prova ou lista pelo usp-mcp (ou traz do Polishare ou do papel), a IA transcreve e envia.
+• O CI barra na hora o que estiver fora do formato, tiver dado pessoal ou tiver cara de ataque, e confere o gabarito resolvendo a questão de novo.
+• Quem consulta recebe o enunciado e pede a resolução quando quiser.
+
+*Confiança sem curadoria humana*
+• Cada questão mostra de onde veio o gabarito: oficial > conferido > inferido.
+• E de onde veio o enunciado: um link do Moodle ou do Polishare mais um hash do arquivo, que outros alunos confirmam sem compartilhar nada. Questão sem origem entra marcada como sem_fonte.
+
+*Acesso e segurança*
+• Login com Google, restrito a @usp.br. Supabase como backend.
+• O token do Moodle nunca sai da máquina do aluno.
+• O maior risco é envenenamento: alguém subir uma questão com instrução escondida para a IA de quem ler. A defesa é tratar o conteúdo do acervo sempre como dado e manter desligadas as ferramentas que escrevem no Moodle.
+
+*Escala e celular*
+O formato já nasce com o campo "instituição", então abrir outra faculdade que use Moodle vira configuração. Começamos só com a USP. Bandejão, Jupiter e o acervo funcionam no celular por um conector; o Moodle, não.
+
+*Custo* (estimativa)
+• Infraestrutura: R$0 no começo; ~R$140/mês na escala da Poli inteira.
+• Armazenamento: texto quase não pesa (~450 MB para 45 mil questões). Não guardamos PDF, só o hash.
+• CI: ~R$0,10 por questão inferida conferida. Isso também pode virar crowdsourcing.
+
+*Impacto* (chute, a ser medido)
+Com 30% dos alunos da Poli usando, são ~26 mil transcrições repetidas evitadas e ~6.600 horas de aluno economizadas por semestre. A USP inteira tem cerca de 11 vezes mais alunos. No piloto, a métrica central é o reuso: cada consulta depois da primeira é uma transcrição evitada.
+
+*Em aberto*
+• quem paga a conferência por IA, ou se ela vira crowdsourcing
+• se o app do Gemini aceita conector
+• lista de tópicos (derivar da ementa do Jupiter?)
+• questões com figura e direito autoral
