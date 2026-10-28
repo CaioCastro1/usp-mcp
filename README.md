@@ -38,6 +38,7 @@ servidor. Clique na imagem para ver o vídeo.
 | "Mudou alguma coisa desde ontem?" | O que mexeu na disciplina nos últimos dias: arquivo novo, tópico novo, prazo alterado |
 | "Quantos créditos vale MAC0110?" | Créditos, carga horária e ementa pela sigla; programa, bibliografia e avaliação sob pedido |
 | "O que preciso ter feito antes de MAT2454?" | Pré-requisitos, pelo seu currículo |
+| "Qual módulo da Poli tem menor carga?" | Os módulos e percursos da Poli por curso, com a carga exigida; as disciplinas de um módulo; em que módulo uma disciplina aparece |
 
 Bandejão e JupiterWeb funcionam para qualquer pessoa. O e-Disciplinas mostra as **suas**
 disciplinas, então ele precisa de uma chave sua, e obter essa chave dá um pouco mais de
@@ -796,7 +797,7 @@ deles: ninguém rodou ainda.
 | `usp-rucard` | `bandejao` |
 | `usp-moodle` | `o_que_vence`, `material`, `baixar_arquivo`, `diagnostico`, `ja_entreguei`, `notas`, `avisos`, `o_que_mudou`, `disciplinas`, `atrasadas` |
 | `usp-moodle`, só com `USP_MCP_ENTREGA=1` | `salvar_rascunho`, `entregar` |
-| `usp-jupiter` | `disciplina`, `requisitos` |
+| `usp-jupiter` | `disciplina`, `requisitos`, `modulos` |
 
 A superfície é allowlist: só saem daqui as funções nomeadas nela, por igualdade exata de
 nome, e o default é negar. Sobre ela existe o bloqueio permanente do §2.2, que vale mesmo

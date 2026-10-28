@@ -35,13 +35,17 @@ from usp_mcp.jupiter.erros import ConsultaNegada, JupiterIndisponivel, RespostaI
 from usp_mcp.jupiter.politica import CONSULTAS_PERMITIDAS
 
 __all__ = ["ClienteJupiter", "transporte_http", "transporte_get_http", "ConsultaNegada",
-           "CONSULTAS_PERMITIDAS", "URL_BASE", "URL_PAGINA", "AGENTE", "TTL_PADRAO"]
+           "CONSULTAS_PERMITIDAS", "URL_BASE", "URL_PAGINA", "AGENTE", "TTL_PADRAO", "CODCG_POLI"]
 
 URL_BASE = "https://uspdigital.usp.br/jupiterweb/dwr/call/plaincall"
 
 # A segunda superfície (§9, 14/09): a página de requisitos por curso, que é a
 # única que cita os currículos onde a exigência de fato mora.
 URL_PAGINA = "https://uspdigital.usp.br/jupiterweb"
+
+# A única unidade que tem módulo (varredura das 47, 26/10). Fixa, e não
+# parâmetro: parâmetro que só aceita um valor é superfície à toa.
+CODCG_POLI = "3"
 
 # O User-Agent vem do pacote (`usp_mcp/__init__.py`), com a versão perguntada
 # ao metadado em vez de repetida: as duas cópias à mão ficaram em `0.1` com o
@@ -109,6 +113,18 @@ def _e_a_pagina_de_requisitos(bruto: bytes) -> bool:
     """Se o corpo tem a forma da página de requisitos. Não lê conteúdo."""
     texto = bruto.decode("iso-8859-1", errors="replace") if isinstance(bruto, bytes) else bruto
     return bool(_TITULO_JUPITER.search(texto) and _PALAVRA_REQUISITO.search(texto))
+
+
+# A lista de cursos (fatia de módulos, 26/10). Mesma lógica do marcador acima:
+# o título diz "cheguei ao JupiterWeb", e o link para a grade diz "e esta é uma
+# lista de cursos" — toda linha da tabela o tem, e nenhuma página de manutenção.
+_LINK_GRADE = re.compile(r"listarGradeCurricular\?")
+
+
+def _e_a_lista_de_cursos(bruto: bytes) -> bool:
+    """Se o corpo tem a forma da lista de cursos. Não lê conteúdo."""
+    texto = bruto.decode("iso-8859-1", errors="replace")
+    return bool(_TITULO_JUPITER.search(texto) and _LINK_GRADE.search(texto))
 
 
 def _detalhe(erro: BaseException) -> str:
@@ -244,7 +260,31 @@ class ClienteJupiter:
             params={"coddis": sigla, "verdis": 0},
         )
 
-    # --- a segunda superfície: a página de requisitos por curso -------------
+    # --- a segunda superfície: páginas HTML do mesmo host -------------------
+
+    def _pagina(self, *, caminho: str, url: str, chave: tuple, e_a_certa, erro_forma: str,
+                erro_status: str) -> bytes:
+        """GET de página pública: allowlist de CAMINHO, cache, status e forma.
+
+        A forma é validada ANTES de gravar no cache: com TTL de semestre,
+        guardar uma página de manutenção responde errado pela vida do processo.
+        """
+        decisao = politica.decidir_caminho(caminho)
+        if not decisao.permitida:
+            raise ConsultaNegada(decisao.motivo)
+
+        with self._porta:
+            guardado = self._cache.get(chave)
+            if guardado is not None and self._relogio() - guardado[0] < self._ttl:
+                return guardado[1]
+
+            status, bruto = self._transporte_get(url, {"User-Agent": self._agente})
+            if status != 200:
+                raise RespostaInvalida(erro_status.format(status=status))
+            if not e_a_certa(bruto):
+                raise RespostaInvalida(erro_forma)
+            self._cache[chave] = (self._relogio(), bruto)
+            return bruto
 
     def obter_requisitos(self, sigla: str) -> bytes:
         """A página crua de requisitos da disciplina, em bytes.
@@ -252,40 +292,75 @@ class ClienteJupiter:
         Passa pela allowlist de CAMINHO, não pela de consulta: é outra
         superfície, e o filtro do DWR não alcança um GET.
         """
-        decisao = politica.decidir_caminho("listarCursosRequisitos")
-        if not decisao.permitida:
-            raise ConsultaNegada(decisao.motivo)
+        # `quote` como em `dwr.serializar`, e não f-string: uma sigla com `#`
+        # cortaria a URL no fragmento e a requisição sairia com meia sigla —
+        # resposta de outra disciplina, com cara de certa.
+        return self._pagina(
+            caminho="listarCursosRequisitos",
+            url=f"{URL_PAGINA}/listarCursosRequisitos?coddis={quote(sigla, safe='')}",
+            chave=("pagina", "listarCursosRequisitos", sigla),
+            e_a_certa=_e_a_pagina_de_requisitos,
+            erro_status=(
+                "o JupiterWeb respondeu HTTP {status} para a página de "
+                "requisitos. Diferente do DWR, aqui um status fora de 200 é "
+                "mesmo falha — a página de erro dele não vem com 200."
+            ),
+            erro_forma=(
+                "o JupiterWeb respondeu HTTP 200, mas o que veio não é a "
+                f"página de requisitos de {sigla}: faltam nela as marcas que "
+                "toda resposta dessa página tem. É o que acontece com página "
+                "de manutenção, tela de login e corpo vazio, que também vêm "
+                "com 200. NÃO leia isto como 'a disciplina não exige nada' — "
+                "nada foi lido sobre as exigências dela."
+            ),
+        )
 
-        chave = ("pagina", "listarCursosRequisitos", sigla)
-        with self._porta:
-            guardado = self._cache.get(chave)
-            if guardado is not None and self._relogio() - guardado[0] < self._ttl:
-                return guardado[1]
+    def obter_lista_cursos_poli(self, tipo: str) -> bytes:
+        """A lista de cursos da Poli: `N` (ingresso, e a seção de percursos) ou
+        `V` ("Cursos e Habilitações Anteriores", onde estão os 47 módulos).
 
-            # `quote` como em `dwr.serializar`, e não f-string: uma sigla com
-            # `#` cortaria a URL no fragmento e a requisição sairia com meia
-            # sigla — resposta de outra disciplina, com cara de certa.
-            url = f"{URL_PAGINA}/listarCursosRequisitos?coddis={quote(sigla, safe='')}"
-            status, bruto = self._transporte_get(url, {"User-Agent": self._agente})
-            if status != 200:
-                raise RespostaInvalida(
-                    f"o JupiterWeb respondeu HTTP {status} para a página de "
-                    "requisitos. Diferente do DWR, aqui um status fora de 200 é "
-                    "mesmo falha — a página de erro dele não vem com 200."
-                )
-            if not _e_a_pagina_de_requisitos(bruto):
-                # ANTES de gravar no cache: com um TTL de semestre, guardar uma
-                # página que não é a certa responde errado pela vida do processo.
-                raise RespostaInvalida(
-                    "o JupiterWeb respondeu HTTP 200, mas o que veio não é a "
-                    f"página de requisitos de {sigla}: faltam nela as marcas que "
-                    "toda resposta dessa página tem. É o que acontece com página "
-                    "de manutenção, tela de login e corpo vazio, que também vêm "
-                    "com 200. NÃO leia isto como 'a disciplina não exige nada' — "
-                    "nada foi lido sobre as exigências dela."
-                )
-            self._cache[chave] = (self._relogio(), bruto)
-            return bruto
+        `tipo` entra na URL, então é validado contra os dois valores antes de
+        qualquer coisa: um valor livre aqui é parâmetro de URL arbitrário.
+        """
+        if tipo not in ("N", "V"):
+            raise ConsultaNegada(
+                f"tipo {tipo!r} não é um dos dois da lista de cursos ('N' ou 'V')."
+            )
+        return self._pagina(
+            caminho="jupCursoLista",
+            url=f"{URL_PAGINA}/jupCursoLista?codcg={CODCG_POLI}&tipo={tipo}",
+            chave=("pagina", "jupCursoLista", tipo),
+            e_a_certa=_e_a_lista_de_cursos,
+            erro_status=(
+                "o JupiterWeb respondeu HTTP {status} para a lista de cursos da "
+                "Poli. A página de erro dele não vem com 200, então isto é falha."
+            ),
+            erro_forma=(
+                "o JupiterWeb respondeu HTTP 200, mas o que veio não é a lista de "
+                "cursos da Poli: não há nela nenhum link de grade curricular. É o "
+                "que acontece com página de manutenção e tela de login. NÃO leia "
+                "isto como 'a Poli não tem módulo' — nada foi lido."
+            ),
+        )
+
+    def grade_curricular(self, codcur: str, codhab: str, tipo: str) -> list:
+        """As disciplinas de um currículo. `tipo` é o do link da lista de cursos:
+        o mesmo par devolve VAZIO com o `tipo` errado (§9, 26/10)."""
+        return self._chamar(
+            metodo="listar",
+            consulta="pubGradeCurricular",
+            params={"codcur": codcur, "codhab": codhab, "tipo": tipo},
+        )
+
+    def info_curriculo(self, codcur: str, codhab: str, tipo: str) -> dict:
+        """A ficha do currículo: carga exigida e regra em texto. A USP devolve
+        objeto vazio (ou nada) para currículo sem ficha publicada."""
+        valor = self._chamar(
+            metodo="obter",
+            consulta="pubObterInfoCursoWeb",
+            params={"codcur": codcur, "codhab": codhab, "tipo": tipo},
+        )
+        return valor if isinstance(valor, dict) else {}
 
     def listar_colegiados(self) -> list:
         """As 47 unidades. Existe para NÃO adivinhar: `codclg` como prefixo de

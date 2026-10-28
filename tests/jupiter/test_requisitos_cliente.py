@@ -39,9 +39,9 @@ def test_t59_caminho_fora_da_allowlist_e_negado():
     assert "obterTurma" in decisao.motivo
 
 
-def test_t60_o_unico_caminho_permitido_e_o_da_fatia():
+def test_t60_os_caminhos_permitidos_sao_os_das_fatias():
     assert politica.decidir_caminho("listarCursosRequisitos").permitida
-    assert politica.CAMINHOS_PERMITIDOS == frozenset({"listarCursosRequisitos"})
+    assert politica.CAMINHOS_PERMITIDOS == frozenset({"listarCursosRequisitos", "jupCursoLista"})
 
 
 # --- cliente ---------------------------------------------------------------

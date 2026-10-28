@@ -59,7 +59,7 @@ def test_t45_main_registra_a_ferramenta_no_sdk_instalado(servidor_montado):
 
     # Registrar por índice deixava a segunda ferramenta declarada e nunca
     # anunciada (achado do handshake, 14/09). A asserção é sobre o CONJUNTO.
-    assert sorted(f.name for f in ferramentas) == ["disciplina", "requisitos"]
+    assert sorted(f.name for f in ferramentas) == ["disciplina", "modulos", "requisitos"]
     assert servidor_montado["transporte"] == "stdio", (
         "o adaptador deixou de escutar em stdio — o .mcp.json fala stdio"
     )
@@ -90,9 +90,13 @@ def test_t46_schema_derivado_casa_com_o_declarado(servidor_montado):
             f"{ferramenta.name}: divergem {derivados ^ declarados}"
         )
 
-        # `sigla` obrigatória dos dois lados: um default aqui viraria consulta
-        # sem disciplina nenhuma.
-        assert ferramenta.input_schema["required"] == ["sigla"]
+        # Obrigatórios iguais dos dois lados. `sigla` segue obrigatória nas
+        # ferramentas que a pedem: um default aqui viraria consulta sem
+        # disciplina nenhuma. `modulos` não tem obrigatório (lista tudo).
+        obrigatorios = declaradas[ferramenta.name]["inputSchema"].get("required", [])
+        assert ferramenta.input_schema.get("required", []) == obrigatorios
+        if ferramenta.name != "modulos":
+            assert obrigatorios == ["sigla"]
 
 
 @pytest.mark.contrato

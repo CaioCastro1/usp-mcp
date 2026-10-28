@@ -38,9 +38,7 @@ CORPO_ESPERADO = [
 # impede "não consta" de sair como "extinto". `pubObterInfoCurso` continua fora
 # por outro motivo, agora medido: devolve objeto vazio.
 CONSULTAS_FORA_DA_FATIA = [
-    "pubGradeCurricular",
     "pubObterInfoCurso",
-    "pubObterInfoCursoWeb",
     "pubListarDiscipResp",
     "recuperarProjetoPedagogico",
     # Saiu da fatia em 14/09 (§9): exigia um `codcur` que a API não deixa
@@ -218,7 +216,7 @@ def test_t22_requisicoes_nao_se_sobrepoem(psi3323):
     [("listar", q) for q in CONSULTAS_FORA_DA_FATIA]
     + [(m, "pubObterDisciplina") for m in METODOS_GENERICOS],
 )
-def test_t23_superficie_travada_em_tres_consultas(grav, metodo, consulta):
+def test_t23_superficie_travada_em_cinco_consultas(grav, metodo, consulta):
     c = cliente.ClienteJupiter(grav)
     with pytest.raises(cliente.ConsultaNegada):
         c._chamar(metodo=metodo, consulta=consulta, params={})
@@ -226,7 +224,9 @@ def test_t23_superficie_travada_em_tres_consultas(grav, metodo, consulta):
         "pubObterDisciplina",
         "pubListarCursoEntrada",
         "pubListarColegiado",
-    }, "a fatia tem três consultas; uma quarta precisa de decisão registrada no §9"
+        "pubGradeCurricular",
+        "pubObterInfoCursoWeb",
+    }, "a fatia tem cinco consultas; uma sexta precisa de decisão registrada no §9"
 
 
 @pytest.mark.politica

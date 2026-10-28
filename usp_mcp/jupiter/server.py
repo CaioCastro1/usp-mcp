@@ -23,9 +23,18 @@ from ..anotacoes import SO_LEITURA, para_o_sdk
 from .cliente import ClienteJupiter, transporte_http
 from .erros import ErroJupiter
 from .ferramentas import agrupar_curriculos, disciplina, requisitos, resolver_secoes
+from . import modulos as _modulos
+from .indice import CacheDoIndice, montar_indice
 
 _NOME_FERRAMENTA = "disciplina"
 _NOME_REQUISITOS = "requisitos"
+_NOME_MODULOS = "modulos"
+_NOMES = (_NOME_FERRAMENTA, _NOME_REQUISITOS, _NOME_MODULOS)
+
+# O índice dos módulos vive o processo inteiro (7 dias de validade). As outras
+# duas ferramentas montam cliente novo por chamada; esta não pode, porque o
+# índice custa 102 requisições.
+_CACHE_MODULOS = CacheDoIndice()
 
 
 def listar_ferramentas() -> list[dict]:
@@ -125,6 +134,53 @@ def listar_ferramentas() -> list[dict]:
                 "additionalProperties": False,
             },
             # Mesma leitura do mesmo catálogo público, por outro recorte.
+            "annotations": SO_LEITURA,
+        },
+        {
+            "name": _NOME_MODULOS,
+            "description": (
+                "Os módulos de formação da Escola Politécnica (Poli-USP) e os "
+                "Percursos Formativos, pelo catálogo público do JupiterWeb. Sem "
+                "argumentos: todos, agrupados por curso, com a carga horária "
+                "exigida e o de menor carga no topo. Com `busca` (nome do módulo, "
+                "do curso, ou o código como 3032/5080): se casar um só, as "
+                "disciplinas dele por semestre ideal, com tipo (O obrigatória, C "
+                "optativa eletiva, L optativa livre) e créditos aula+trabalho; se "
+                "casar vários, só a lista para escolher. Com `disciplina` (sigla "
+                "ou pedaço do nome): em que módulos ela aparece. Use para 'qual "
+                "módulo tem menor carga', 'que módulos a Elétrica tem', 'que "
+                "matérias tem o módulo de sistemas eletrônicos', 'algum módulo tem "
+                "PMR3508'. Só a Poli tem módulo na USP. NÃO diz quais módulos você "
+                "pode escolher: isso depende da sua ênfase e de regras da comissão "
+                "de curso que o Jupiter não publica. A primeira pergunta da sessão "
+                "demora uns 20 s; as seguintes são imediatas."
+            ),
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "busca": {
+                        "type": "string",
+                        "description": (
+                            "Nome do módulo, do curso ou o código (3032/5080). "
+                            "Acento e maiúscula não importam: 'sistemas "
+                            "eletronicos', 'telecom', 'pre-mestrado eletrica'. "
+                            "Vazio lista todos."
+                        ),
+                        "default": "",
+                    },
+                    "disciplina": {
+                        "type": "string",
+                        "description": (
+                            "Sigla (PMR3508) ou pedaço do nome ('aprendizado de "
+                            "maquina') de uma disciplina: diz em que módulos ela "
+                            "aparece."
+                        ),
+                        "default": "",
+                    },
+                },
+                "additionalProperties": False,
+            },
+            # Mesma leitura do mesmo catálogo público.
             "annotations": SO_LEITURA,
         },
     ]
@@ -254,10 +310,23 @@ def chamar_ferramenta(nome: str, argumentos: dict, *, cliente=None) -> str:
     `cliente` é injetável — sem credencial, a fronteira inteira roda offline
     contra fixture. É a diferença entre esta e a do Moodle.
     """
-    if nome not in (_NOME_FERRAMENTA, _NOME_REQUISITOS):
+    if nome not in _NOMES:
         raise ErroJupiter(
             f"Ferramenta desconhecida: {nome!r}. As ferramentas expostas por "
-            f"este servidor são {_NOME_FERRAMENTA!r} e {_NOME_REQUISITOS!r}."
+            f"este servidor são {', '.join(repr(n) for n in _NOMES)}."
+        )
+
+    if nome == _NOME_MODULOS:
+        if cliente is None:
+            indice = _CACHE_MODULOS.obter(
+                lambda: montar_indice(ClienteJupiter(transporte_http))
+            )
+        else:
+            indice = montar_indice(cliente)
+        return _modulos.responder(
+            indice,
+            busca=argumentos.get("busca") or "",
+            disciplina=argumentos.get("disciplina") or "",
         )
 
     if cliente is None:
@@ -347,6 +416,14 @@ def main() -> None:
         except ErroJupiter as exc:
             raise ToolError(str(exc)) from exc
 
+    def _modulos_mcp(busca="", disciplina="") -> str:
+        try:
+            return chamar_ferramenta(
+                _NOME_MODULOS, {"busca": busca, "disciplina": disciplina}
+            )
+        except ErroJupiter as exc:
+            raise ToolError(str(exc)) from exc
+
     # O SDK lê a ASSINATURA, não o inputSchema declarado (§9, 31/08/2026): sem
     # isto, o aviso de que sem `codcur` não há pré-requisito não chega ao modelo.
     anotar(
@@ -361,10 +438,13 @@ def main() -> None:
         },
     )
     anotar(_requisitos, por_nome[_NOME_REQUISITOS]["inputSchema"], {"sigla": str})
+    anotar(_modulos_mcp, por_nome[_NOME_MODULOS]["inputSchema"],
+           {"busca": str, "disciplina": str})
 
     for descritor, funcao in (
         (por_nome[_NOME_FERRAMENTA], _disciplina),
         (por_nome[_NOME_REQUISITOS], _requisitos),
+        (por_nome[_NOME_MODULOS], _modulos_mcp),
     ):
         # `annotations` sai do MESMO descritor que a descrição e o schema, e o
         # laço garante que ferramenta nova não fique de fora por esquecimento:
@@ -405,9 +485,14 @@ def _auto_verificar() -> int:  # pragma: no cover — utilitário de linha de co
     def _sonda_requisitos(sigla: str) -> str:
         return ""
 
+    @servidor.tool(name="modulos", description="verificação")
+    def _sonda_modulos(busca: str = "", disciplina: str = "") -> str:
+        return ""
+
     # Uma sonda por ferramenta declarada, nunca só a [0]: foi esse índice que
     # deixou a segunda ferramenta declarada e não anunciada em 14/09.
-    sondas = {"disciplina": _sonda_disciplina, "requisitos": _sonda_requisitos}
+    sondas = {"disciplina": _sonda_disciplina, "requisitos": _sonda_requisitos,
+              "modulos": _sonda_modulos}
     tudo_ok = True
     for ferramenta in listar_ferramentas():
         declarados = set(ferramenta["inputSchema"]["properties"])

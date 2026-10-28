@@ -12,7 +12,10 @@ import json
 
 import pytest
 
+from tests.jupiter.conftest import FIXTURES, MODULOS, GetPorTipo, RoteadorDWR
 from usp_mcp.jupiter import cliente, dwr, ferramentas, server
+from usp_mcp.jupiter import indice as _indice
+from usp_mcp.jupiter import modulos as _modulos
 
 pytestmark = pytest.mark.contrato
 
@@ -116,3 +119,51 @@ def test_t34d_o_texto_com_ingles_tem_teto(gravador, ptc3314):
     texto = server.formatar(ficha)
     assert len(texto.encode()) <= TETO_TEXTO_TODAS_INGLES_B, f"inglês: {len(texto.encode())} B"
     assert "Ementa (inglês):" in texto
+
+
+# --- T126-T127: a ferramenta `modulos` (26/10) -------------------------------
+#
+# Medido em 27/10 com as fixtures da fatia. Teto = medido × 1,15; piso =
+# medido × 0,85. Quem cortar bytes baixa os dois no mesmo commit; quem crescer
+# diz por quê. O cru que estas respostas substituem são ~104 mil tokens.
+MEDIDO_MODULOS = {
+    "ranking": ({}, 4751),
+    "um_modulo": ({"busca": "3032/5080"}, 1861),
+    "candidatos": ({"busca": "telecom"}, 377),
+    "nenhum": ({"busca": "astronautica"}, 814),
+    "sigla": ({"disciplina": "PMR3508"}, 256),
+    "nome": ({"disciplina": "aprendizado de maquina"}, 389),
+    "parecida": ({"disciplina": "PM3508"}, 258),
+}
+MEDIDO_ESTATICO_JUPITER = 4066
+
+
+@pytest.fixture(scope="module")
+def indice_modulos():
+    respostas = json.loads(
+        (FIXTURES / MODULOS["respostas"]).read_text(encoding="utf-8"))["respostas"]
+    get = GetPorTipo((FIXTURES / MODULOS["lista_N"]).read_bytes(),
+                     (FIXTURES / MODULOS["lista_V"]).read_bytes())
+    return _indice.montar_indice(
+        cliente.ClienteJupiter(RoteadorDWR(respostas), transporte_get=get))
+
+
+@pytest.mark.parametrize("forma", sorted(MEDIDO_MODULOS))
+def test_t126_cada_forma_de_resposta_de_modulos_tem_teto_e_piso(indice_modulos, forma):
+    argumentos, medido = MEDIDO_MODULOS[forma]
+    tamanho = len(_modulos.responder(indice_modulos, **argumentos).encode())
+    assert tamanho <= medido * 1.15, f"{forma}: {tamanho} B > teto {medido * 1.15:.0f} B"
+    assert tamanho >= medido * 0.85, (
+        f"{forma}: {tamanho} B < piso {medido * 0.85:.0f} B — cortou e não baixou "
+        "o teto. Atualize MEDIDO_MODULOS no mesmo commit."
+    )
+
+
+def test_t127_a_descricao_do_jupiter_tem_teto_e_piso():
+    """O custo que se paga em TODA sessão, perguntada ou não. O Moodle cresceu
+    24% entre 22/09 e 27/10 sem nada ficar vermelho — este é o guarda do
+    Jupiter."""
+    tamanho = len(json.dumps(server.listar_ferramentas(), ensure_ascii=False).encode())
+    assert MEDIDO_ESTATICO_JUPITER * 0.85 <= tamanho <= MEDIDO_ESTATICO_JUPITER * 1.15, (
+        f"tools/list do Jupiter: {tamanho} B (medido {MEDIDO_ESTATICO_JUPITER} B)"
+    )

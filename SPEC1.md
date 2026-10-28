@@ -148,6 +148,20 @@ assistido tem que acontecer com acesso à rede dele, ou contra fixtures.
 - Qualquer coisa sobre o JupiterWeb: **nenhum endpoint foi testado**. Não prometa Jupiter
   antes de mapear se existe JSON ou se é só HTML.
 
+### 1.5 JupiterWeb — fatos acrescentados depois de 27/08
+
+O item do §1.4 acima é de 27/08 e ficou velho em 31/08: o reconhecimento está em
+`notas/jupiter-recon.md` e as decisões no §9. Aqui ficam só os fatos que
+corrigem um registro anterior.
+
+- **`pubGradeCurricular` responde com `tipo:"V"` para os currículos "anteriores".**
+  Para os códigos que só aparecem em `jupCursoLista?tipo=V` (3032, os módulos e as
+  ênfases da Poli), `tipo:"N"` devolve vazio e `tipo:"V"` devolve a grade: 3032/0
+  tem 90 registros, 3032/5080 tem 31. Medido em 22–26/10/2026 (§9, 26/10).
+- **`tipobg` tem três valores, não dois:** `O` (obrigatória), `L` (optativa livre)
+  e `C` (optativa eletiva). O módulo 3032/5080 é todo `C`. Medido em 26/10/2026
+  (§9, 26/10).
+
 ---
 
 ## 2. Invariantes
@@ -4749,5 +4763,106 @@ reprova módulo novo que leia o relógio fora dela.
 **Descartado:** subir o teto de `atrasadas` (registraria como custo do formato um
 efeito da data, e o próximo prazo da fixture quebraria de novo) e passar `agora`
 por `chamar_ferramenta` (mudaria a fronteira de produção para servir a um teste).
+
+---
+
+### 26/10/2026 — Jupiter: módulo e ênfase respondem com tipo=V, e a ferramenta modulos
+
+Desenho em `docs/superpowers/specs/2026-10-26-modulos-design.md`, seção "O que foi
+medido". Medição de 22 a 26/10, dado público, sem credencial; execução e canário em
+27/10. Três perguntas do dono abriram a fatia: "qual módulo tem menor carga?",
+"algum módulo tem PMR3508?" e "que disciplinas tem o módulo de sistemas
+eletrônicos avançados?".
+
+**Correção da entrada "14/09/2026 — a superfície pública do Jupiter cobre só a
+metade de entrada do curso".** A conclusão de lá — da ênfase e do módulo em diante
+não há grade — vinha de `pubGradeCurricular` chamada sempre com `tipo:"N"`, porque é
+o que o `jupCarreira.js` usa. Para os currículos que só aparecem na lista de
+anteriores, `N` vem vazio e **`V` responde**: 3032/0 tem 90 registros (1º–6º),
+3032/3180 (ênfase Eletrônica e Sistemas) tem 39, até o 10º, e 3032/5080 (Módulo
+Sistemas Eletrônicos Avançados) tem 31, 9º–10º, com as seis disciplinas que a página
+do PSI dá como pré-aprovadas. A grade "vazia" do 3032, registrada em 14/09 como
+fato, era o `tipo` errado. A outra metade do curso está publicada; o que não está é
+um caminho DWR que a liste — os pares `codcur/codhab` dos anteriores só existem no
+HTML de `jupCursoLista?codcg=3&tipo=V`.
+
+**Correção da frase "nenhum payload do Jupiter tem campo de vigência"**, da entrada
+"14/09/2026 — Jupiter: o curso descobrível é o que não responde".
+`pubObterInfoCursoWeb` — lida no JS em 31/08 e nunca chamada até 22/10 — devolve
+~900 B com `dtainicrl`. Para o 3032, que é currículo anterior, ela vale 15/07/2026:
+é data de **revisão** do currículo, não de início. Não serve para descartar
+geração, e nada aqui a usa para isso. O resto daquela entrada continua de pé.
+
+**Só a Poli tem módulo.** Varredura das 47 unidades em 26/10 (`jupCursoLista`, `N` e
+`V`, 930 grades): os 47 nomes com "Módulo" são todos da unidade 3. IME e FFLCH têm
+habilitação de grade completa e nenhuma camada. Somam-se os 3 Percursos Formativos
+de IA (`codhab=6000`, chamados "Trilha Formativa" até 22/10), e são **50** pares.
+
+**`tipobg` tem um terceiro valor, `C`** (optativa eletiva), além de `O` e `L`. O
+módulo 5080 é todo `C`; código que trate só os dois conhecidos perde o módulo
+inteiro (§1.5).
+
+**Os Percursos não têm grade nem carga publicadas com o `tipo` do link.** O link
+ativo deles é `tipo=V`, e com ele a grade vem vazia e a ficha toda nula. Com `N` a
+grade vem cheia, mas é a do curso-base: o currículo 3033 ignora `codhab` (/0, /3150,
+/3180 e /6000 devolvem os mesmos 89 registros). A ferramenta segue o link, nunca
+tenta o outro `tipo`, e diz "sem grade nem carga publicadas". Outros quatro módulos têm carga e grade
+vazia, e a saída diz isso por linha.
+
+**O erro de método de 14/09 voltou, na captura.** O script de captura do plano
+comparava o cabeçalho de seção da lista `N` sem `html.unescape`; o cabeçalho chega
+como `M&oacute;dulo`, e a primeira captura achou **47** pares em vez de 50 — perdeu
+justamente os 3 Percursos. O `indice.py` desescapa e lê 50; a fixture foi refeita.
+É a mesma lição da "Correção lavrada no mesmo dia" de 14/09: classificar antes de
+olhar a distribuição apaga a categoria inesperada.
+
+**Superfície: 5 consultas e 2 caminhos.** `pubGradeCurricular` (`listar`) entra
+porque é a grade, e só ela responde "que disciplinas tem o módulo";
+`pubObterInfoCursoWeb` (`obter`) entra porque é o único lugar com a carga exigida
+(`cgahortot`, de 270 h a 750 h; 33 dos 47 módulos pedem 360 h). O caminho
+`jupCursoLista` entra porque é o único que lista os módulos — nenhuma consulta DWR
+lista os anteriores. O `tipo` mandado ao DWR é o do link ativo, e `codcg` fica fixo
+em `"3"` no código.
+
+**Custo, medido com `tiktoken` `o200k_base` efêmero.** O cru que a ferramenta evita é
+ficha + grade dos 50: 259.369 B, **~104 mil tokens**. A saída, contra as metas do
+desenho: ranking 1.501 tokens (meta 1.500), um módulo 612 (600), candidatos 108
+(200), nenhum 225 (250), sigla 103 (100), nome 135 (400), parecida 95 (100). O
+`tools/list` do Jupiter foi de 785 para ~1.068 tokens (4.066 B); a descrição de
+`modulos` sozinha custa ~409. O código do plano saía com o ranking em 1.951 e a
+sigla em 134; foram cortados a carga entre parênteses quando há uma categoria só, a
+contagem de disciplinas por linha e a ressalva repetida. As três sobras pequenas
+(ranking +1, um módulo +12, sigla +3) foram aceitas, e T126-T127 travam teto e piso.
+
+**O canário T128** faz ~102 requisições — as duas listas da Poli e ficha + grade dos
+50 — e montou o índice real em **18,6 s** (critério: 60 s), 50 módulos, PMR3508 em
+3112/5000. O índice fica em cache com TTL; o currículo novo cresce com a turma
+(3033: 67 registros em 14/09, 89 em 22/10), e cache sem validade estaria errado.
+
+**Achado colateral, no backlog:** o canário antigo T74 reprova ao vivo. Em 27/10 a
+página de requisitos de PTC3314 traz dois currículos, 3032 e 3033, e o T74 espera só
+o 3032. O teste não foi mexido; pede medição e decisão.
+
+**Descartado em 26/10.** Plano de formatura / "o que falta": a regra de integralização
+só existe em prosa (`obscrl`, HTML) e muda por ano de ingresso, e responder pela
+metade seria o erro que 14/09 evitou. Elegibilidade de módulo ("quais eu posso
+escolher"): depende da ênfase e de regras que o JupiterWeb não publica; a descrição
+da ferramenta diz isso, e a resposta não finge saber.
+
+**Revisão final (27/10).** Módulo que o JupiterWeb não respondeu passa a ser dito como
+"não lido agora" (ranking, ficha e busca por disciplina), nunca como "sem grade" nem
+como ausência em definitivo. Três falhas de transporte seguidas abortam a leitura do
+índice com erro legível, em vez de 50 tentativas com timeout. Índice com módulo não
+lido fica no cache 10 min (`TTL_INDICE_PARCIAL`); o completo continua 7 dias. Registro
+malformado vira módulo não lido, sem derrubar os outros.
+
+**A fonte confirma o crescimento (28/10).** A página do Ciclo Básico 3033 no JupiterWeb
+diz que o currículo novo está "em construção" e ganha dois semestres por ano até ficar
+completo. Explica, pela fonte oficial, os 67 → 89 registros de 14/09 a 22/10, as ênfases
+do 3033 com grade vazia e carga 0, e o PTC3314 aparecendo sob o 3033 (o canário T74 no
+backlog). Consequência para quem pergunta de módulo: as ênfases do 3033 vazias **não**
+são "o Jupiter não publica módulo" — os módulos de quem está no 9º semestre moram no
+3032, na lista `tipo=V`. Foi exatamente o erro que uma sessão de uso cometeu em 27/10,
+sem a ferramenta `modulos`, ao responder "qual módulo da Elétrica tem menor carga".
 
 ---

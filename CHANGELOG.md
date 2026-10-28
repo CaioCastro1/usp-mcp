@@ -16,6 +16,14 @@ porque quem o lê é um modelo e travá-lo congelaria a parte que melhora com us
 
 ### Novidades
 
+- **Os módulos da Poli, pelo nome que você usa.** A ferramenta nova `modulos`
+  responde "qual módulo tem menor carga?", "que matérias tem o módulo de
+  sistemas eletrônicos?" e "algum módulo tem PMR3508?". A busca aceita nome do
+  módulo, do curso ou o código, sem acento e sem maiúscula. A primeira pergunta
+  da sessão leva uns 20 s, porque o servidor lê os 50 módulos uma vez; as seguintes
+  são imediatas. Ela não diz quais módulos você pode escolher: isso depende da
+  sua ênfase e de regras que o JupiterWeb não publica.
+
 - **A resposta da semana do bandejão encolheu 9%.** "Que dia tem lasanha essa
   semana?" ocupava 2.642 tokens do contexto do assistente e passa a ocupar 2.408,
   sem perder nada: o item que se repete em quase todas as refeições sobe uma vez
