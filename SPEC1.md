@@ -4856,4 +4856,13 @@ como ausência em definitivo. Três falhas de transporte seguidas abortam a leit
 lido fica no cache 10 min (`TTL_INDICE_PARCIAL`); o completo continua 7 dias. Registro
 malformado vira módulo não lido, sem derrubar os outros.
 
+**A fonte confirma o crescimento (28/10).** A página do Ciclo Básico 3033 no JupiterWeb
+diz que o currículo novo está "em construção" e ganha dois semestres por ano até ficar
+completo. Explica, pela fonte oficial, os 67 → 89 registros de 14/09 a 22/10, as ênfases
+do 3033 com grade vazia e carga 0, e o PTC3314 aparecendo sob o 3033 (o canário T74 no
+backlog). Consequência para quem pergunta de módulo: as ênfases do 3033 vazias **não**
+são "o Jupiter não publica módulo" — os módulos de quem está no 9º semestre moram no
+3032, na lista `tipo=V`. Foi exatamente o erro que uma sessão de uso cometeu em 27/10,
+sem a ferramenta `modulos`, ao responder "qual módulo da Elétrica tem menor carga".
+
 ---
