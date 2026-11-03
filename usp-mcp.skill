@@ -1,0 +1,10 @@
+# Integração com USP MCP (Moodle, Jupiter, Rucard)
+
+Quando o usuário pedir informações acadêmicas, sobre o Moodle, Jupiter ou cardápio do Bandejão (Rucard), siga exatamente este fluxo para acessar o MCP:
+
+1. Utilize a ferramenta `define_subagent` para criar um subagente configurado com `enable_mcp_tools: true`.
+2. Com o subagente criado, use `invoke_subagent` passando a instrução exata do que você precisa que ele faça (ex: "Verifique minhas notas da disciplina PTC3314", "Qual o cardápio do bandejão hoje?").
+3. O subagente terá a ferramenta `call_mcp_tool` injetada automaticamente graças ao `.mcp.json` na raiz deste projeto.
+4. Aguarde a resposta do subagente e responda ao usuário de forma concisa.
+
+**Nota:** Nunca tente inventar os dados, sempre delegue a tarefa para o subagente MCP fazer a requisição real.
