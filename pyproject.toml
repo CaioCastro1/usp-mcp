@@ -158,3 +158,9 @@ usp-mcp-token = "usp_mcp.token.cli:main"
 # produto — o mesmo erro do `pytest` em `dependencies`, por outra porta.
 include = ["usp_mcp*"]
 namespaces = false
+
+[tool.setuptools.package-data]
+# O intermediário TLS que o e-Disciplinas deixa de mandar (§9, 04/11/2026). Sem
+# esta linha o wheel sai sem o PEM e o servidor instalado volta a falhar na
+# verificação — o checkout editável esconderia isso, porque lê da árvore.
+"usp_mcp.moodle" = ["cadeia_extra.pem"]

@@ -41,6 +41,16 @@ porque quem o lê é um modelo e travá-lo congelaria a parte que melhora com us
   Python); quem está no Mac ou no Linux não muda nada. No PowerShell, o fluxo em
   dois passos é `Get-Clipboard | usp-mcp-token`.
 
+### Correções
+
+- **O e-Disciplinas voltou a responder.** Desde 26/10/2026 o servidor da USP
+  manda um certificado com a cadeia incompleta. O navegador completa sozinho;
+  o Python não, e toda ferramenta do Moodle falhava. O projeto agora traz o
+  certificado intermediário que falta, e a verificação de segurança continua
+  ligada. Até aqui o erro aparecia como "não respondeu… timeout", o que
+  mandava a pessoa esperar à toa. Se um problema de certificado voltar, a
+  mensagem passa a dizer que é certificado.
+
 ### Ainda não verificado contra dado real
 
 - O comando no Windows foi escrito e testado num Mac, com dublês das ferramentas
