@@ -47,7 +47,9 @@ porque quem o lê é um modelo e travá-lo congelaria a parte que melhora com us
   manda um certificado com a cadeia incompleta. O navegador completa sozinho;
   o Python não, e toda ferramenta do Moodle falhava. O projeto agora traz o
   certificado intermediário que falta, e a verificação de segurança continua
-  ligada. Até aqui o erro aparecia como "não respondeu… timeout", o que
+  ligada. Vale para Python 3.11 a 3.14; no 3.11 e no 3.12 a primeira tentativa
+  de correção não bastava, e esta basta. Para receber: `git pull` no clone e
+  reiniciar o assistente. Até aqui o erro aparecia como "não respondeu… timeout", o que
   mandava a pessoa esperar à toa. Se um problema de certificado voltar, a
   mensagem passa a dizer que é certificado.
 

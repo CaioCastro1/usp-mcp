@@ -650,6 +650,9 @@ def test_t130_contexto_tls_carrega_o_intermediario_embutido():
     ctx = mod_cliente._contexto_tls()
     assert ctx.verify_mode == ssl.CERT_REQUIRED
     assert ctx.check_hostname is True
+    # Sem a flag, 3.11 e 3.12 exigem a raiz R46, que o cert.pem do macOS não
+    # traz — e a correção valia só no 3.13+, que a liga por padrão.
+    assert ctx.verify_flags & ssl.VERIFY_X509_PARTIAL_CHAIN
     nomes = [
         dict(par[0] for par in c["subject"]).get("commonName")
         for c in ctx.get_ca_certs()

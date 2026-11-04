@@ -117,11 +117,20 @@ def _contexto_tls() -> ssl.SSLContext:
     só ACRESCENTA o elo que falta; não substitui as raízes do sistema e não
     desliga nada. Quando a USP corrigir a cadeia, este arquivo vira redundante
     e inofensivo; ele vence em 19/11/2030.
+
+    `VERIFY_X509_PARTIAL_CHAIN` deixa o intermediário embutido ser o ponto de
+    confiança, sem exigir que a raiz dele (GlobalSign Root R46) esteja no
+    repositório da máquina. Sem a flag, só o Python 3.13+ funcionava — ele a
+    liga por padrão; no 3.11 e no 3.12 o `/etc/ssl/cert.pem` do macOS não traz
+    a R46 e a cadeia parava em "unable to get issuer certificate" (§9,
+    04/11/2026). A flag não afrouxa nada para os outros sites: as raízes do
+    sistema já são pontos de confiança, e a única âncora nova é o PEM acima.
     """
     ctx = ssl.create_default_context()
     pem = importlib.resources.files(__package__).joinpath("cadeia_extra.pem")
     # `cadata` exige ASCII: por isso o cabeçalho do PEM não tem acento.
     ctx.load_verify_locations(cadata=pem.read_text(encoding="ascii"))
+    ctx.verify_flags |= ssl.VERIFY_X509_PARTIAL_CHAIN
     return ctx
 
 
