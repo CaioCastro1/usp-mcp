@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "acervo-worker",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["-C", "/Users/caiocastro/Padrao/GitHub/Pessoal/fujita/worker", "exec", "wrangler", "dev", "--port", "8787", "--ip", "127.0.0.1"],
+      "port": 8787
+    }
+  ]
+}
