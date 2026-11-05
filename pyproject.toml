@@ -28,7 +28,7 @@ name = "usp-mcp"
 # Não é cosmético: quem reportar "usp-mcp 0.3.0 quebrou" e receber um handshake
 # dizendo 0.1.0 está lendo duas verdades sobre o mesmo processo. P5 lê a `version=`
 # de dentro de cada `main()` por AST e reprova se divergirem.
-version = "1.1.0"
+version = "1.2.0"
 
 description = "Ferramentas MCP para a vida acadêmica na USP — bandejão do RUCard, prazos e material do e-Disciplinas, catálogo do JupiterWeb. Projeto não-oficial, sem vínculo com a Universidade de São Paulo."
 readme = "README.md"
