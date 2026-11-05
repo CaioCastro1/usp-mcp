@@ -4866,3 +4866,64 @@ são "o Jupiter não publica módulo" — os módulos de quem está no 9º semes
 sem a ferramenta `modulos`, ao responder "qual módulo da Elétrica tem menor carga".
 
 ---
+
+### 04/11/2026 — o e-Disciplinas trocou de certificado e passou a mandar o intermediário errado
+
+**O sintoma enganava.** Toda ferramenta do Moodle, `diagnostico` incluída, respondia
+"o Moodle/e-Disciplinas não respondeu… (timeout, conexão recusada ou interrompida)".
+Três tentativas no mesmo dia, mesma mensagem. Mas o site e o endpoint
+`/webservice/rest/server.php` respondiam em ~0,1 s pelo curl da mesma máquina. Chamando
+`_transporte_padrao` fora do MCP, o erro de baixo apareceu em 0,05 s:
+`URLError(SSLCertVerificationError: unable to get local issuer certificate)`. Não era
+rede: `URLError` é `OSError`, caía em `_FALHAS_DE_TRANSPORTE` e ganhava a mensagem de
+timeout.
+
+**O que mudou do lado da USP.** Certificado novo com `notBefore` de 26/10/2026, CN
+`*.edisciplinas.usp.br`, emitido por "RNP ICPEdu GR46 OV TLS CA 2025". O servidor
+manda junto o intermediário "GlobalSign RSA OV SSL CA 2018", que não assinou essa folha
+(`openssl s_client`: `Verify return code: 21`). Navegador e curl do macOS buscam o elo
+que falta pela URL de AIA da folha; o OpenSSL do Python não faz isso. Bandejão e Jupiter
+seguiram funcionando porque moram em `uspdigital.usp.br`, com cadeia correta.
+
+**Decisão: embutir o intermediário, sem desligar verificação.**
+`usp_mcp/moodle/cadeia_extra.pem` traz o "RNP ICPEdu GR46 OV TLS CA 2025" (SHA-256
+`E1:07:47:D4:…:59:DD`, válido até 19/11/2030), baixado da URL de AIA e conferido com
+`openssl verify` contra a GlobalSign Root R46 do Keychain do macOS. `_contexto_tls()`
+soma esse PEM às raízes do sistema, liga `VERIFY_X509_PARTIAL_CHAIN` e é passado aos dois
+`urlopen` (funções e download). Hostname, validade e assinatura continuam verificados.
+Quando a USP corrigir a cadeia, o arquivo fica redundante e não atrapalha. Ao vivo,
+depois da correção: `core_webservice_get_site_info` em 1,8 s.
+
+**Por que a flag.** A primeira versão desta correção só embutia o intermediário e passou
+no Python 3.14 do venv, mas falhava no 3.11 e no 3.12 com "unable to get issuer
+certificate". O 3.13+ liga `PARTIAL_CHAIN` por padrão e aceita o intermediário como
+âncora; o 3.11 e o 3.12 exigem chegar à raiz, e o `/etc/ssl/cert.pem` do macOS, que é
+o que eles leem, tem 128 raízes e **não tem a R46**. Ela está no Keychain, que o
+OpenSSL do Python não lê. Ligar a flag faz as quatro versões se comportarem igual e
+tira a dependência do repositório de raízes de cada máquina, inclusive o do Windows, onde
+a R46 pode só ser baixada sob demanda. Conferido ao vivo, sem token, no 3.11, 3.12, 3.13
+e 3.14 do macOS. Também conferido: `expired`, `wrong.host`, `self-signed`,
+`untrusted-root` e `incomplete-chain` do badssl.com continuam recusados com a flag.
+Windows e Linux não foram testados.
+
+**Quem foi afetado.** Todo usuário apontado para o e-Disciplinas, em qualquer sistema
+e versão de Python: nenhum Python busca intermediário pela AIA. A instalação é por
+`git clone` + `pip install -e`, então a correção só chega com `git pull` e reinício do
+servidor.
+
+**Descartado.** Desligar a verificação (`CERT_NONE`): o token iria para qualquer um no
+meio do caminho (Invariante 4). Buscar o intermediário pela AIA em tempo de execução:
+seria uma chamada http sem TLS em toda subida, com código de rede novo para manter, para
+um certificado que vale cinco anos. `certifi`: não resolve, porque o que falta é um
+intermediário, não uma raiz, e seria a segunda dependência de runtime. Embutir também a
+raiz R46: resolve o 3.11 e o 3.12, mas acrescenta um segundo certificado ao projeto sem
+ganho sobre a flag.
+
+**Erro próprio.** `CertificadoNaoVerificado`, subclasse de `MoodleIndisponivel`, para
+não quebrar quem já trata esse erro. A mensagem diz que o servidor respondeu, que não é
+o token e que não adianta repetir. No download, `_motivo_seguro` ganhou um ramo para ele,
+antes do pai. Testes T129–T131 em `tests/moodle/test_cliente.py`; o T131 confere o
+`context` que é de fato enviado ao `urlopen` (regra 11 do CLAUDE.md).
+
+**O que ficou de fora.** A USP não foi avisada por aqui. O conserto do lado deles é
+servir a cadeia certa, e nada neste projeto depende disso.

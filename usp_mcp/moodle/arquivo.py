@@ -21,7 +21,14 @@ from pathlib import Path
 from . import deposito
 from .cliente import TETO_ARQUIVO_BYTES as _TETO_CLIENTE
 from .disciplinas import carregar, resolver
-from .erros import ErroMoodle, FuncaoBloqueada, MoodleIndisponivel, RespostaIlegivel, TokenInvalido
+from .erros import (
+    CertificadoNaoVerificado,
+    ErroMoodle,
+    FuncaoBloqueada,
+    MoodleIndisponivel,
+    RespostaIlegivel,
+    TokenInvalido,
+)
 from .material import acervo
 from .texto import casa
 
@@ -101,6 +108,8 @@ def _kb(n) -> str:
 def _motivo_seguro(exc: ErroMoodle) -> str:
     if isinstance(exc, FuncaoBloqueada):
         return "recusado por segurança: o endereço do arquivo não é do e-Disciplinas"
+    if isinstance(exc, CertificadoNaoVerificado):  # antes do pai: é subclasse
+        return "o certificado HTTPS do e-Disciplinas não pôde ser verificado ao baixar este arquivo"
     if isinstance(exc, MoodleIndisponivel):
         return "o e-Disciplinas não respondeu ao baixar este arquivo"
     if isinstance(exc, TokenInvalido):

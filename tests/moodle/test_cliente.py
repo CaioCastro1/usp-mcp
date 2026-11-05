@@ -593,3 +593,101 @@ def test_t63_barra_final_na_url_nao_quebra_funcao_nem_download():
     # A allowlist do download continua valendo: outro host segue recusado.
     with pytest.raises(FuncaoBloqueada):
         c.baixar("https://evil.example.com/webservice/pluginfile.php/1/a.pdf")
+
+
+# --- Cadeia TLS do e-Disciplinas (§9, 04/11/2026) ---------------------------
+#
+# Desde o certificado de 26/10/2026 o servidor manda o intermediário errado
+# (GlobalSign RSA OV SSL CA 2018) no lugar do que assinou a folha (RNP ICPEdu
+# GR46 OV TLS CA 2025). Navegador e curl do macOS completam a cadeia sozinhos
+# pela URL de AIA; o OpenSSL do Python não, e toda chamada morria em
+# CERTIFICATE_VERIFY_FAILED — que chegava ao modelo como "timeout".
+
+
+def _erro_de_certificado():
+    import ssl
+    import urllib.error
+
+    return urllib.error.URLError(
+        ssl.SSLCertVerificationError(
+            1, "certificate verify failed: unable to get local issuer certificate"
+        )
+    )
+
+
+def test_t129_certificado_nao_verificado_tem_erro_proprio_nas_duas_portas():
+    """T129 — falha de certificado não pode se passar por "não respondeu".
+
+    Continua sendo `MoodleIndisponivel` (quem já trata esse erro não quebra),
+    mas a classe e a mensagem dizem o que de fato houve.
+    """
+    from usp_mcp.moodle.erros import CertificadoNaoVerificado
+
+    def transporte(**kw):
+        raise _erro_de_certificado()
+
+    with pytest.raises(CertificadoNaoVerificado) as e:
+        _cliente(transporte).chamar(FUNCAO_LEITURA)
+    assert isinstance(e.value, MoodleIndisponivel)
+    assert "certificado" in str(e.value).lower()
+    assert "timeout" not in str(e.value).lower()
+
+    c = ClienteMoodle(
+        token=TOKEN_FALSO,
+        url="https://exemplo.invalid",
+        transporte=lambda **kw: {},
+        transporte_download=transporte,
+    )
+    with pytest.raises(CertificadoNaoVerificado):
+        c.baixar("https://exemplo.invalid/webservice/pluginfile.php/1/a.pdf")
+
+
+def test_t130_contexto_tls_carrega_o_intermediario_embutido():
+    """T130 — o PEM embutido é o intermediário da RNP, e o contexto o carrega
+    SEM desligar a verificação."""
+    import ssl
+
+    ctx = mod_cliente._contexto_tls()
+    assert ctx.verify_mode == ssl.CERT_REQUIRED
+    assert ctx.check_hostname is True
+    # Sem a flag, 3.11 e 3.12 exigem a raiz R46, que o cert.pem do macOS não
+    # traz — e a correção valia só no 3.13+, que a liga por padrão.
+    assert ctx.verify_flags & ssl.VERIFY_X509_PARTIAL_CHAIN
+    nomes = [
+        dict(par[0] for par in c["subject"]).get("commonName")
+        for c in ctx.get_ca_certs()
+    ]
+    assert "RNP ICPEdu GR46 OV TLS CA 2025" in nomes
+
+
+class _RespostaTLSFalsa:
+    headers = {"Content-Type": "application/json"}
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def read(self, n=-1):
+        return b"{}"
+
+
+@pytest.mark.parametrize("porta", ["funcoes", "download"])
+def test_t131_os_dois_transportes_reais_enviam_o_contexto(monkeypatch, porta):
+    """T131 — asserta o parâmetro ENVIADO ao `urlopen` (regra 11 do CLAUDE.md):
+    um contexto montado e nunca passado passaria em T130 e falharia na USP."""
+    enviados = {}
+
+    def urlopen_falso(requisicao, timeout=None, context=None):
+        enviados["context"] = context
+        return _RespostaTLSFalsa()
+
+    monkeypatch.setattr(mod_cliente.urllib.request, "urlopen", urlopen_falso)
+    if porta == "funcoes":
+        mod_cliente._transporte_padrao(url="https://exemplo.invalid", dados={})
+    else:
+        mod_cliente._transporte_download_padrao(
+            url="https://exemplo.invalid", dados={}, teto_bytes=10
+        )
+    assert enviados["context"] is mod_cliente._contexto_tls()

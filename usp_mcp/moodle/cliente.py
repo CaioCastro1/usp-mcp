@@ -16,13 +16,18 @@ em tempo de execução que alguém pode esquecer de manter.
 """
 from __future__ import annotations
 
+import functools
 import http.client
+import importlib.resources
 import json
+import ssl
+import urllib.error
 import urllib.parse
 import urllib.request
 
 from . import politica
 from .erros import (
+    CertificadoNaoVerificado,
     ErroMoodle,
     FuncaoBloqueada,
     MoodleIndisponivel,
@@ -98,6 +103,55 @@ class _TokenOculto:
         return "***"
 
 
+@functools.lru_cache(maxsize=1)
+def _contexto_tls() -> ssl.SSLContext:
+    """Raízes do sistema + o intermediário que o e-Disciplinas deixa de mandar.
+
+    Desde o certificado de 26/10/2026 o servidor envia a folha assinada por
+    "RNP ICPEdu GR46 OV TLS CA 2025" junto com um intermediário que não tem
+    nada a ver com ela (GlobalSign RSA OV SSL CA 2018). Navegador e curl do
+    macOS completam a cadeia pela URL de AIA; o OpenSSL do Python não faz isso
+    e recusa com CERTIFICATE_VERIFY_FAILED (§9, 04/11/2026).
+
+    A verificação continua inteira — hostname, validade e assinatura. O PEM
+    só ACRESCENTA o elo que falta; não substitui as raízes do sistema e não
+    desliga nada. Quando a USP corrigir a cadeia, este arquivo vira redundante
+    e inofensivo; ele vence em 19/11/2030.
+
+    `VERIFY_X509_PARTIAL_CHAIN` deixa o intermediário embutido ser o ponto de
+    confiança, sem exigir que a raiz dele (GlobalSign Root R46) esteja no
+    repositório da máquina. Sem a flag, só o Python 3.13+ funcionava — ele a
+    liga por padrão; no 3.11 e no 3.12 o `/etc/ssl/cert.pem` do macOS não traz
+    a R46 e a cadeia parava em "unable to get issuer certificate" (§9,
+    04/11/2026). A flag não afrouxa nada para os outros sites: as raízes do
+    sistema já são pontos de confiança, e a única âncora nova é o PEM acima.
+    """
+    ctx = ssl.create_default_context()
+    pem = importlib.resources.files(__package__).joinpath("cadeia_extra.pem")
+    # `cadata` exige ASCII: por isso o cabeçalho do PEM não tem acento.
+    ctx.load_verify_locations(cadata=pem.read_text(encoding="ascii"))
+    ctx.verify_flags |= ssl.VERIFY_X509_PARTIAL_CHAIN
+    return ctx
+
+
+def _e_falha_de_certificado(exc: BaseException) -> bool:
+    """`urlopen` embrulha o erro de TLS em `URLError.reason`; o transporte
+    injetado pode levantá-lo cru. Os dois caminhos contam."""
+    if isinstance(exc, ssl.SSLCertVerificationError):
+        return True
+    return isinstance(exc, urllib.error.URLError) and isinstance(
+        exc.reason, ssl.SSLCertVerificationError
+    )
+
+
+_MENSAGEM_CERTIFICADO = (
+    "o e-Disciplinas respondeu, mas o certificado HTTPS dele não pôde ser "
+    "verificado (a cadeia que o servidor manda está incompleta ou mudou). Não é "
+    "o seu token e não adianta repetir: atualize o usp-mcp e, se persistir, "
+    "abra uma issue em https://github.com/CaioCastro1/usp-mcp/issues."
+)
+
+
 def _transporte_padrao(*, url: str, dados: dict) -> dict:
     """Transporte HTTP real, só stdlib (sem dependência nova).
 
@@ -109,7 +163,9 @@ def _transporte_padrao(*, url: str, dados: dict) -> dict:
     """
     corpo = urllib.parse.urlencode(dados).encode("utf-8")
     requisicao = urllib.request.Request(url, data=corpo, method="POST")
-    with urllib.request.urlopen(requisicao, timeout=_TIMEOUT_PADRAO_SEGUNDOS) as resp:
+    with urllib.request.urlopen(
+        requisicao, timeout=_TIMEOUT_PADRAO_SEGUNDOS, context=_contexto_tls()
+    ) as resp:
         bruto = resp.read()
     return json.loads(bruto)
 
@@ -178,7 +234,9 @@ def _transporte_download_padrao(*, url: str, dados: dict, teto_bytes: int):
     """
     corpo = urllib.parse.urlencode(dados).encode("utf-8")
     requisicao = urllib.request.Request(url, data=corpo, method="POST")
-    with urllib.request.urlopen(requisicao, timeout=_TIMEOUT_DOWNLOAD_SEGUNDOS) as resp:
+    with urllib.request.urlopen(
+        requisicao, timeout=_TIMEOUT_DOWNLOAD_SEGUNDOS, context=_contexto_tls()
+    ) as resp:
         return resp.headers.get("Content-Type", ""), resp.read(teto_bytes + 1)
 
 
@@ -300,6 +358,10 @@ class ClienteMoodle:
                 "(provável página de manutenção ou erro HTML com HTTP 200)."
             ) from exc
         except _FALHAS_DE_TRANSPORTE as exc:
+            if _e_falha_de_certificado(exc):
+                raise CertificadoNaoVerificado(
+                    f"{funcao}: {_MENSAGEM_CERTIFICADO}"
+                ) from exc
             # TimeoutError é subclasse de OSError, assim como ConnectionError e
             # urllib.error.URLError — cobre timeout e recusa de conexão. A
             # segunda família é a que não é OSError: resposta truncada e status
@@ -347,6 +409,10 @@ class ClienteMoodle:
                 teto_bytes=teto_bytes,
             )
         except _FALHAS_DE_TRANSPORTE as exc:
+            if _e_falha_de_certificado(exc):
+                raise CertificadoNaoVerificado(
+                    f"Download: {_MENSAGEM_CERTIFICADO}"
+                ) from exc
             raise MoodleIndisponivel(
                 "O e-Disciplinas não respondeu ao download ou ele veio "
                 "interrompido (timeout, conexão recusada ou truncada). Tente de "
