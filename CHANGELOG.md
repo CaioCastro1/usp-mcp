@@ -12,7 +12,12 @@ As versões seguem `MAIOR.MENOR.CORREÇÃO`. O que a versão promete está escri
 pública, e mudá-los é quebra. O texto das respostas fica de fora dessa promessa,
 porque quem o lê é um modelo e travá-lo congelaria a parte que melhora com uso.
 
-## Não lançado
+## 1.2.0 — 05/11/2026
+
+Uma ferramenta nova, um parâmetro novo, um comando novo e o conserto do
+e-Disciplinas, que desde 26/10 não respondia a ninguém. Nada do que existia
+mudou de nome ou de formato. Para receber: `git pull` no clone e reiniciar o
+assistente.
 
 ### Novidades
 
@@ -31,6 +36,20 @@ porque quem o lê é um modelo e travá-lo congelaria a parte que melhora com us
   e seguem com a lista inteira na linha delas. Em bytes o corte é maior, 12%, mas
   o que conta é o token. A resposta de um dia não mudou.
 
+- **O texto da página da disciplina, sob demanda.** Professores escrevem
+  critério de avaliação, regras e avisos no texto das seções da página, e a
+  ferramenta `material` não mostrava esse texto nem dizia que ele existia. Agora
+  o rodapé nomeia as seções que têm texto, e o parâmetro novo `texto` (o nome
+  de uma seção, ou `tudo`) devolve a prosa no lugar da lista de arquivos. O
+  texto nunca vem junto da lista: isso custaria de 150% a 220% a mais em toda
+  chamada.
+
+- **Respostas mais curtas no e-Disciplinas.** A lista de `material` encolheu
+  11% e a de `disciplinas`, 50%, sem perder informação: saiu o que o nome do
+  item já dizia (`Lista 1.pdf [PDF]`), e o tamanho do arquivo só aparece acima
+  de 10 MB, onde ele decide alguma coisa. A explicação de como nomear uma
+  disciplina deixou de viajar repetida dentro de seis ferramentas.
+
 - **Obter a chave do e-Disciplinas não precisa mais de bash.** O programa que
   obtém a chave foi reescrito em Python, e o pacote passa a instalar o comando
   `usp-mcp-token` ao lado dos três servidores. No Windows ele vira
@@ -44,14 +63,12 @@ porque quem o lê é um modelo e travá-lo congelaria a parte que melhora com us
 ### Correções
 
 - **O e-Disciplinas voltou a responder.** Desde 26/10/2026 o servidor da USP
-  manda um certificado com a cadeia incompleta. O navegador completa sozinho;
-  o Python não, e toda ferramenta do Moodle falhava. O projeto agora traz o
+  manda um certificado com a cadeia incompleta. O navegador completa sozinho; o
+  Python não, e toda ferramenta do Moodle falhava. O projeto agora traz o
   certificado intermediário que falta, e a verificação de segurança continua
-  ligada. Vale para Python 3.11 a 3.14; no 3.11 e no 3.12 a primeira tentativa
-  de correção não bastava, e esta basta. Para receber: `git pull` no clone e
-  reiniciar o assistente. Até aqui o erro aparecia como "não respondeu… timeout", o que
-  mandava a pessoa esperar à toa. Se um problema de certificado voltar, a
-  mensagem passa a dizer que é certificado.
+  ligada. Vale para Python 3.11 a 3.14. Até aqui o erro aparecia como "não
+  respondeu… timeout", o que mandava a pessoa esperar à toa; se um problema de
+  certificado voltar, a mensagem passa a dizer que é certificado.
 
 ### Ainda não verificado contra dado real
 

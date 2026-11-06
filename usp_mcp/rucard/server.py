@@ -418,7 +418,7 @@ def main() -> None:  # pragma: no cover — casca stdio
     from usp_mcp.adaptador import anotar
 
     descritor = listar_ferramentas()[0]
-    servidor = MCPServer(name="usp-mcp-rucard", version="1.1.0")
+    servidor = MCPServer(name="usp-mcp-rucard", version="1.2.0")
 
     def _bandejao(dia="hoje", refeicao="todas", restaurantes=None) -> str:
         # Assinatura explícita em vez de **kwargs: o SDK deriva daqui o schema
