@@ -568,8 +568,9 @@ abra o assistente e o e-Disciplinas passa a responder. Você não precisa abrir 
 arquivo, mas se um dia abrir, é essa a linha.
 
 Ela vence com o tempo e pode ser cancelada em `edisciplinas.usp.br`, em gerenciar tokens.
-Se um dia o e-Disciplinas parar de responder, rode `~/usp-mcp/scripts/token.sh` de novo,
-ou, no Windows, o comando do PowerShell acima.
+Se um dia o e-Disciplinas recusar a chave, rode `~/usp-mcp/scripts/token.sh` de novo, ou,
+no Windows, o comando do PowerShell acima. Se ele parar de responder com a chave em dia,
+o caminho costuma ser atualizar o projeto: veja *Atualizando*, logo abaixo.
 
 ## Usando
 
@@ -587,6 +588,32 @@ responder.
 
 Se você pedir algo que ele não sabe, a resposta diz o que faltou em vez de inventar. Vale
 ler a seção *O que o projeto não responde* antes de concluir que quebrou.
+
+## Atualizando
+
+O projeto não se atualiza sozinho, e nada no seu computador avisa quando sai uma versão
+nova. Para ficar sabendo, abra a página do projeto no GitHub e marque **Watch → Custom →
+Releases**: chega um e-mail a cada versão, e só isso. O que mudou em cada uma está no
+[CHANGELOG](CHANGELOG.md).
+
+Atualizar é um comando. No Mac e no Linux:
+
+```bash
+git -C ~/usp-mcp pull
+```
+
+No Windows, no PowerShell:
+
+```powershell
+git -C $HOME\usp-mcp pull
+```
+
+Depois, feche e abra o assistente. O servidor que já estava rodando carregou a versão
+antiga e continua com ela até reiniciar.
+
+Não precisa reinstalar: a instalação aponta para a pasta, e o código novo vale assim que
+o assistente reinicia. Reinstalar só acerta o número de versão que o projeto informa ao
+se identificar para os sistemas da USP.
 
 ## Como funciona
 
