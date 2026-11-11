@@ -219,6 +219,26 @@ Mensagem de commit: `feat|fix|chore|docs|test(escopo): descrição`.
 **A regra de ouro do faseado:** a `main` só aparece **uma vez**, no PR final.
 Nunca force-push na `main`.
 
+### O que não abre PR aqui
+
+Este repositório é público: tudo que entra num PR, mesmo em draft, e mesmo depois
+de fechado, fica legível por URL e por fork. Por isso o PR chega **com a decisão
+já tomada**, e não para pensar em voz alta.
+
+- **Hipótese, spec em rascunho e handoff com contexto pessoal** (caminhos locais,
+  contas de serviço, nomes de repositório privado, o que o empregador bloqueia)
+  moram no repositório privado de laboratório, `polos-e-zeros/lab`. O que
+  amadurecer entra aqui num PR pequeno.
+- **Trabalho que pertence a outro projeto** (o acervo de questões, por exemplo)
+  vai para o repositório daquele projeto, e não para cá só por ter nascido numa
+  conversa sobre o `usp-mcp`.
+- **`.claude/launch.json` e afins** trazem o caminho absoluto da máquina. Antes
+  do `git add`, confira que o arquivo não tem `/Users/<nome>`.
+- Se um rascunho foi parar aqui, feche o PR **e apague a branch**; fechar sozinho
+  não tira o diff do ar.
+
+Esta regra nasceu do PR 121, fechado em 11/11/2026.
+
 ## 6. Verificação honesta
 
 **Nunca afrouxe uma verificação para passar** — se o gate falha, o problema é o
