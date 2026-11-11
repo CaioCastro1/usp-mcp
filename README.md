@@ -1,9 +1,10 @@
-# usp-mcp
+# usp-mcp — servidor MCP para a USP: bandejão, e-Disciplinas e JupiterWeb
 
 Feito por Caio Castro & João Pedro Gunthen
 
-Consulta em português a sistemas acadêmicos da USP: o cardápio dos bandejões, os prazos e
-o material do e-Disciplinas, e o catálogo de disciplinas do JupiterWeb.
+Servidor MCP (Model Context Protocol) que deixa o Claude e outros assistentes de IA
+responderem, em português, sobre a USP: o cardápio dos bandejões (RUCard), os prazos e o
+material do e-Disciplinas (Moodle), e o catálogo de disciplinas do JupiterWeb.
 
 Ele não tem interface própria. Você o conecta a um assistente e passa a poder perguntar em
 linguagem comum. A resposta vem dos sistemas da USP, no momento da pergunta.
